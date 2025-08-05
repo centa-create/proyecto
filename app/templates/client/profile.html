@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}Perfil | Tienda Virtual{% endblock %}
+{% block head %}
+<style>
+    .profile-container {
+        max-width: 480px;
+        margin: 40px auto;
+        background: #181818;
+        border-radius: 18px;
+        box-shadow: 0 8px 32px 0 #000a;
+        padding: 2.5rem 2rem 2rem 2rem;
+        border: 2px solid #fff200;
+    }
+    .profile-title {
+        font-weight: 900;
+        color: #fff200;
+        margin-bottom: 2rem;
+        text-align: left;
+        font-size: 2.1rem;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 12px #000a;
+    }
+    .form-label {
+        color: #fff;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+    .form-control {
+        border-radius: 8px;
+        border: 2px solid #fff200;
+        font-size: 1rem;
+        padding: 0.7rem 1rem;
+        background: #222;
+        color: #fff;
+    }
+    .form-control:focus {
+        border-color: #fff200;
+        background: #181818;
+        color: #fff;
+        box-shadow: 0 0 8px #fff20055;
+    }
+    .btn-primary {
+        background: #fff200;
+        color: #111;
+        border: none;
+        font-weight: 800;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        padding: 0.7rem 0;
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px #0005;
+    }
+    .btn-primary:hover {
+        background: #fff;
+        color: #111;
+        box-shadow: 0 0 16px #fff20099;
+    }
+    .profile-pic {
+        width: 130px;
+        height: 130px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #fff200;
+        margin: 0 auto 1.2rem auto;
+        display: block;
+        background: #222;
+        box-shadow: 0 2px 12px #0008;
+    }
+    .profile-pic-upload {
+        margin-top: -1.2rem;
+        margin-bottom: 1.2rem;
+    }
+    .btn-outline-secondary {
+        border-radius: 8px;
+        font-weight: 700;
+        border: 2px solid #fff200;
+        color: #fff200;
+        background: #181818;
+        transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+    }
+    .btn-outline-secondary:hover {
+        background: #fff200;
+        color: #111;
+        box-shadow: 0 0 12px #fff20099;
+    }
+    .profile-form-section {
+        background: #222;
+        border-radius: 12px;
+        padding: 1.5rem 1rem 1rem 1rem;
+        margin-bottom: 1.5rem;
+        border: 1.5px solid #fff200;
+    }
+</style>
+{% endblock %}
+{% block content %}
+{# Solución temporal: oculta cualquier variable extraña que llegue al contexto #}
+{% if token is defined %}
+  {# No mostrar el token en la interfaz #}
+{% endif %}
+<div class="profile-container">
+    <h2 class="profile-title">Editar Perfil</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="mb-3 text-center">
+        <img src="{{ url_for('static', filename='profile_pics/' + (current_user.profile_pic if current_user.profile_pic else 'default.png')) }}" class="profile-pic" alt="Foto de perfil">
+        <div class="profile-pic-upload">
+          <label for="profile_pic" class="form-label">Cambiar foto de perfil</label>
+          <input type="file" class="form-control" id="profile_pic" name="profile_pic" accept="image/*">
+        </div>
+      </div>
+      <div class="profile-form-section">
+        <div class="mb-3">
+          <label for="nameUser" class="form-label">Nombre completo</label>
+          <input type="text" class="form-control" id="nameUser" name="nameUser" value="{{ current_user.nameUser }}">
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Correo electrónico</label>
+          <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}">
+        </div>
+        <div class="mb-3">
+          <label for="passwordUser" class="form-label">Nueva contraseña</label>
+          <input type="password" class="form-control" id="passwordUser" name="passwordUser" placeholder="Dejar en blanco para no cambiar">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Guardar cambios</button>
+    </form>
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('client.dashboard') }}" class="btn btn-outline-secondary">Volver al dashboard</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from app import db
+from app.models.users import Users, UserRole
+from flask_mail import Message
+from werkzeug.security import generate_password_hash
+from datetime import datetime, date
+import re, secrets
+from email_validator import validate_email, EmailNotValidError
+import bcrypt
+
+bp = Blueprint('users', __name__)
+
+
+from app import mail
+
+
+@bp.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        nameUser = request.form.get('nameUser', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('passwordUser', '')
+        confirm_password = request.form.get('confirm_password', '')
+        birthdate_str = request.form.get('birthdate', '')
+        terms = request.form.get('terms')
+
+        # Validaciones
+        if not all([nameUser, email, password, confirm_password, birthdate_str, terms]):
+            flash('Todos los campos son obligatorios.', 'danger')
+            return render_template('register.html')
+        try:
+            valid = validate_email(email)
+            email = valid.email
+        except EmailNotValidError:
+            flash('Correo electrónico no válido.', 'danger')
+            return render_template('register.html')
+        if Users.query.filter_by(email=email).first():
+            flash('El correo ya está registrado.', 'danger')
+            return render_template('register.html')
+        if len(password) < 8 or not re.search(r'[A-Z]', password) or not re.search(r'[a-z]', password) or not re.search(r'\d', password):
+            flash('La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.', 'danger')
+            return render_template('register.html')
+        if password != confirm_password:
+            flash('Las contraseñas no coinciden.', 'danger')
+            return render_template('register.html')
+        try:
+            birthdate = datetime.strptime(birthdate_str, '%Y-%m-%d').date()
+        except ValueError:
+            flash('Fecha de nacimiento inválida.', 'danger')
+            return render_template('register.html')
+        today = date.today()
+        age = today.year - birthdate.year - ((today.month, today.day) < (birthdate.month, birthdate.day))
+        if age < 18:
+            flash('Debes ser mayor de 18 años.', 'danger')
+            return render_template('register.html')
+        if not terms:
+            flash('Debes aceptar los términos y condiciones.', 'danger')
+            return render_template('register.html')
+        # Hash de contraseña
+        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        # Token de verificación
+        token = secrets.token_urlsafe(32)
+        # Si es el primer usuario, será admin; si no, user normal
+        if Users.query.count() == 0:
+            rol = UserRole.ADMIN
+        else:
+            rol = UserRole.USER
+        user = Users(
+            nameUser=nameUser,
+            email=email,
+            passwordUser=hashed,
+            birthdate=birthdate,
+            is_active_db=False,
+            verification_token=token,
+            accepted_terms=True,
+            role=rol
+        )
+        db.session.add(user)
+        db.session.commit()
+        
+        return render_template('register_success.html')
+    return render_template('register.html')
+
+@bp.route('/verify/<token>')
+def verify(token):
+    user = Users.query.filter_by(verification_token=token).first()
+    if not user or user.is_active_db:
+        return render_template('verify_error.html')
+    user.is_active_db = True
+    user.verification_token = None
+    db.session.commit()
+    return render_template('verify_success.html')

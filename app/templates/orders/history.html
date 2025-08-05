@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Historial de Pedidos | Tienda Virtual{% endblock %}
+{% block head %}
+<style>
+    .orders-history-container {
+        max-width: 950px;
+        margin: 40px auto;
+        background: #181818;
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 32px 0 #000a;
+        padding: 2.5rem 2rem 2rem 2rem;
+        border: 2px solid #fff200;
+    }
+    .orders-history-title {
+        font-weight: 900;
+        color: #fff200;
+        margin-bottom: 1.5rem;
+        text-align: left;
+        font-size: 2.1rem;
+        letter-spacing: 0.04em;
+        text-shadow: 0 2px 12px #000a;
+    }
+    .table {
+        border-radius: 1rem;
+        overflow: hidden;
+        background: #222;
+        box-shadow: 0 2px 8px #0008;
+        color: #fff;
+    }
+    .table th, .table td {
+        vertical-align: middle;
+        font-size: 1.05rem;
+        color: #fff;
+        border-color: #fff20044;
+    }
+    .table thead {
+        background: #181818;
+        color: #fff200;
+    }
+    .btn-outline-primary {
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 1rem;
+        padding: 0.4rem 1.1rem;
+        border: 2px solid #fff200;
+        color: #fff200;
+        background: #181818;
+        transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+    }
+    .btn-outline-primary:hover {
+        background: #fff200;
+        color: #111;
+        box-shadow: 0 0 12px #fff20099;
+    }
+    @media (max-width: 768px) {
+        .orders-history-container {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="orders-history-container">
+    <div class="orders-history-title">Historial de Compras</div>
+    {% if orders %}
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>${{ '%.2f'|format(order.total) }}</td>
+            <td>{{ order.status }}</td>
+            <td><a href="{{ url_for('orders.detail', order_id=order.id) }}" class="btn btn-outline-primary btn-sm">Ver detalle</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="alert alert-info text-center">No tienes compras registradas.</div>
+    {% endif %}
+</div>
+{% endblock %}

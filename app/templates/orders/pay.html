@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Pagar Pedido | Tienda Virtual{% endblock %}
+{% block content %}
+<h2 class="mb-4 text-center">Pagar Pedido #{{ order.id }}</h2>
+<div class="mb-3 text-center">
+  <span class="fs-5"><b>Total a pagar:</b> ${{ '%.2f'|format(order.total) }}</span>
+</div>
+<form method="post" class="mb-3 text-center">
+  {{ csrf_token() }}
+  <!-- Aquí puedes integrar el widget de Stripe, PayPal, MercadoPago, etc. -->
+  <button class="btn btn-success">Pagar ahora (simulado)</button>
+</form>
+<div class="text-center">
+  <a href="{{ url_for('orders.detail', order_id=order.id) }}" class="btn btn-outline-secondary">Cancelar</a>
+</div>
+{% endblock %}

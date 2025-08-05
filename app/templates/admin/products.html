@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Administrar Productos</h2>
+  <a href="{{ url_for('admin.add_product') }}" class="btn btn-success mb-3">Agregar producto</a>
+  <table class="table table-bordered table-dark table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Categoría</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th>Promoción</th>
+        <th>Descuento</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+      <tr>
+        <td>{{ product.id }}</td>
+        <td>{{ product.name }}</td>
+        <td>{{ product.category.name }}</td>
+        <td>${{ '%.2f'|format(product.price) }}</td>
+        <td>{{ product.stock }}</td>
+        <td>{{ product.promo or '-' }}</td>
+        <td>
+          {% if product.discount %}
+            <span class="badge bg-warning text-dark">{{ product.discount }}%</span>
+          {% else %}-{% endif %}
+        </td>
+        <td>
+          <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-primary btn-sm">Editar</a>
+          <a href="{{ url_for('admin.delete_product', product_id=product.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este producto?');">Eliminar</a>
+          <a href="{{ url_for('admin.add_promo', product_id=product.id) }}" class="btn btn-warning btn-sm">Promoción</a>
+          <a href="{{ url_for('admin.add_discount', product_id=product.id) }}" class="btn btn-info btn-sm">Descuento</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

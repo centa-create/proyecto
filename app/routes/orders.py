@@ -1,0 +1,58 @@
+from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask_login import login_required, current_user
+from app import db
+from app.models.orders import Order, OrderDetail
+from app.models.cart import Cart, CartItem
+from app.models.products import Product
+
+orders_bp = Blueprint('orders', __name__, url_prefix='/orders')
+
+@orders_bp.route('/checkout', methods=['POST'])
+@login_required
+def checkout():
+    cart = Cart.query.filter_by(user_id=current_user.idUser).first()
+    if not cart or not cart.items:
+        flash('Tu carrito está vacío.', 'danger')
+        return redirect(url_for('cart.view_cart'))
+    total = sum(item.quantity * item.product.price for item in cart.items)
+    order = Order(user_id=current_user.idUser, total=total, status='pendiente')
+    db.session.add(order)
+    db.session.commit()
+    for item in cart.items:
+        detail = OrderDetail(order_id=order.id, product_id=item.product_id, quantity=item.quantity, price=item.product.price)
+        db.session.add(detail)
+        db.session.delete(item)
+    db.session.commit()
+    flash('Pedido realizado correctamente. (Simulación, falta pago real)', 'success')
+    return redirect(url_for('orders.history'))
+
+@orders_bp.route('/history')
+@login_required
+def history():
+    orders = Order.query.filter_by(user_id=current_user.idUser).order_by(Order.created_at.desc()).all()
+    return render_template('orders/history.html', orders=orders)
+
+@orders_bp.route('/detail/<int:order_id>')
+@login_required
+def detail(order_id):
+    order = Order.query.get_or_404(order_id)
+    if order.user_id != current_user.idUser:
+        flash('No tienes acceso a este pedido.', 'danger')
+        return redirect(url_for('orders.history'))
+    return render_template('orders/detail.html', order=order)
+
+@orders_bp.route('/pay/<int:order_id>', methods=['GET', 'POST'])
+@login_required
+def pay(order_id):
+    order = Order.query.get_or_404(order_id)
+    if order.user_id != current_user.idUser:
+        flash('No tienes acceso a este pedido.', 'danger')
+        return redirect(url_for('orders.history'))
+    if request.method == 'POST':
+        # Aquí iría la integración real con Stripe, PayPal, MercadoPago, etc.
+        # Por ejemplo, redirigir a la URL de pago o procesar el token de pago.
+        order.status = 'pagado'
+        db.session.commit()
+        flash('Pago simulado exitoso. (Integra aquí tu pasarela real)', 'success')
+        return redirect(url_for('orders.detail', order_id=order.id))
+    return render_template('orders/pay.html', order=order)

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Editar Producto</h2>
+  <form method="post">
+    {{ csrf_token() }}
+    <div class="mb-3">
+      <label>Nombre</label>
+      <input type="text" name="name" class="form-control" value="{{ product.name }}" required>
+    </div>
+    <div class="mb-3">
+      <label>Descripción</label>
+      <textarea name="description" class="form-control">{{ product.description }}</textarea>
+    </div>
+    <div class="mb-3">
+      <label>Precio</label>
+      <input type="number" name="price" class="form-control" step="0.01" value="{{ product.price }}" required>
+    </div>
+    <div class="mb-3">
+      <label>Stock</label>
+      <input type="number" name="stock" class="form-control" min="0" value="{{ product.stock }}">
+    </div>
+    <div class="mb-3">
+      <label>Imagen (nombre de archivo)</label>
+      <input type="text" name="image" class="form-control" value="{{ product.image }}">
+    </div>
+    <div class="mb-3">
+      <label>Talla</label>
+      <input type="text" name="size" class="form-control" value="{{ product.size }}">
+    </div>
+    <div class="mb-3">
+      <label>Color</label>
+      <input type="text" name="color" class="form-control" value="{{ product.color }}">
+    </div>
+    <div class="mb-3">
+      <label>Categoría</label>
+      <select name="category_id" class="form-control" required>
+        {% for cat in categories %}
+        <option value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn btn-primary">Guardar</button>
+    <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

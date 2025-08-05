@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
+        .fade-in {
+            animation: fadeIn 1.2s cubic-bezier(.4,2,.3,1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: none; }
+        }
+        .pulse-neon {
+            animation: pulse-neon 1.5s infinite;
+        }
+        @keyframes pulse-neon {
+            0% { box-shadow: 0 0 32px 8px #fff200cc, 0 4px 32px #000a; }
+            50% { box-shadow: 0 0 48px 16px #fff200ee, 0 4px 32px #000a; }
+            100% { box-shadow: 0 0 32px 8px #fff200cc, 0 4px 32px #000a; }
+        }
+        .neon-loader {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+        }
+        .neon-spinner {
+            width: 40px;
+            height: 40px;
+            border: 5px solid #fff20044;
+            border-top: 5px solid #fff200;
+            border-radius: 50%;
+            animation: spin-neon 1s linear infinite;
+            box-shadow: 0 0 16px #fff20099;
+        }
+        @keyframes spin-neon {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        body {
+            background: linear-gradient(120deg, #111 0%, #222 100%), url('https://www.transparenttextures.com/patterns/asfalt-light.png');
+            min-height: 100vh;
+            color: #f5f5f5;
+            font-family: 'Montserrat', Arial, sans-serif;
+            background-blend-mode: overlay;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 60px auto;
+            background: #181818cc;
+            border-radius: 1.2rem;
+            box-shadow: 0 8px 32px 0 #000a;
+            padding: 2.5rem 2rem 2rem 2rem;
+        }
+        .login-title {
+            font-weight: 900;
+            color: #fff200;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-shadow: 2px 2px 8px #000a;
+        }
+        .form-label {
+            color: #fff;
+            font-weight: 700;
+        }
+        .form-control {
+            background: #222;
+            color: #fff;
+            border: 1.5px solid #fff2;
+            border-radius: 0.7rem;
+        }
+        .form-control:focus {
+            background: #181818;
+            color: #fff;
+            border-color: #fff200;
+            box-shadow: 0 0 8px #fff20055;
+        }
+        .btn-primary {
+            background: #fff200;
+            color: #111;
+            font-weight: 800;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px #0005;
+            border: none;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s cubic-bezier(.4,2,.3,1);
+        }
+        .btn-primary:hover {
+            background: #fff;
+            color: #111;
+            box-shadow: 0 0 16px #fff20099;
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container fade-in">
+    <div class="text-center mb-3">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" height="64" style="filter: drop-shadow(0 0 16px #fff200);border-radius:50%;background:#fff;object-fit:cover;" class="mb-2">
+        <span style="font-size:2.2em;color:#fff200;text-shadow:0 0 12px #fff200;">👋</span>
+        <h2 class="login-title">¡Bienvenido!</h2>
+        <div style="color:#fff;opacity:0.85;font-size:1.1em;">Accede a tu cuenta para comenzar a comprar.</div>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{% if category=='success' %}✔️{% elif category=='danger' %}⚠️{% endif %} {{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form method="POST" action="{{ url_for('auth.login') }}" onsubmit="showLoader(event)">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-3 position-relative">
+            <label for="email" class="form-label">Correo electrónico</label>
+            <span style="position:absolute;left:10px;top:38px;font-size:1.2em;color:#fff200;">👤</span>
+            <input type="email" class="form-control" id="email" name="email" required autofocus style="padding-left:2em;" title="Introduce tu correo electrónico">
+        </div>
+        <div class="mb-3 position-relative">
+            <label for="passwordUser" class="form-label">Contraseña</label>
+            <span style="position:absolute;left:10px;top:38px;font-size:1.2em;color:#fff200;">🔒</span>
+            <input type="password" class="form-control" id="passwordUser" name="passwordUser" required style="padding-left:2em;" title="Introduce tu contraseña segura">
+            <span id="eyeIcon" onclick="togglePassword()" style="position:absolute;right:10px;top:38px;cursor:pointer;font-size:1.2em;color:#fff;transition:transform 0.3s;" title="Mostrar/ocultar contraseña">👁️</span>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 pulse-neon" title="Iniciar sesión">Iniciar sesión</button>
+        <div class="text-end mt-2">
+            <a href="#" style="color:#fff200;text-decoration:underline;" title="Recupera tu contraseña">¿Olvidaste tu contraseña?</a>
+        </div>
+    </form>
+    <div class="neon-loader" id="loader">
+        <div class="neon-spinner"></div>
+        <div style="color:#fff200;margin-top:0.5em;">Procesando...</div>
+    </div>
+    <div class="register-link">
+        ¿No tienes cuenta? <a href="{{ url_for('users.register') }}" style="color:#fff200;text-decoration:underline;">Regístrate aquí</a>
+    </div>
+</div>
+<script>
+function togglePassword() {
+  var input = document.getElementById('passwordUser');
+  var icon = document.getElementById('eyeIcon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.textContent = '👁️‍🗨️';
+    icon.style.transform = 'rotate(-20deg) scale(1.2)';
+  } else {
+    input.type = 'password';
+    icon.textContent = '👁️';
+    icon.style.transform = 'rotate(0deg) scale(1)';
+  }
+}
+function showLoader(e) {
+  document.getElementById('loader').style.display = 'flex';
+}
+</script>
+</body>
+</html>

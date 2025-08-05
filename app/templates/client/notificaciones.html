@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Notificaciones | Tienda Virtual{% endblock %}
+{% block head %}
+<style>
+    .notif-container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 16px; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2); padding: 2.5rem 2rem 2rem 2rem; }
+    .notif-title { font-weight: 700; color: #2980b9; margin-bottom: 1.5rem; text-align: center; }
+    .notif-list { list-style: none; padding: 0; }
+    .notif-list li { background: #f1f8ff; border-radius: 8px; margin-bottom: 0.7rem; padding: 1rem; box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.05); display: flex; align-items: center; justify-content: space-between; }
+    .notif-leida { opacity: 0.5; text-decoration: line-through; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="notif-container">
+    <h2 class="notif-title">Tus Notificaciones</h2>
+    <ul class="notif-list">
+        {% for n in notifs %}
+        <li class="{% if n.leida %}notif-leida{% endif %}">
+            <span>{{ n.mensaje }} <small class="text-muted">({{ n.fecha }})</small></span>
+            <span>
+                {% if not n.leida %}
+                <button class="btn btn-sm btn-success" onclick="marcarLeida({{ n.id }})">Marcar como leída</button>
+                {% endif %}
+                <button class="btn btn-sm btn-danger" onclick="eliminarNotif({{ n.id }})">Eliminar</button>
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('client.dashboard') }}" class="btn btn-outline-secondary">Volver al dashboard</a>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function marcarLeida(id) {
+    fetch(`/notificaciones/marcar_leida/${id}`, {method:'POST'}).then(()=>location.reload());
+}
+function eliminarNotif(id) {
+    fetch(`/notificaciones/eliminar/${id}`, {method:'POST'}).then(()=>location.reload());
+}
+</script>
+{% endblock %}

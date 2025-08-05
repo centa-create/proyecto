@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Carrito | Tienda Virtual{% endblock %}
+{% block head %}
+<style>
+    .cart-container {
+        max-width: 950px;
+        margin: 40px auto;
+        background: #181818;
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 32px 0 #000a;
+        padding: 2.5rem 2rem 2rem 2rem;
+        border: 2px solid #fff200;
+    }
+    .cart-title {
+        font-weight: 900;
+        color: #fff200;
+        margin-bottom: 1.5rem;
+        text-align: left;
+        font-size: 2.1rem;
+        letter-spacing: 0.04em;
+        text-shadow: 0 2px 12px #000a;
+    }
+    .table {
+        border-radius: 1rem;
+        overflow: hidden;
+        background: #222;
+        box-shadow: 0 2px 8px #0008;
+        color: #fff;
+    }
+    .table th, .table td {
+        vertical-align: middle;
+        font-size: 1.05rem;
+        color: #fff;
+        border-color: #fff20044;
+    }
+    .table thead {
+        background: #181818;
+        color: #fff200;
+    }
+    .btn-outline-primary, .btn-danger, .btn-success {
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 1rem;
+        padding: 0.4rem 1.1rem;
+    }
+    .cart-total {
+        text-align: right;
+        margin-top: 2rem;
+        font-size: 1.3rem;
+        font-weight: 900;
+        color: #fff200;
+        letter-spacing: 0.04em;
+        text-shadow: 0 2px 12px #000a;
+    }
+    @media (max-width: 768px) {
+        .cart-container {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="cart-container">
+    <div class="cart-title">Mi Carrito</div>
+    {% if items %}
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set total = 0 %}
+          {% for item in items %}
+            {% set subtotal = item.quantity * item.product.price %}
+            {% set total = total + subtotal %}
+            <tr>
+              <td>{{ item.product.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>${{ '%.2f'|format(item.product.price) }}</td>
+              <td>${{ '%.2f'|format(subtotal) }}</td>
+              <td>
+                <form method="post" action="{{ url_for('cart.remove_from_cart', item_id=item.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-danger btn-sm">Eliminar</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="cart-total mb-4">
+      Total: ${{ '%.2f'|format(total) }}
+    </div>
+    <div class="text-end mb-4">
+      <button class="btn btn-success" disabled>Proceder al pago (próximamente)</button>
+    </div>
+    {% else %}
+      <div class="alert alert-info text-center">No tienes productos en el carrito.</div>
+    {% endif %}
+</div>
+{% endblock %}

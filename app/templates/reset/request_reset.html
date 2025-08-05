@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Recuperar contraseña{% endblock %}
+{% block content %}
+<div class="container mt-5" style="max-width:420px;">
+  <h2 class="mb-4">Recuperar contraseña</h2>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <form method="post">
+    <div class="mb-3">
+      <label for="email" class="form-label">Correo electrónico</label>
+      <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Enviar instrucciones</button>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-link w-100 mt-2">Volver al login</a>
+  </form>
+</div>
+{% endblock %}

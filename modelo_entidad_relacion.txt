@@ -1,0 +1,152 @@
+
+MODELO ENTIDAD-RELACIÓN (ER) - Proyecto 3Login + Gestión de Bodegas y Comercio Electrónico
+
+ENTIDADES Y ATRIBUTOS PRINCIPALES:
+
+1. Usuario (user / cliente)
+   - idUser / cliente_id (PK)
+   - nameUser / nombre
+   - email
+   - passwordUser / contraseña
+   - birthdate / fecha_registro
+   - is_active_db
+   - verification_token
+   - accepted_terms
+   - created_at
+   - profile_pic
+   - role
+   - dirección
+   - teléfono
+
+2. Administrador (admin)
+   - administrador_id (PK)
+   - nombre
+   - email
+   - contraseña
+   - rol
+
+3. Bodega
+   - bodega_id (PK)
+   - nombre
+   - dirección
+   - capacidad_max
+
+4. Bodeguero
+   - bodeguero_id (PK)
+   - nombre
+   - email
+   - teléfono
+   - bodega_id (FK → Bodega)
+
+5. Producto_Bodega
+   - producto_id (PK, FK → Producto)
+   - bodega_id (PK, FK → Bodega)
+   - cantidad_stock
+
+6. Categoría (categories / categoria)
+   - id / categoria_id (PK)
+   - name / nombre
+   - description / descripción
+   - categoria_padre_id (FK a sí misma, opcional)
+
+7. Proveedor
+   - proveedor_id (PK)
+   - nombre
+   - contacto
+   - email
+   - teléfono
+
+8. Producto (products)
+   - id / producto_id (PK)
+   - name / nombre
+   - description / descripción
+   - price / precio
+   - stock
+   - image
+   - size
+   - color
+   - category_id / categoria_id (FK → Categoría)
+   - proveedor_id (FK → Proveedor)
+   - created_at
+   - updated_at
+   - promo
+   - destacado
+
+9. Carrito (carts)
+   - id (PK)
+   - user_id (FK → user.idUser)
+
+10. ItemCarrito (cart_items)
+    - id (PK)
+    - cart_id (FK → carts.id)
+    - product_id (FK → products.id)
+    - quantity
+
+11. ListaDeseos (wishlists)
+    - id (PK)
+    - user_id (FK → user.idUser)
+    - product_id (FK → products.id)
+    - (Restricción única: user_id + product_id)
+
+12. Orden / Pedido (orders)
+    - id / pedido_id (PK)
+    - user_id / cliente_id (FK → user.idUser / cliente.cliente_id)
+    - created_at / fecha_pedido
+    - total
+    - status / estado
+
+13. DetalleOrden / DetallePedido (order_details)
+    - id / detalle_id (PK)
+    - order_id / pedido_id (FK → orders.id / pedido.pedido_id)
+    - product_id / producto_id (FK → products.id / producto.producto_id)
+    - quantity / cantidad
+    - price / precio_unitario
+
+14. Pago
+    - pago_id (PK)
+    - pedido_id (FK → Pedido)
+    - fecha_pago
+    - método
+    - monto
+    - estado
+
+15. Envío
+    - envio_id (PK)
+    - pedido_id (FK → Pedido)
+    - fecha_envío
+    - dirección_envío
+    - transportista
+    - número_seguimiento
+    - estado
+
+16. Reseña (reviews / resenia)
+    - id / reseña_id (PK)
+    - user_id / cliente_id (FK → user.idUser / cliente.cliente_id)
+    - product_id / producto_id (FK → products.id / producto.producto_id)
+    - rating / calificación
+    - comment / comentario
+    - created_at / fecha_reseña
+
+RELACIONES PRINCIPALES:
+
+- Un Usuario/Cliente puede tener muchos Carritos, Órdenes/Pedidos, Reseñas y Listas de Deseos.
+- Un Administrador gestiona Productos.
+- Un Bodeguero pertenece a una Bodega.
+- Un Producto puede estar en muchas Bodegas (Producto_Bodega) y en muchos Carritos, Listas de Deseos, Órdenes/Pedidos y tener muchas Reseñas.
+- Una Bodega puede tener muchos Bodegueros y muchos Productos (Producto_Bodega).
+- Una Categoría puede tener muchos Productos y subcategorías (relación recursiva).
+- Un Proveedor suministra muchos Productos.
+- Un Carrito pertenece a un Usuario y puede tener muchos ItemsCarrito.
+- Un ItemCarrito pertenece a un Carrito y referencia un Producto.
+- Una Orden/Pedido pertenece a un Usuario/Cliente y puede tener muchos DetalleOrden/DetallePedido.
+- Un DetalleOrden/DetallePedido pertenece a una Orden/Pedido y referencia un Producto.
+- Una ListaDeseos pertenece a un Usuario y referencia un Producto (relación única por usuario-producto).
+- Un Pago y un Envío están asociados a un Pedido.
+- Una Reseña pertenece a un Usuario/Cliente y a un Producto.
+
+NOTAS:
+- (PK) = Clave primaria
+- (FK) = Clave foránea
+- Las relaciones de muchos a muchos se resuelven con tablas intermedias como cart_items, wishlists, order_details y producto_bodega.
+- El modelo puede ser representado gráficamente con las entidades como rectángulos y las relaciones como líneas, usando los nombres de los campos FK para indicar la relación.
+- Se han integrado los nombres y atributos de ambas fuentes para mayor claridad y cobertura.

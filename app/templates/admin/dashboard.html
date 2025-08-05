@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Panel de Administración | Tienda Virtual{% endblock %}
+{% block head %}
+<style>
+    .sidebar {
+        background: #222;
+        color: #fff;
+        min-height: 100vh;
+        padding-top: 2rem;
+    }
+    .sidebar a {
+        color: #fff;
+        display: block;
+        padding: 1rem 1.5rem;
+        text-decoration: none;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+    }
+    .sidebar a.active, .sidebar a:hover {
+        background: #2980b9;
+    }
+    .main-panel {
+        padding: 2rem;
+    }
+    .admin-badge {
+        background: #2980b9;
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        display: inline-block;
+    }
+    @media (max-width: 768px) {
+        .sidebar {
+            min-height: auto;
+            padding: 1rem 0.5rem;
+        }
+        .main-panel {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-3 col-lg-2 sidebar">
+            <h4 class="mb-4">Panel de Administración</h4>
+            <a href="#" class="active">Dashboard</a>
+            <a href="#">Gestión de Usuarios</a>
+            <a href="#">Configuración</a>
+            <a href="#">Estadísticas</a>
+            <a href="#">Notificaciones</a>
+            <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+        </nav>
+        <main class="col-md-9 col-lg-10 main-panel">
+            <span class="admin-badge">Modo Administrador</span>
+            <h2>Bienvenido, {{ current_user.nameUser }}</h2>
+            <div class="row mt-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card text-bg-primary">
+                        <div class="card-body">
+                            <h5 class="card-title">Usuarios registrados</h5>
+                            <p class="card-text display-6">123</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card text-bg-success">
+                        <div class="card-body">
+                            <h5 class="card-title">Estadísticas</h5>
+                            <p class="card-text display-6">+45%</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card text-bg-warning">
+                        <div class="card-body">
+                            <h5 class="card-title">Notificaciones</h5>
+                            <p class="card-text display-6">5</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="alert alert-info mt-4">Esta es el área de notificaciones y mensajes importantes del sistema.</div>
+        </main>
+    </div>
+</div>
+{% endblock %}

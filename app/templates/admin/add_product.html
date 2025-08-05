@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Agregar Producto</h2>
+  <form method="post" enctype="multipart/form-data">
+    {{ csrf_token() }}
+    <div class="mb-3">
+      <label>Nombre</label>
+      <input type="text" name="name" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label>Descripción</label>
+      <textarea name="description" class="form-control"></textarea>
+    </div>
+    <div class="mb-3">
+      <label>Precio</label>
+      <input type="number" name="price" class="form-control" step="0.01" required>
+    </div>
+    <div class="mb-3">
+      <label>Stock</label>
+      <input type="number" name="stock" class="form-control" min="0">
+    </div>
+    <div class="mb-3">
+      <label>Imagen</label>
+      <input type="file" name="image" class="form-control" accept="image/*">
+    </div>
+    <div class="mb-3">
+      <label>Talla</label>
+      <input type="text" name="size" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label>Color</label>
+      <input type="text" name="color" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label>Categoría</label>
+      <select name="category_id" class="form-control" required>
+        <option value="">Selecciona</option>
+        {% for cat in categories %}
+        <option value="{{ cat.id }}">{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn btn-success">Agregar</button>
+    <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

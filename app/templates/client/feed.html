@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+{% block title %}Inicio | Tienda Virtual{% endblock %}
+{% block head %}
+<style>
+    .feed-header {
+        margin-bottom: 2.5rem;
+        text-align: left;
+        padding-left: 0.5rem;
+    }
+    .feed-title {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: #fff200;
+        margin-bottom: 0.2rem;
+        letter-spacing: 0.04em;
+        text-shadow: 0 2px 12px #000a;
+    }
+    .feed-subtitle {
+        color: #f5f5f5;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    .promo-banner {
+        background: linear-gradient(90deg, #fff200 60%, #111 100%);
+        color: #111;
+        border-radius: 1rem;
+        padding: 1.2rem 2rem;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+        font-weight: 800;
+        box-shadow: 0 2px 12px #0008;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        border: 2px solid #fff200;
+    }
+    .promo-banner ul {
+        margin-bottom: 0;
+        margin-top: 0;
+        padding-left: 1.2rem;
+    }
+    .product-card {
+        border: 2px solid #fff200;
+        border-radius: 1.2rem;
+        box-shadow: 0 0 24px 0 #fff20055, 0 4px 24px #000a;
+        transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+        margin-bottom: 2rem;
+        background: #181818;
+        position: relative;
+        overflow: hidden;
+    }
+    .product-card.destacado {
+        border: 3px solid #fff200;
+        box-shadow: 0 0 32px 8px #fff200cc, 0 4px 32px #000a;
+        z-index: 2;
+    }
+    .product-card.destacado .badge-destacado {
+        position: absolute;
+        top: 0.7rem;
+        left: 0.7rem;
+        background: #fff200;
+        color: #111;
+        font-weight: 900;
+        font-size: 0.95rem;
+        padding: 0.35em 1em;
+        border-radius: 0.8em 0.8em 0.8em 0.2em;
+        box-shadow: 0 2px 8px #0005;
+        letter-spacing: 0.04em;
+        text-shadow: none;
+        z-index: 3;
+    }
+    .product-img {
+        border-radius: 1.2rem 1.2rem 0 0;
+        object-fit: cover;
+        height: 180px;
+        width: 100%;
+        background: #222;
+        border-bottom: 2px solid #fff200;
+    }
+    .product-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: 0.02em;
+        margin-bottom: 0.2rem;
+    }
+    .product-price {
+        color: #fff200;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+    .product-promo {
+        color: #fff200;
+        font-size: 0.98rem;
+        font-weight: 700;
+        text-shadow: 0 0 8px #fff20099;
+    }
+    .btn-outline-primary {
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 1rem;
+        padding: 0.5rem 0;
+        border: 2px solid #fff200;
+        color: #fff200;
+        background: #181818;
+        transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+    }
+    .btn-outline-primary:hover {
+        background: #fff200;
+        color: #111;
+        box-shadow: 0 0 12px #fff20099;
+    }
+    .section-title {
+        color: #fff200;
+        font-size: 1.3rem;
+        font-weight: 900;
+        margin-bottom: 1.2rem;
+        margin-top: 2.2rem;
+        letter-spacing: 0.04em;
+        text-shadow: 0 2px 12px #000a;
+    }
+    .filters-bar {
+        background: #222;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px #0008;
+        padding: 1.2rem 1rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        border: 2px solid #fff200;
+    }
+    .filters-bar label {
+        font-weight: 700;
+        color: #fff200;
+        margin-right: 0.5rem;
+    }
+    .filters-bar select {
+        border-radius: 6px;
+        border: 2px solid #fff200;
+        background: #181818;
+        color: #fff;
+        padding: 0.3rem 0.7rem;
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div id="feed-loader" class="neon-loader" style="display:none;">
+  <div class="neon-spinner"></div>
+  <div style="margin-top:1em;color:#fff200;font-weight:700;">Cargando productos...</div>
+</div>
+<div id="feed-content">
+  <div class="feed-header">
+      <div class="feed-title">Los Más Populares</div>
+      <div class="feed-subtitle">Descubre las mejores ofertas y productos destacados</div>
+  </div>
+<div class="filters-bar mb-4">
+    <label for="filter-category">Categoría:</label>
+    <select id="filter-category" name="category" disabled>
+        <option selected>Todos</option>
+        <option>Zapatos</option>
+        <option>Gorras</option>
+    </select>
+    <label for="filter-size">Talla:</label>
+    <select id="filter-size" name="size" disabled>
+        <option selected>Todas</option>
+        <option>38</option>
+        <option>39</option>
+        <option>40</option>
+        <option>41</option>
+        <option>42</option>
+    </select>
+    <label for="filter-color">Color:</label>
+    <select id="filter-color" name="color" disabled>
+        <option selected>Todos</option>
+        <option>Negro</option>
+        <option>Azul</option>
+        <option>Gris</option>
+    </select>
+    <span class="text-muted ms-3">(Filtros próximamente)</span>
+</div>
+{% if promociones and promociones|length > 0 %}
+<div class="promo-banner">
+    <span>🔥 Promociones destacadas:</span>
+    <ul class="mb-0 mt-2">
+        {% for promo in promociones %}
+        <li><b>{{ promo.name }}</b>: {{ promo.promo }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% if destacados and destacados|length > 0 %}
+<h4 class="mb-3">Productos destacados</h4>
+<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mb-4">
+    {% for product in destacados %}
+    <div class="col">
+        <div class="card product-card destacado h-100 border-primary position-relative">
+            <span class="badge-destacado" title="Producto destacado">Destacado</span>
+            {% if product.is_nuevo %}
+                <span class="badge bg-info text-dark position-absolute top-0 end-0 m-2" style="font-size:0.95em;box-shadow:0 0 8px #fff;z-index:3;" title="¡Nuevo!">Nuevo</span>
+            {% endif %}
+            {% if product.is_mas_vendido %}
+                <span class="badge bg-warning text-dark position-absolute top-0 start-50 translate-middle-x m-2" style="font-size:0.95em;box-shadow:0 0 8px #fff200;z-index:3;" title="Más vendido">★ Más vendido</span>
+            {% endif %}
+            <img src="{{ url_for('static', filename='profile_pics/' ~ (product.image or 'default.png')) }}" class="card-img-top product-img" alt="{{ product.name }}">
+            <div class="card-body d-flex flex-column">
+                <div class="product-title mb-1">{{ product.name }}</div>
+                <div class="product-price mb-2">${{ '%.2f'|format(product.price) }}</div>
+                {% if product.promo %}
+                <div class="product-promo mb-2">{{ product.promo }}</div>
+                {% endif %}
+                <a href="{{ url_for('catalog.product_detail', product_id=product.id) }}" class="btn btn-outline-primary mt-auto" style="font-size:1.1rem;box-shadow:0 0 16px #fff20099;" title="Ver detalle del producto">Ver detalle</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+<h4 class="mb-3">Todos los productos</h4>
+<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+    {% for product in products %}
+    <div class="col">
+        <div class="card product-card h-100 position-relative">
+            {% if product.is_nuevo %}
+                <span class="badge bg-info text-dark position-absolute top-0 end-0 m-2" style="font-size:0.95em;box-shadow:0 0 8px #fff;z-index:3;" title="¡Nuevo!">Nuevo</span>
+            {% endif %}
+            {% if product.is_mas_vendido %}
+                <span class="badge bg-warning text-dark position-absolute top-0 start-50 translate-middle-x m-2" style="font-size:0.95em;box-shadow:0 0 8px #fff200;z-index:3;" title="Más vendido">★ Más vendido</span>
+            {% endif %}
+            <img src="{{ url_for('static', filename='profile_pics/' ~ (product.image or 'default.png')) }}" class="card-img-top product-img" alt="{{ product.name }}">
+            <div class="card-body d-flex flex-column">
+                <div class="product-title mb-1">{{ product.name }}</div>
+                <div class="product-price mb-2">${{ '%.2f'|format(product.price) }}</div>
+                {% if product.promo %}
+                <div class="product-promo mb-2">{{ product.promo }}</div>
+                {% endif %}
+                <a href="{{ url_for('catalog.product_detail', product_id=product.id) }}" class="btn btn-outline-primary mt-auto" title="Ver detalle del producto">Ver detalle</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% if products|length == 0 %}
+    <div class="alert alert-info mt-4">No hay productos disponibles en este momento.</div>
+{% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+// Simulación de carga de productos con loader neón
+document.addEventListener('DOMContentLoaded', function() {
+    var loader = document.getElementById('feed-loader');
+    var content = document.getElementById('feed-content');
+    loader.style.display = 'flex';
+    content.style.display = 'none';
+    setTimeout(function() {
+        loader.style.display = 'none';
+        content.style.display = 'block';
+    }, 1200); // 1.2 segundos de carga simulada
+});
+</script>
+{% endblock %}

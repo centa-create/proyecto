@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | Tienda Virtual{% endblock %}
+{% block head %}
+<style>
+    body { background: #f8fafc; }
+    .dashboard-container {
+        max-width: 900px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.13);
+        padding: 2.5rem 2rem 2rem 2rem;
+    }
+    .dashboard-title {
+        font-weight: 800;
+        color: #003366;
+        margin-bottom: 1.5rem;
+        text-align: left;
+        font-size: 2.1rem;
+    }
+    .dashboard-subtitle {
+        color: #6c757d;
+        font-size: 1.1rem;
+        margin-bottom: 2.2rem;
+    }
+    .section-title {
+        color: #003366;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1.2rem;
+        margin-top: 2.2rem;
+    }
+    .actividad-lista {
+        list-style: none;
+        padding: 0;
+    }
+    .actividad-lista li {
+        background: #f1f8ff;
+        border-radius: 1rem;
+        margin-bottom: 0.7rem;
+        padding: 1.1rem 1.5rem;
+        box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.05);
+        font-size: 1.05rem;
+    }
+    .tutorial {
+        background: linear-gradient(90deg, #f7971e, #ffd200);
+        border-left: 5px solid #003366;
+        padding: 1.2rem 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        color: #222;
+        font-weight: 600;
+        font-size: 1.08rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .dashboard-actions {
+        display: flex;
+        gap: 1.2rem;
+        margin-bottom: 2.2rem;
+        flex-wrap: wrap;
+    }
+    .dashboard-action-card {
+        background: #f8fafc;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 1.2rem 1.5rem;
+        min-width: 180px;
+        flex: 1 1 180px;
+        text-align: center;
+        transition: box-shadow 0.15s, transform 0.15s;
+        border: 1.5px solid #e3eafc;
+    }
+    .dashboard-action-card:hover {
+        box-shadow: 0 6px 18px rgba(41,128,185,0.13);
+        border-color: #6dd5fa;
+        transform: translateY(-3px) scale(1.03);
+    }
+    .dashboard-action-card a {
+        color: #003366;
+        font-weight: 700;
+        text-decoration: none;
+        font-size: 1.08rem;
+    }
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+        .dashboard-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Simulación de loading
+        const loader = document.getElementById('loader');
+        const dashboard = document.getElementById('dashboard-content');
+        setTimeout(() => {
+            if(loader) loader.style.display = 'none';
+            if(dashboard) dashboard.style.display = 'block';
+        }, 1200);
+    });
+</script>
+{% endblock %}
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-title">Panel de Usuario</div>
+    <div class="dashboard-subtitle">Bienvenido/a, aquí puedes gestionar tu cuenta, ver tus compras y acceder a tus listas.</div>
+    <div class="dashboard-actions mb-4">
+        <div class="dashboard-action-card"><a href="{{ url_for('orders.history') }}">🛒 Historial de compras</a></div>
+        <div class="dashboard-action-card"><a href="{{ url_for('wishlist.wishlist') }}">💖 Mi lista de deseos</a></div>
+        <div class="dashboard-action-card"><a href="{{ url_for('client.profile') }}">👤 Mi perfil</a></div>
+    </div>
+    <div class="section-title">Última actividad</div>
+    {% if actividad and actividad|length > 0 %}
+    <ul class="actividad-lista">
+        {% for act in actividad %}
+        <li>{{ act }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="alert alert-info">No hay actividad reciente.</div>
+    {% endif %}
+    <div class="section-title">¿Nuevo en la tienda?</div>
+    <div class="tutorial">
+        Explora los productos, añade a tu lista de deseos y realiza compras de forma sencilla y segura. ¡Disfruta la experiencia Asics!
+    </div>
+    <h2 class="dashboard-title">Bienvenido, {{ current_user.nameUser }}</h2>
+    <div id="loader" style="text-align:center; padding:2rem;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-3">Cargando tu información...</p>
+    </div>
+    <div id="dashboard-content" style="display:none;">
+        {% if es_primera_vez %}
+        <div class="tutorial alert alert-success">
+            <h5>¡Bienvenido a tu primer inicio de sesión!</h5>
+            <ul>
+                <li>Personaliza tu perfil y sube tu foto.</li>
+                <li>Consulta tus notificaciones y mantente informado.</li>
+                <li>Descarga tus datos personales cuando quieras.</li>
+                <li>Vincula tus redes sociales para mayor seguridad.</li>
+                <li>¿Dudas? Usa el botón de soporte y ayuda.</li>
+            </ul>
+            <button class="btn btn-primary mt-2" onclick="this.parentElement.style.display='none'">¡Entendido!</button>
+        </div>
+        {% endif %}
+        <h4 class="section-title">Resumen de Actividad Reciente</h4>
+        <ul class="actividad-lista">
+            {% for item in actividad %}
+            <li><strong>{{ item.fecha }}</strong>: {{ item.descripcion }}</li>
+            {% endfor %}
+        </ul>
+        <div class="mt-4">
+            <a href="{{ url_for('client.profile') }}" class="btn btn-outline-info me-2">Editar perfil</a>
+            <a href="{{ url_for('client.download_data') }}" class="btn btn-outline-success me-2">Descargar mis datos</a>
+            <a href="{{ url_for('notif.lista') }}" class="btn btn-outline-primary me-2">Notificaciones {% set unread = notifs|selectattr('leida', 'equalto', False)|list|length %}{% if unread > 0 %}<span class="badge bg-danger">{{ unread }}</span>{% endif %}</a>
+            <a href="#" class="btn btn-outline-warning me-2" onclick="alert('Funcionalidad de cerrar sesión en todos los dispositivos próximamente');return false;">Cerrar sesión en todos los dispositivos</a>
+            <a href="#" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#soporteModal">Soporte y ayuda</a>
+        </div>
+        <div class="mt-4">
+            <a href="{{ url_for('client.social') }}" class="btn btn-outline-dark me-2">Vincular redes sociales</a>
+        </div>
+        <!-- Modal de soporte -->
+        <div class="modal fade" id="soporteModal" tabindex="-1" aria-labelledby="soporteModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="soporteModalLabel">Soporte y Ayuda</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              </div>
+              <div class="modal-body">
+                <p>¿Tienes dudas? Consulta nuestras <a href="#">Preguntas Frecuentes</a> o contáctanos por <a href="https://wa.me/1234567890" target="_blank">WhatsApp</a>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Reportes de Ventas</h2>
+  <div class="mb-4">
+    <h4>Total de ventas: ${{ '%.2f'|format(total_ventas) }}</h4>
+  </div>
+  <div class="mb-4">
+    <h5>Ventas por producto</h5>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>ID Producto</th>
+          <th>Cantidad vendida</th>
+          <th>Total vendido</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for prod in ventas_por_producto %}
+        <tr>
+          <td>{{ prod[0] }}</td>
+          <td>{{ prod[1] }}</td>
+          <td>${{ '%.2f'|format(prod[2]) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="mb-4">
+    <h5>Ventas por fecha</h5>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Total vendido</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fecha, total in ventas_por_fecha %}
+        <tr>
+          <td>{{ fecha }}</td>
+          <td>${{ '%.2f'|format(total) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

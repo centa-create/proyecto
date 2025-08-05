@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Editar Categoría</h2>
+  <form method="post" novalidate>
+    {{ csrf_token() }}
+    <div class="mb-3">
+      <label>Nombre</label>
+      <input type="text" name="name" class="form-control" value="{{ category.name }}" required minlength="2" maxlength="50" pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s\-]+$">
+      <div class="form-text">El nombre debe ser único y tener entre 2 y 50 caracteres.</div>
+    </div>
+    <div class="mb-3">
+      <label>Descripción</label>
+      <textarea name="description" class="form-control" maxlength="255">{{ category.description }}</textarea>
+      <div class="form-text">Máximo 255 caracteres.</div>
+    </div>
+    <button class="btn btn-primary">Guardar</button>
+    <a href="{{ url_for('admin.categories') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% block content %}
+<h2 class="mb-4 text-center">Detalle del Pedido #{{ order.id }}</h2>
+<div class="mb-3 text-center">
+  <span class="badge bg-secondary">{{ order.status }}</span>
+  <span class="ms-3"><b>Fecha:</b> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+  <span class="ms-3"><b>Total:</b> ${{ '%.2f'|format(order.total) }}</span>
+</div>
+<div class="table-responsive mb-4">
+  <table class="table table-bordered align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Precio</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for detail in order.details %}
+      <tr>
+        <td>{{ detail.product.name }}</td>
+        <td>{{ detail.quantity }}</td>
+        <td>${{ '%.2f'|format(detail.price) }}</td>
+        <td>${{ '%.2f'|format(detail.quantity * detail.price) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="d-flex justify-content-center gap-2">
+  <a href="{{ url_for('orders.pay', order_id=order.id) }}" class="btn btn-success">Pagar ahora</a>
+  <a href="{{ url_for('orders.history') }}" class="btn btn-outline-secondary">Volver al historial</a>
+</div>
+{% endblock %}
+
+{% extends 'base.html' %}
+{% block title %}Detalle de Pedido | Tienda Virtual{% endblock %}
+{% block head %}
+<style>
+    body { background: #f8fafc; }
+    .order-detail-container {
+        max-width: 900px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 1.5rem;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.13);
+        padding: 2.5rem 2rem 2rem 2rem;
+    }
+    .order-detail-title {
+        font-weight: 800;
+        color: #003366;
+        margin-bottom: 1.5rem;
+        text-align: left;
+        font-size: 2.1rem;
+    }
+    .order-detail-info {
+        margin-bottom: 2.2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        align-items: center;
+        font-size: 1.08rem;
+    }
+    .order-detail-info .badge {
+        font-size: 1rem;
+        padding: 0.7em 1.2em;
+        border-radius: 0.7em;
+        background: #eafaf1;
+        color: #003366;
+        font-weight: 700;
+    }
+    .table {
+        border-radius: 1rem;
+        overflow: hidden;
+        background: #f8fafc;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .table th, .table td {
+        vertical-align: middle;
+        font-size: 1.05rem;
+    }
+    .btn-success, .btn-outline-secondary {
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 0.4rem 1.1rem;
+    }
+    .order-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1.2rem;
+        margin-top: 2rem;
+    }
+    @media (max-width: 768px) {
+        .order-detail-container {
+            padding: 1rem;
+        }
+        .order-detail-info {
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="order-detail-container">
+    <div class="order-detail-title">Detalle del Pedido #{{ order.id }}</div>
+    <div class="order-detail-info">
+      <span class="badge">{{ order.status }}</span>
+      <span><b>Fecha:</b> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+      <span><b>Total:</b> ${{ '%.2f'|format(order.total) }}</span>
+    </div>
+    <div class="table-responsive mb-4">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for detail in order.details %}
+          <tr>
+            <td class="position-relative">
+              {% if detail.product.is_nuevo %}
+                <span class="badge bg-info text-dark position-absolute top-0 end-0 m-1" style="font-size:0.85em;box-shadow:0 0 8px #fff;z-index:3;" title="¡Nuevo!">Nuevo</span>
+              {% endif %}
+              {% if detail.product.is_mas_vendido %}
+                <span class="badge bg-warning text-dark position-absolute top-0 start-50 translate-middle-x m-1" style="font-size:0.85em;box-shadow:0 0 8px #fff200;z-index:3;" title="Más vendido">★ Más vendido</span>
+              {% endif %}
+              {{ detail.product.name }}
+            </td>
+            <td>{{ detail.quantity }}</td>
+            <td>${{ '%.2f'|format(detail.price) }}</td>
+            <td>${{ '%.2f'|format(detail.quantity * detail.price) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="order-actions">
+      <a href="{{ url_for('orders.pay', order_id=order.id) }}" class="btn btn-success">Pagar ahora</a>
+      <a href="{{ url_for('orders.history') }}" class="btn btn-outline-secondary">Volver al historial</a>
+    </div>
+</div>
