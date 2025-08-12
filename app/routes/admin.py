@@ -8,6 +8,7 @@ def make_admin(user_id):
     db.session.commit()
     flash(f'El usuario {user.nameUser} ahora es administrador.', 'success')
     return redirect(url_for('admin.dashboard'))
+
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from functools import wraps
@@ -15,7 +16,6 @@ from app.models.products import Product, Category
 from app.models.orders import Order, OrderDetail
 from app.models.users import UserRole
 from app import db
-
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 # Decorador para admin (puedes mejorar con roles)
