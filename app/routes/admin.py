@@ -1,3 +1,33 @@
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
+from werkzeug.utils import secure_filename
+from flask_login import login_required, current_user
+from functools import wraps
+from app.models.products import Product, Category
+from app.models.orders import Order, OrderDetail
+from app.models.users import UserRole
+from app import db
+
+# Decorador para admin (puedes mejorar con roles)
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not getattr(current_user, 'role', None) or str(current_user.role) != 'ADMIN':
+            flash('Acceso solo para administradores.', 'danger')
+            return redirect(url_for('client.dashboard'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def is_admin(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or getattr(current_user, 'role', None) != UserRole.ADMIN:
+            flash('Acceso denegado: solo administradores.', 'danger')
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+
 @admin_bp.route('/make_admin/<int:user_id>', methods=['POST'])
 @login_required
 @admin_required
@@ -9,14 +39,48 @@ def make_admin(user_id):
     flash(f'El usuario {user.nameUser} ahora es administrador.', 'success')
     return redirect(url_for('admin.dashboard'))
 
+@admin_bp.route('/dashboard')
+@login_required
+@is_admin
+def dashboard():
+    # Datos reales para el dashboard
+    from app.models.users import Users
+    from app.models.notifications import Notification
+    usuarios_registrados = Users.query.count()
+    # Ejemplo de estadística: porcentaje de usuarios activos
+    usuarios_activos = Users.query.filter_by(is_active_db=True).count()
+    estadisticas = 0
+    if usuarios_registrados > 0:
+        estadisticas = int((usuarios_activos / usuarios_registrados) * 100)
+    notificaciones = Notification.query.count() if 'Notification' in globals() else 0
+    # Mostrar lista de usuarios para gestión
+    usuarios = Users.query.all()
+    return render_template('admin/dashboard.html',
+        usuarios_registrados=usuarios_registrados,
+        estadisticas=estadisticas,
+        notificaciones=notificaciones,
+        usuarios=usuarios)
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
+from werkzeug.utils import secure_filename
+admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 from flask_login import login_required, current_user
 from functools import wraps
 from app.models.products import Product, Category
 from app.models.orders import Order, OrderDetail
 from app.models.users import UserRole
 from app import db
-admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+@admin_bp.route('/make_admin/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def make_admin(user_id):
+    from app.models.users import Users, UserRole
+    user = Users.query.get_or_404(user_id)
+    user.role = UserRole.ADMIN
+    db.session.commit()
+    flash(f'El usuario {user.nameUser} ahora es administrador.', 'success')
+    return redirect(url_for('admin.dashboard'))
+
 
 # Decorador para admin (puedes mejorar con roles)
 def admin_required(f):
