@@ -1,4 +1,3 @@
-# Ruta para convertir usuario en administrador
 @admin_bp.route('/make_admin/<int:user_id>', methods=['POST'])
 @login_required
 @admin_required
@@ -90,7 +89,6 @@ def add_product():
         image_filename = None
         if image_file and image_file.filename:
             import os
-            from werkzeug.utils import secure_filename
             filename = secure_filename(image_file.filename)
             image_path = os.path.join(current_app.root_path, 'static', 'product_images', filename)
             image_file.save(image_path)
@@ -122,7 +120,6 @@ def edit_product(product_id):
         image_file = request.files.get('image')
         if image_file and image_file.filename:
             import os
-            from werkzeug.utils import secure_filename
             filename = secure_filename(image_file.filename)
             image_path = os.path.join(current_app.root_path, 'static', 'product_images', filename)
             image_file.save(image_path)
