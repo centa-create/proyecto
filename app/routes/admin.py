@@ -1,3 +1,14 @@
+# Ruta para convertir usuario en administrador
+@admin_bp.route('/make_admin/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def make_admin(user_id):
+    from app.models.users import Users, UserRole
+    user = Users.query.get_or_404(user_id)
+    user.role = UserRole.ADMIN
+    db.session.commit()
+    flash(f'El usuario {user.nameUser} ahora es administrador.', 'success')
+    return redirect(url_for('admin.dashboard'))
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
 from functools import wraps
@@ -31,8 +42,23 @@ def is_admin(f):
 @login_required
 @is_admin
 def dashboard():
-    # Aquí puedes agregar datos reales de usuarios, stats, etc.
-    return render_template('admin/dashboard.html')
+    # Datos reales para el dashboard
+    from app.models.users import Users
+    from app.models.notifications import Notification
+    usuarios_registrados = Users.query.count()
+    # Ejemplo de estadística: porcentaje de usuarios activos
+    usuarios_activos = Users.query.filter_by(is_active_db=True).count()
+    estadisticas = 0
+    if usuarios_registrados > 0:
+        estadisticas = int((usuarios_activos / usuarios_registrados) * 100)
+    notificaciones = Notification.query.count() if 'Notification' in globals() else 0
+    # Mostrar lista de usuarios para gestión
+    usuarios = Users.query.all()
+    return render_template('admin/dashboard.html',
+        usuarios_registrados=usuarios_registrados,
+        estadisticas=estadisticas,
+        notificaciones=notificaciones,
+        usuarios=usuarios)
 
 @admin_bp.route('/products')
 @login_required

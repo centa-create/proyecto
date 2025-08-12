@@ -3,8 +3,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 class Config:
-    SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI')
+    SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI') or \
+        'sqlite:///' + os.path.join(basedir, 'instance', 'flaskdb.sqlite')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = os.getenv('MAIL_SERVER')
     MAIL_PORT = int(os.getenv('MAIL_PORT', 587))

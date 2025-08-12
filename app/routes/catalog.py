@@ -1,16 +1,16 @@
-
 from flask import Blueprint, render_template, request
 from flask_login import current_user
 from app.models.products import Product, Category
 from app.models.wishlist import Wishlist
+
+catalog_bp = Blueprint('catalog', __name__, url_prefix='/catalog')
 from app import cache
+
 @catalog_bp.route('/destacados')
 @cache.cached(timeout=300)
 def destacados():
     products = Product.query.filter_by(destacado=True).order_by(Product.created_at.desc()).limit(12).all()
     return render_template('catalog/catalog.html', products=products, categories=Category.query.all(), favoritos=[], pagination=None)
-
-catalog_bp = Blueprint('catalog', __name__, url_prefix='/catalog')
 
 @catalog_bp.route('/')
 def catalog():
@@ -46,6 +46,7 @@ def product_detail(product_id):
         user = Users.query.get(r.user_id)
         reviews_data.append({
             'user_name': user.nameUser if user else 'Usuario',
+
             'rating': r.rating,
             'comment': r.comment,
             'date': r.created_at
