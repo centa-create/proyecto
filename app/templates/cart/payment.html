@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Selecciona tu método de pago</h2>
+<p><strong>Total a pagar:</strong> <span style="font-size:1.2em;color:#0074D9;">${{ total }}</span></p>
+<form method="post">
+  <div style="margin-bottom:10px;">
+    <input type="radio" id="stripe" name="metodo_pago" value="stripe" required>
+    <label for="stripe"><span style="color:#2ecc40;font-weight:bold;">Tarjeta de crédito/débito (Stripe)</span></label>
+    <br><small style="color:#888;">Pago seguro y rápido con Stripe.</small>
+  </div>
+  <div style="margin-bottom:10px;">
+    <input type="radio" id="nequi" name="metodo_pago" value="nequi">
+    <label for="nequi"><span style="color:#f39c12;font-weight:bold;">Nequi</span></label>
+    <br><small style="color:#888;">Realiza tu pago a Nequi: <strong>3001234567</strong> y envía el comprobante por WhatsApp o email.</small>
+  </div>
+  <div style="margin-bottom:10px;">
+    <input type="radio" id="bancolombia" name="metodo_pago" value="bancolombia">
+    <label for="bancolombia"><span style="color:#2980b9;font-weight:bold;">Bancolombia</span></label>
+    <br><small style="color:#888;">Realiza tu pago a Bancolombia: <strong>12345678901</strong> y envía el comprobante por WhatsApp o email.</small>
+  </div>
+  <button type="submit" class="btn btn-primary">Pagar</button>
+</form>
+<a href="{{ url_for('cart.view_cart') }}" class="btn btn-secondary">Volver al carrito</a>
+<div style="margin-top:20px;color:#888;font-size:0.95em;">
+  <strong>¿Dudas?</strong> Contáctanos por WhatsApp para soporte inmediato.
+</div>
+{% endblock %}

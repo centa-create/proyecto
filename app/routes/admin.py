@@ -1,3 +1,18 @@
+@admin_bp.route('/users/delete/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    """Permite al administrador eliminar usuarios."""
+    user = Users.query.get_or_404(user_id)
+    if user.role == UserRole.ADMIN:
+        flash('No se puede eliminar a otro administrador.', 'danger')
+        return redirect(url_for('admin.dashboard'))
+    db.session.delete(user)
+    db.session.commit()
+    flash('Usuario eliminado correctamente.', 'info')
+    return redirect(url_for('admin.dashboard'))
+
+# --- Importaciones organizadas ---
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user
@@ -10,9 +25,11 @@ from app import db
 import os
 from sqlalchemy import func
 
+
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 def admin_required(f):
+    """Decorador para restringir acceso solo a administradores autenticados."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or current_user.role != UserRole.ADMIN:
@@ -25,6 +42,7 @@ def admin_required(f):
 @login_required
 @admin_required
 def make_admin(user_id):
+    """Convierte un usuario en administrador."""
     user = Users.query.get_or_404(user_id)
     user.role = UserRole.ADMIN
     db.session.commit()
@@ -35,6 +53,7 @@ def make_admin(user_id):
 @login_required
 @admin_required
 def dashboard():
+    """Panel principal de administración con estadísticas y usuarios paginados."""
     usuarios_registrados = Users.query.count()
     usuarios_activos = Users.query.filter_by(is_active_db=True).count()
     usuarios_inactivos = usuarios_registrados - usuarios_activos
@@ -55,6 +74,7 @@ def dashboard():
 @login_required
 @admin_required
 def products():
+    """Lista paginada de productos."""
     page = request.args.get('page', 1, type=int)
     products = Product.query.paginate(page=page, per_page=20, error_out=False)
     return render_template('admin/products.html', products=products)
@@ -63,6 +83,7 @@ def products():
 @login_required
 @admin_required
 def categories():
+    """Lista paginada de categorías."""
     page = request.args.get('page', 1, type=int)
     categories = Category.query.paginate(page=page, per_page=20, error_out=False)
     return render_template('admin/categories.html', categories=categories)
@@ -71,6 +92,7 @@ def categories():
 @login_required
 @admin_required
 def add_product():
+    """Agrega un nuevo producto con validación y manejo de errores."""
     if request.method == 'POST':
         try:
             name = request.form.get('name', '').strip()
@@ -112,6 +134,7 @@ def add_product():
 @login_required
 @admin_required
 def edit_product(product_id):
+    """Edita un producto existente con validación y manejo de errores."""
     product = Product.query.get_or_404(product_id)
     if request.method == 'POST':
         try:
@@ -151,6 +174,7 @@ def edit_product(product_id):
 @login_required
 @admin_required
 def delete_product(product_id):
+    """Elimina un producto tras confirmación."""
     if request.form.get('confirm_delete') != 'yes':
         flash('Confirmación requerida para eliminar.', 'danger')
         return redirect(url_for('admin.products'))
@@ -164,6 +188,7 @@ def delete_product(product_id):
 @login_required
 @admin_required
 def add_category():
+    """Agrega una nueva categoría con validación de unicidad."""
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
         description = request.form.get('description', '').strip()
@@ -181,6 +206,7 @@ def add_category():
 @login_required
 @admin_required
 def edit_category(category_id):
+    """Edita una categoría existente con validación de unicidad."""
     category = Category.query.get_or_404(category_id)
     if request.method == 'POST':
         new_name = request.form.get('name', category.name).strip()
@@ -198,6 +224,7 @@ def edit_category(category_id):
 @login_required
 @admin_required
 def delete_category(category_id):
+    """Elimina una categoría tras confirmación y si no tiene productos asociados."""
     if request.form.get('confirm_delete') != 'yes':
         flash('Confirmación requerida para eliminar.', 'danger')
         return redirect(url_for('admin.categories'))
@@ -214,6 +241,7 @@ def delete_category(category_id):
 @login_required
 @admin_required
 def reports():
+    """Genera reportes de ventas totales, por producto y por fecha."""
     total_ventas = db.session.query(func.sum(Order.total)).scalar() or 0
     ventas_por_producto = db.session.query(
         Product.name,

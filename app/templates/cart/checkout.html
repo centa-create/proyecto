@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Resumen de tu pedido</h2>
+<ul>
+  {% for item in items %}
+    <li>
+      <strong>{{ item.product.name }}</strong> x {{ item.quantity }} = <span style="color: #2ecc40;">${{ item.product.price * item.quantity }}</span>
+    </li>
+  {% endfor %}
+</ul>
+<p><strong>Total:</strong> <span style="font-size:1.2em;color:#0074D9;">${{ total }}</span></p>
+<form method="post">
+  <button type="submit" class="btn btn-success">Confirmar pedido y pagar</button>
+</form>
+<a href="{{ url_for('cart.view_cart') }}" class="btn btn-secondary">Volver al carrito</a>
+{% endblock %}
