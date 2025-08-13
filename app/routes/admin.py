@@ -1,16 +1,3 @@
-@admin_bp.route('/users/delete/<int:user_id>', methods=['POST'])
-@login_required
-@admin_required
-def delete_user(user_id):
-    """Permite al administrador eliminar usuarios."""
-    user = Users.query.get_or_404(user_id)
-    if user.role == UserRole.ADMIN:
-        flash('No se puede eliminar a otro administrador.', 'danger')
-        return redirect(url_for('admin.dashboard'))
-    db.session.delete(user)
-    db.session.commit()
-    flash('Usuario eliminado correctamente.', 'info')
-    return redirect(url_for('admin.dashboard'))
 
 # --- Importaciones organizadas ---
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
@@ -25,8 +12,21 @@ from app import db
 import os
 from sqlalchemy import func
 
-
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+@admin_bp.route('/users/delete/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    """Permite al administrador eliminar usuarios."""
+    user = Users.query.get_or_404(user_id)
+    if user.role == UserRole.ADMIN:
+        flash('No se puede eliminar a otro administrador.', 'danger')
+        return redirect(url_for('admin.dashboard'))
+    db.session.delete(user)
+    db.session.commit()
+    flash('Usuario eliminado correctamente.', 'info')
+    return redirect(url_for('admin.dashboard'))
 
 def admin_required(f):
     """Decorador para restringir acceso solo a administradores autenticados."""
