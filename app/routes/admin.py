@@ -1,5 +1,7 @@
 
 # --- Importaciones organizadas ---
+
+
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user
@@ -11,6 +13,16 @@ from app.models.notifications import Notification
 from app import db
 import os
 from sqlalchemy import func
+
+def admin_required(f):
+    """Decorador para restringir acceso solo a administradores autenticados."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != UserRole.ADMIN:
+            flash('Acceso denegado: solo administradores.', 'danger')
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
