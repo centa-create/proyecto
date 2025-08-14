@@ -13,3 +13,5 @@ class CartItem(db.Model):
     cart_id = db.Column(db.Integer, db.ForeignKey('carts.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1)
+    price_snapshot = db.Column(db.Float, nullable=False)  # Precio al añadir el producto
+    __table_args__ = (db.UniqueConstraint('cart_id', 'product_id', name='unique_cart_product'),)

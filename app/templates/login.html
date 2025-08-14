@@ -172,7 +172,10 @@ function togglePassword() {
   }
 }
 function showLoader(e) {
-  document.getElementById('loader').style.display = 'flex';
+    document.getElementById('loader').style.display = 'flex';
+    if (typeof updateCartCount === 'function') {
+        setTimeout(updateCartCount, 1000); // Actualiza el contador tras login
+    }
 }
 </script>
 </body>

@@ -62,7 +62,6 @@
 {% block content %}
 <div class="cart-container">
     <div class="cart-title">Mi Carrito</div>
-    {% if items %}
     <div class="table-responsive">
       <table class="table table-bordered align-middle">
         <thead class="table-light">
@@ -74,35 +73,81 @@
             <th></th>
           </tr>
         </thead>
-        <tbody>
-          {% set total = 0 %}
-          {% for item in items %}
-            {% set subtotal = item.quantity * item.product.price %}
-            {% set total = total + subtotal %}
-            <tr>
-              <td>{{ item.product.name }}</td>
-              <td>{{ item.quantity }}</td>
-              <td>${{ '%.2f'|format(item.product.price) }}</td>
-              <td>${{ '%.2f'|format(subtotal) }}</td>
-              <td>
-                <form method="post" action="{{ url_for('cart.remove_from_cart', item_id=item.id) }}">
-                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                  <button class="btn btn-danger btn-sm">Eliminar</button>
-                </form>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
+        <tbody id="cartItems"></tbody>
       </table>
     </div>
-    <div class="cart-total mb-4">
-      Total: ${{ '%.2f'|format(total) }}
-    </div>
+    <div class="cart-total mb-4" id="cartTotal">Total: $0</div>
     <div class="text-end mb-4">
-      <button class="btn btn-success" disabled>Proceder al pago (próximamente)</button>
+      <button class="btn btn-success" id="checkoutBtn">Pagar con Stripe</button>
     </div>
-    {% else %}
-      <div class="alert alert-info text-center">No tienes productos en el carrito.</div>
-    {% endif %}
+    <div id="cartEmpty" class="alert alert-info text-center" style="display:none;">No tienes productos en el carrito.</div>
 </div>
+
+<script>
+async function refreshCartUI() {
+  const res = await fetch("/api/cart/");
+  const data = await res.json();
+  const list = document.getElementById("cartItems");
+  const totalElem = document.getElementById("cartTotal");
+  const emptyElem = document.getElementById("cartEmpty");
+  list.innerHTML = "";
+  if (data.items.length === 0) {
+    totalElem.textContent = "Total: $0";
+    emptyElem.style.display = "block";
+    document.getElementById("checkoutBtn").disabled = true;
+    return;
+  }
+  emptyElem.style.display = "none";
+  let total = 0;
+  data.items.forEach(item => {
+    const subtotal = item.quantity * item.price_snapshot;
+    total += subtotal;
+    list.innerHTML += `<tr>
+      <td>${item.name}</td>
+      <td><input type="number" min="1" value="${item.quantity}" onchange="updateCartItem(${item.id}, this.value)" style="width:60px;"></td>
+      <td>$${item.price_snapshot.toFixed(2)}</td>
+      <td>$${subtotal.toFixed(2)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="removeFromCart(${item.id})">Eliminar</button></td>
+    </tr>`;
+  });
+  totalElem.textContent = "Total: $" + total.toFixed(2);
+  document.getElementById("checkoutBtn").disabled = false;
+}
+
+async function updateCartItem(itemId, qty) {
+  await fetch("/api/cart/update", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: itemId, quantity: qty })
+  });
+  await refreshCartUI();
+  if (typeof updateCartCount === 'function') {
+    updateCartCount();
+  }
+}
+
+async function removeFromCart(itemId) {
+  await fetch("/api/cart/remove", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: itemId })
+  });
+  await refreshCartUI();
+  if (typeof updateCartCount === 'function') {
+    updateCartCount();
+  }
+}
+
+document.getElementById("checkoutBtn").addEventListener("click", async () => {
+  const res = await fetch("/api/cart/create-checkout-session", { method: "POST" });
+  const data = await res.json();
+  if (data.url) {
+    window.location = data.url;
+  } else {
+    alert("Error: " + (data.error || "No se pudo crear la sesión"));
+  }
+});
+
+window.onload = refreshCartUI;
+</script>
 {% endblock %}

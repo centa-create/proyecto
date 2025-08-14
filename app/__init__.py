@@ -1,6 +1,4 @@
 from flask import Flask, render_template
-
-
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
@@ -50,6 +48,7 @@ def create_app():
     from app.models.notifications import Notification  # Asegura que el modelo esté registrado
     from app.routes.catalog import catalog_bp
     from app.routes.cart import cart_bp
+    from app.routes.cart_api import cart_api_bp, webhook_bp
     from app.routes.admin import admin_bp
     from app.routes.wishlist import wishlist_bp
     from app.routes.reviews import reviews_bp
@@ -61,6 +60,8 @@ def create_app():
     app.register_blueprint(notif.notif_bp)
     app.register_blueprint(catalog_bp)
     app.register_blueprint(cart_bp)
+    app.register_blueprint(cart_api_bp)
+    app.register_blueprint(webhook_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(wishlist_bp)
     app.register_blueprint(reviews_bp)

@@ -105,6 +105,21 @@
     }
 </style>
 {% endblock %}
+{% block scripts %}
+<script>
+async function addToCart(productId, qty = 1) {
+  await fetch("/api/cart/add", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ product_id: productId, quantity: qty })
+  });
+  alert('Producto agregado al carrito');
+  if (typeof updateCartCount === 'function') {
+    updateCartCount();
+  }
+}
+</script>
+{% endblock %}
 {% block content %}
 <div class="catalog-container">
     <div class="catalog-title">Catálogo de Productos</div>
@@ -136,7 +151,24 @@
           <div class="card-body d-flex flex-column">
             <div class="product-title mb-1">{{ product.name }}</div>
             <div class="product-price mb-2">${{ '%.2f'|format(product.price) }}</div>
-            <a href="{{ url_for('catalog.product_detail', product_id=product.id) }}" class="btn btn-outline-primary mt-auto" title="Ver detalle del producto">Ver detalle</a>
+            <div class="d-flex gap-2 mt-auto">
+              <a href="{{ url_for('catalog.product_detail', product_id=product.id) }}" class="btn btn-outline-primary" title="Ver detalle del producto">Ver detalle</a>
+              <input type="number" min="1" value="1" style="width:60px;" id="qty-{{ product.id }}">
+              <button class="btn btn-outline-primary" onclick="addToCart({{ product.id }}, document.getElementById('qty-{{ product.id }}').value)">Agregar al carrito</button>
+            </div>
+<script>
+async function addToCart(productId, qty = 1) {
+  await fetch("/api/cart/add", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ product_id: productId, quantity: qty })
+  });
+  alert('Producto agregado al carrito');
+  if (typeof updateCartCount === 'function') {
+    updateCartCount();
+  }
+}
+</script>
           </div>
         </div>
       </div>
