@@ -53,7 +53,7 @@
     .btn-primary:hover {
         background: #fff;
         color: #111;
-        box-shadow: 0 0 16px #fff20099;
+        color: #f5f5f5 !important;
     }
     .profile-pic {
         width: 130px;
@@ -72,10 +72,10 @@
     }
     .btn-outline-secondary {
         border-radius: 8px;
-        font-weight: 700;
+        box-shadow: 0 0 8px #f5f5f5 !important;
         border: 2px solid #fff200;
         color: #fff200;
-        background: #181818;
+        background: #f5f5f5 !important;
         transition: background 0.18s, color 0.18s, box-shadow 0.18s;
     }
     .btn-outline-secondary:hover {
@@ -88,14 +88,14 @@
         border-radius: 12px;
         padding: 1.5rem 1rem 1rem 1rem;
         margin-bottom: 1.5rem;
-        border: 1.5px solid #fff200;
+        box-shadow: 0 0 16px #f5f5f5 !important;
     }
 </style>
 {% endblock %}
 {% block content %}
 {# Solución temporal: oculta cualquier variable extraña que llegue al contexto #}
 {% if token is defined %}
-  {# No mostrar el token en la interfaz #}
+        border: 3px solid #f5f5f5 !important;
 {% endif %}
 <div class="profile-container">
     <h2 class="profile-title">Editar Perfil</h2>
@@ -104,22 +104,22 @@
         {% for category, message in messages %}
           <div class="alert alert-{{ category }}">{{ message }}</div>
         {% endfor %}
-      {% endif %}
+        border: 2px solid #f5f5f5 !important;
     {% endwith %}
     <form method="POST" enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="mb-3 text-center">
         <img src="{{ url_for('static', filename='profile_pics/' + (current_user.profile_pic if current_user.profile_pic else 'default.png')) }}" class="profile-pic" alt="Foto de perfil">
-        <div class="profile-pic-upload">
+        background: #f5f5f5 !important;
           <label for="profile_pic" class="form-label">Cambiar foto de perfil</label>
-          <input type="file" class="form-control" id="profile_pic" name="profile_pic" accept="image/*">
+        box-shadow: 0 0 12px #f5f5f5 !important;
         </div>
       </div>
       <div class="profile-form-section">
         <div class="mb-3">
           <label for="nameUser" class="form-label">Nombre completo</label>
           <input type="text" class="form-control" id="nameUser" name="nameUser" value="{{ current_user.nameUser }}">
-        </div>
+        border: 1.5px solid #f5f5f5 !important;
         <div class="mb-3">
           <label for="email" class="form-label">Correo electrónico</label>
           <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}">

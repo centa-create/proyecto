@@ -9,11 +9,11 @@
         border-radius: 1.5rem;
         box-shadow: 0 8px 32px 0 #000a;
         padding: 2.5rem 2rem 2rem 2rem;
-        border: 2px solid #fff200;
+  border: 2px solid #f5f5f5;
     }
     .wishlist-title {
         font-weight: 900;
-        color: #fff200;
+  color: #f5f5f5;
         margin-bottom: 1.5rem;
         text-align: left;
         font-size: 2.1rem;
@@ -34,7 +34,7 @@
         justify-content: space-between;
         align-items: center;
         font-size: 1.08rem;
-        border-left: 4px solid #fff200;
+  border-left: 4px solid #f5f5f5;
     }
     .wishlist-item a {
         color: #fff;
@@ -44,11 +44,11 @@
         transition: color 0.18s;
     }
     .wishlist-item a:hover {
-        color: #fff200;
-        text-shadow: 0 0 8px #fff20099;
+  color: #f5f5f5;
+  text-shadow: 0 0 8px #f5f5f5;
     }
     .wishlist-item .product-price {
-        color: #fff200;
+  color: #f5f5f5;
         font-weight: 700;
         margin-left: 0.7rem;
     }
@@ -57,15 +57,15 @@
         font-weight: 800;
         font-size: 1rem;
         padding: 0.4rem 1.1rem;
-        border: 2px solid #fff200;
+  border: 2px solid #f5f5f5;
         background: #181818;
-        color: #fff200;
+  color: #f5f5f5;
         transition: background 0.18s, color 0.18s, box-shadow 0.18s;
     }
     .btn-remove:hover {
-        background: #fff200;
+  background: #f5f5f5;
         color: #111;
-        box-shadow: 0 0 12px #fff20099;
+  box-shadow: 0 0 12px #f5f5f5;
     }
     @media (max-width: 768px) {
         .wishlist-container {
@@ -82,10 +82,10 @@
       {% for item in items %}
       <li class="wishlist-item position-relative">
         {% if item.product.is_nuevo %}
-          <span class="badge bg-info text-dark position-absolute top-0 end-0 m-2" style="font-size:0.95em;box-shadow:0 0 8px #fff;z-index:3;" title="¡Nuevo!">Nuevo</span>
+          <span class="badge badge-glow-white position-absolute top-0 end-0 m-2" style="font-size:0.95em;z-index:3;" title="¡Nuevo!">Nuevo</span>
         {% endif %}
         {% if item.product.is_mas_vendido %}
-          <span class="badge bg-warning text-dark position-absolute top-0 start-50 translate-middle-x m-2" style="font-size:0.95em;box-shadow:0 0 8px #fff200;z-index:3;" title="Más vendido">★ Más vendido</span>
+          <span class="badge badge-glow-white position-absolute top-0 start-50 translate-middle-x m-2" style="font-size:0.95em;z-index:3;" title="Más vendido">★ Más vendido</span>
         {% endif %}
         <div>
           <a href="{{ url_for('catalog.product_detail', product_id=item.product_id) }}">{{ item.product.name }}</a>
