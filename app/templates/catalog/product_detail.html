@@ -125,35 +125,30 @@
           <li><b>Stock:</b> {{ product.stock }}</li>
         </ul>
         <form method="post" action="#">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button class="btn btn-success w-100" type="button" onclick="addToCart({{ product.id }})">Agregar al carrito</button>
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <div class="mb-3">
+                                    <label for="cantidad" class="form-label">Cantidad:</label>
+                                    <input type="number" min="1" max="{{ product.stock }}" value="1" name="cantidad" id="cantidad" class="form-control" style="max-width:120px;display:inline-block;">
+                                </div>
+                                <button class="btn btn-success w-100" type="submit">Agregar al carrito</button>
+                            </form>
+                            <form id="addCartForm" method="post" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" style="display:none;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="cantidad" id="hiddenCantidad" value="1">
+                            </form>
+                            <script>
+                            document.querySelector('button[type="submit"]').addEventListener('click', function(e) {
+                                e.preventDefault();
+                                var cantidad = document.getElementById('cantidad').value;
+                                document.getElementById('hiddenCantidad').value = cantidad;
+                                document.getElementById('addCartForm').submit();
+                            });
+                            </script>
         </form>
       </div>
-        </div>
-        <script>
-        async function addToCart(productId, qty = 1) {
-            try {
-                const res = await fetch('/api/cart/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ product_id: productId, quantity: qty })
-                });
-                const data = await res.json();
-                if (data.ok) {
-                    alert('Producto agregado al carrito');
-                    if (typeof updateCartCount === 'function') updateCartCount();
-                } else {
-                    alert(data.error || 'No se pudo agregar al carrito');
-                }
-            } catch (e) {
-                alert('Error al agregar al carrito');
-            }
-        }
-        </script>
-        <div class="mt-5">
-            {% include 'reviews/product_reviews.html' %}
-        </div>
+    </div>
+    <div class="mt-5">
+      {% include 'reviews/product_reviews.html' %}
+    </div>
 </div>
 {% endblock %}
