@@ -126,12 +126,34 @@
         </ul>
         <form method="post" action="#">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button class="btn btn-success w-100" disabled>Agregar al carrito (próximamente)</button>
+          <button class="btn btn-success w-100" type="button" onclick="addToCart({{ product.id }})">Agregar al carrito</button>
         </form>
       </div>
-    </div>
-    <div class="mt-5">
-      {% include 'reviews/product_reviews.html' %}
-    </div>
+        </div>
+        <script>
+        async function addToCart(productId, qty = 1) {
+            try {
+                const res = await fetch('/api/cart/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ product_id: productId, quantity: qty })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    alert('Producto agregado al carrito');
+                    if (typeof updateCartCount === 'function') updateCartCount();
+                } else {
+                    alert(data.error || 'No se pudo agregar al carrito');
+                }
+            } catch (e) {
+                alert('Error al agregar al carrito');
+            }
+        }
+        </script>
+        <div class="mt-5">
+            {% include 'reviews/product_reviews.html' %}
+        </div>
 </div>
 {% endblock %}
