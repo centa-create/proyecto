@@ -114,10 +114,16 @@ async function refreshCartUI() {
   document.getElementById("checkoutBtn").disabled = false;
 }
 
+
+const csrfToken = "{{ csrf_token() }}";
+
 async function updateCartItem(itemId, qty) {
   await fetch("/api/cart/update", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrfToken
+    },
     body: JSON.stringify({ id: itemId, quantity: qty })
   });
   await refreshCartUI();
@@ -129,7 +135,10 @@ async function updateCartItem(itemId, qty) {
 async function removeFromCart(itemId) {
   await fetch("/api/cart/remove", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrfToken
+    },
     body: JSON.stringify({ id: itemId })
   });
   await refreshCartUI();
@@ -139,7 +148,12 @@ async function removeFromCart(itemId) {
 }
 
 document.getElementById("checkoutBtn").addEventListener("click", async () => {
-  const res = await fetch("/api/cart/create-checkout-session", { method: "POST" });
+  const res = await fetch("/api/cart/create-checkout-session", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": csrfToken
+    }
+  });
   const data = await res.json();
   if (data.url) {
     window.location = data.url;

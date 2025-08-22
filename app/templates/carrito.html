@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Carrito - Tienda Virtual{% endblock %}
+{% block content %}
+<div class="cart-container">
+  <h2 class="mb-4">Tu Carrito</h2>
+  {% if cart_items %}
+    <div class="mb-2">{{ cart_items|length }} productos</div>
+    <table class="table table-bordered align-middle">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio</th>
+          <th>Subtotal</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart_items %}
+        <tr>
+          <td>
+            {% if item.product.image_url %}
+              <img src="{{ item.product.image_url() }}" alt="{{ item.product.name }}" style="height:48px;vertical-align:middle;margin-right:8px;">
+            {% endif %}
+            {{ item.product.name }}
+          </td>
+          <td>{{ item.quantity }}</td>
+          <td>${{ '%.2f'|format(item.product.price) }}</td>
+          <td>${{ '%.2f'|format(item.subtotal) }}</td>
+          <td>
+            <form method="post" action="{{ url_for('cart.remove_from_cart', item_id=item.id) }}" style="display:inline;">
+              <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="cart-total mb-4">Total: ${{ '%.2f'|format(total) }}</div>
+    <a href="/catalog" class="btn btn-secondary">Seguir Comprando</a>
+    <a href="/cart/checkout" class="btn btn-success">Proceder al Pago</a>
+  {% else %}
+    <div class="alert alert-info text-center">Tu carrito está vacío<br>Agrega algunos productos increíbles a tu carrito</div>
+    <a href="/catalog" class="btn btn-primary">Explorar Productos</a>
+  {% endif %}
+</div>
+{% endblock %}

@@ -140,3 +140,4 @@
     </div>
 </div>
 {% endblock %}
+py -c "from app import app, db; exec('with app.app_context():\n db.create_all()')"

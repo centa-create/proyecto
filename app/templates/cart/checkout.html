@@ -10,6 +10,7 @@
 </ul>
 <p><strong>Total:</strong> <span style="font-size:1.2em;color:#0074D9;">${{ total }}</span></p>
 <form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <button type="submit" class="btn btn-success">Confirmar pedido y pagar</button>
 </form>
 <a href="{{ url_for('cart.view_cart') }}" class="btn btn-secondary">Volver al carrito</a>

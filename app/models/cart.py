@@ -15,3 +15,6 @@ class CartItem(db.Model):
     quantity = db.Column(db.Integer, default=1)
     price_snapshot = db.Column(db.Float, nullable=False)  # Precio al añadir el producto
     __table_args__ = (db.UniqueConstraint('cart_id', 'product_id', name='unique_cart_product'),)
+    # Relación para acceder al producto desde el item
+    from app.models.products import Product
+    product = db.relationship('Product', backref='cart_items', lazy=True, uselist=False, primaryjoin="CartItem.product_id==Product.id")

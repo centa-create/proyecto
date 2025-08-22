@@ -11,10 +11,20 @@ cart_bp = Blueprint('cart', __name__, url_prefix='/cart')
 @cart_bp.route('/')
 @login_required
 def view_cart():
-    cart = Cart.query.filter_by(user_id=current_user.idUser).first()
-    items = cart.items if cart else []
-    total = sum(item.quantity * item.product.price for item in items) if items else 0
-    return render_template('cart/cart.html', items=items, total=total)
+    # Obtener los productos del carrito para el usuario actual
+    cart_items = CartItem.query.join(Cart).filter(Cart.user_id==current_user.idUser).all()
+    products_in_cart = []
+    total = 0
+    for item in cart_items:
+        if item.product:
+            products_in_cart.append({
+                'id': item.id,
+                'product': item.product,
+                'quantity': item.quantity,
+                'subtotal': item.product.price * item.quantity
+            })
+            total += item.product.price * item.quantity
+    return render_template('carrito.html', cart_items=products_in_cart, total=total)
 
 @cart_bp.route('/add/<int:product_id>', methods=['POST'])
 @login_required
@@ -76,6 +86,7 @@ def checkout():
             # Crear orden
             order = Order(user_id=current_user.idUser, total=total)
             db.session.add(order)
+            db.session.commit()  # Commit para obtener order.id
             for item in cart.items:
                 detail = OrderDetail(order_id=order.id, product_id=item.product_id, quantity=item.quantity, price=item.product.price)
                 db.session.add(detail)
