@@ -23,6 +23,16 @@ def add_to_cart(product_id):
     if product.stock <= 0:
         flash('Producto sin stock disponible.', 'danger')
         return redirect(url_for('catalog.catalog'))
+    cantidad = request.form.get('cantidad', 1)
+    try:
+        cantidad = int(cantidad)
+    except ValueError:
+        cantidad = 1
+    if cantidad < 1:
+        cantidad = 1
+    if cantidad > product.stock:
+        flash('No hay suficiente stock disponible.', 'danger')
+        return redirect(url_for('catalog.product_detail', product_id=product_id))
     cart = Cart.query.filter_by(user_id=current_user.idUser).first()
     if not cart:
         cart = Cart(user_id=current_user.idUser)
@@ -30,16 +40,16 @@ def add_to_cart(product_id):
         db.session.commit()
     item = CartItem.query.filter_by(cart_id=cart.id, product_id=product_id).first()
     if item:
-        if item.quantity + 1 > product.stock:
+        if item.quantity + cantidad > product.stock:
             flash('No hay suficiente stock.', 'danger')
-            return redirect(url_for('catalog.catalog'))
-        item.quantity += 1
+            return redirect(url_for('catalog.product_detail', product_id=product_id))
+        item.quantity += cantidad
     else:
-        item = CartItem(cart_id=cart.id, product_id=product_id, quantity=1)
+        item = CartItem(cart_id=cart.id, product_id=product_id, quantity=cantidad, price_snapshot=product.price)
         db.session.add(item)
     db.session.commit()
     flash('Producto agregado al carrito.', 'success')
-    return redirect(url_for('catalog.catalog'))
+    return redirect(url_for('cart.view_cart'))
 
 @cart_bp.route('/remove/<int:item_id>', methods=['POST'])
 @login_required
