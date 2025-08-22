@@ -124,15 +124,14 @@
           <li><b>Color:</b> {{ product.color }}</li>
           <li><b>Stock:</b> {{ product.stock }}</li>
         </ul>
-        <form method="post" action="#">
-                            <form method="post" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <div class="mb-3">
-                                    <label for="cantidad" class="form-label">Cantidad:</label>
-                                    <input type="number" min="1" max="{{ product.stock }}" value="1" name="cantidad" id="cantidad" class="form-control" style="max-width:120px;display:inline-block;">
-                                </div>
-                                <button class="btn btn-success w-100" type="submit">Agregar al carrito</button>
-                            </form>
+    <!-- Eliminado formulario innecesario -->
+        <form method="post" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label for="cantidad" class="form-label">Cantidad:</label>
+                <input type="number" min="1" max="{{ product.stock }}" value="1" name="cantidad" id="cantidad" class="form-control" style="max-width:120px;display:inline-block;">
+            </div>
+            <button class="btn btn-success w-100" type="submit">Agregar al carrito</button>
         </form>
       </div>
     </div>
