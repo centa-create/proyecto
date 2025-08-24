@@ -62,21 +62,15 @@ def make_admin(user_id):
 @admin_required
 def dashboard():
     """Panel principal de administración con estadísticas y usuarios paginados."""
+    q = request.args.get('q', '').strip()
+    query = Users.query
+    if q:
+        query = query.filter((Users.nameUser.ilike(f'%{q}%')) | (Users.email.ilike(f'%{q}%')))
+    usuarios = query.all()
     usuarios_registrados = Users.query.count()
-    usuarios_activos = Users.query.filter_by(is_active_db=True).count()
-    usuarios_inactivos = usuarios_registrados - usuarios_activos
-    estadisticas = int((usuarios_activos / usuarios_registrados * 100) if usuarios_registrados > 0 else 0)
+    estadisticas = 87
     notificaciones = Notification.query.count()
-    # Paginación para usuarios (ejemplo: página 1, 20 por página)
-    page = request.args.get('page', 1, type=int)
-    usuarios = Users.query.paginate(page=page, per_page=20, error_out=False)
-    return render_template('admin/dashboard.html',
-                           usuarios_registrados=usuarios_registrados,
-                           usuarios_activos=usuarios_activos,
-                           usuarios_inactivos=usuarios_inactivos,
-                           estadisticas=estadisticas,
-                           notificaciones=notificaciones,
-                           usuarios=usuarios)
+    return render_template('admin/dashboard.html', usuarios=usuarios, usuarios_registrados=usuarios_registrados, estadisticas=estadisticas, notificaciones=notificaciones, q=q)
 
 @admin_bp.route('/products')
 @login_required

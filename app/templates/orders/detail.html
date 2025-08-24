@@ -1,19 +1,19 @@
 {% block content %}
-<div class="order-detail-container">
-    <div class="order-detail-title">Detalle del Pedido #{{ order.id }}</div>
+<div class="order-detail-container order-detail-border">
+  <div class="order-detail-title order-detail-title-glow">Detalle del pedido n.º <span class="order-id">{{ order.id }}</span></div>
     <div class="order-detail-info">
-      <span class="badge">{{ order.status }}</span>
-      <span><b>Fecha:</b> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
-      <span><b>Total:</b> ${{ '%.2f'|format(order.total) }}</span>
+      <span class="badge badge-status">{{ order.status }}</span>
+      <span class="order-meta"><i class="bi bi-calendar-event"></i> <b>Fecha:</b> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+  <span class="order-meta"><i class="bi bi-cash-coin"></i> <b>Total:</b> {{ (order.total * 4000)|int | string | replace(',', '.') | regex_replace('(?<=\d)(?=(\d{3})+$)', '.') }} COP</span>
     </div>
     <div class="table-responsive mb-4">
-      <table class="table table-bordered align-middle">
-        <thead class="table-light">
+      <table class="table order-table align-middle">
+        <thead>
           <tr>
             <th>Producto</th>
             <th>Cantidad</th>
             <th>Precio</th>
-            <th>Subtotal</th>
+            <th>Total parcial</th>
           </tr>
         </thead>
         <tbody>
@@ -21,88 +21,177 @@
           <tr>
             <td class="position-relative">
               {% if detail.product.is_nuevo %}
-                <span class="badge bg-info text-dark position-absolute top-0 end-0 m-1" style="font-size:0.85em;box-shadow:0 0 8px #fff;z-index:3;" title="¡Nuevo!">Nuevo</span>
+                <span class="badge badge-new">Nuevo</span>
               {% endif %}
               {% if detail.product.is_mas_vendido %}
-                <span class="badge bg-warning text-dark position-absolute top-0 start-50 translate-middle-x m-1" style="font-size:0.85em;box-shadow:0 0 8px #fff200;z-index:3;" title="Más vendido">★ Más vendido</span>
+                <span class="badge badge-best">★ Más vendido</span>
               {% endif %}
               {{ detail.product.name }}
             </td>
             <td>{{ detail.quantity }}</td>
-            <td>${{ '%.2f'|format(detail.price) }}</td>
-            <td>${{ '%.2f'|format(detail.quantity * detail.price) }}</td>
+            <td>{{ (detail.price * 4000)|int | string | replace(',', '.') | regex_replace('(?<=\d)(?=(\d{3})+$)', '.') }} COP</td>
+            <td>{{ (detail.quantity * detail.price * 4000)|int | string | replace(',', '.') | regex_replace('(?<=\d)(?=(\d{3})+$)', '.') }} COP</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
     <div class="order-actions">
-      <a href="{{ url_for('orders.pay', order_id=order.id) }}" class="btn btn-success">Pagar ahora</a>
-      <a href="{{ url_for('orders.history') }}" class="btn btn-outline-secondary">Volver al historial</a>
+      <a href="{{ url_for('orders.pay', order_id=order.id) }}" class="btn btn-yellow-glow">Pagar ahora</a>
+      <a href="{{ url_for('orders.history') }}" class="btn btn-yellow-glow">Volver al historial</a>
     </div>
 </div>
 {% endblock %}
-    .order-detail-container {
-        max-width: 900px;
-        margin: 40px auto;
-        background: #fff;
-        border-radius: 1.5rem;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.13);
-        padding: 2.5rem 2rem 2rem 2rem;
-    }
-    .order-detail-title {
-        font-weight: 800;
-        color: #003366;
-        margin-bottom: 1.5rem;
-        text-align: left;
-        font-size: 2.1rem;
-    }
-    .order-detail-info {
-        margin-bottom: 2.2rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1.5rem;
-        align-items: center;
-        font-size: 1.08rem;
-    }
-    .order-detail-info .badge {
-        font-size: 1rem;
-        padding: 0.7em 1.2em;
-        border-radius: 0.7em;
-        background: #eafaf1;
-        color: #003366;
-        font-weight: 700;
-    }
-    .table {
-        border-radius: 1rem;
-        overflow: hidden;
-        background: #f8fafc;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .table th, .table td {
-        vertical-align: middle;
-        font-size: 1.05rem;
-    }
-    .btn-success, .btn-outline-secondary {
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 1rem;
-        padding: 0.4rem 1.1rem;
-    }
-    .order-actions {
-        display: flex;
-        justify-content: center;
-        gap: 1.2rem;
-        margin-top: 2rem;
-    }
-    @media (max-width: 768px) {
-        .order-detail-container {
-            padding: 1rem;
-        }
-        .order-detail-info {
-            flex-direction: column;
-            gap: 0.7rem;
-        }
-    }
-  /* ...estilos... */
+<style>
+body {
+  background: linear-gradient(120deg, #111 0%, #222 100%), url('https://www.transparenttextures.com/patterns/asfalt-light.png');
+  min-height: 100vh;
+  color: #f5f5f5;
+  font-family: 'Montserrat', Arial, sans-serif;
+  background-blend-mode: overlay;
+}
+.order-detail-container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #181818cc;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px 0 #000a;
+  padding: 2.5rem 2rem 2rem 2rem;
+  animation: fadeIn 1.2s cubic-bezier(.4,2,.3,1);
+}
+.order-detail-border {
+  border: 3px solid #fff;
+  box-shadow: 0 0 24px 0 #fff2, 0 4px 24px #000a;
+}
+.order-detail-title {
+  font-weight: 900;
+  color: #f5f5f5;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 2.4rem;
+  letter-spacing: 0.01em;
+}
+.order-detail-title-glow {
+  text-shadow: 0 0 16px #fff, 0 2px 8px #000a;
+}
+.order-id {
+  color: #ffe066;
+  font-weight: 700;
+}
+.order-detail-info {
+  margin-bottom: 2.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  font-size: 1.15rem;
+  justify-content: center;
+}
+.order-detail-info .badge-status {
+  font-size: 1.1rem;
+  padding: 0.7em 1.5em;
+  border-radius: 1em;
+  background: #fff;
+  color: #222;
+  font-weight: 800;
+  box-shadow: 0 0 16px #ffe066, 0 2px 8px #0005;
+  border: 2px solid #ffe066;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.2em;
+}
+.order-meta {
+  color: #f5f5f5;
+  font-weight: 600;
+  text-shadow: 0 0 4px #000a;
+  margin-left: 0.5em;
+}
+.order-table {
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #23272f;
+  box-shadow: 0 2px 8px #0005;
+}
+.order-table th {
+  background: #181818;
+  color: #ffe066;
+  font-size: 1.08rem;
+  font-weight: 800;
+  border: none;
+  text-shadow: 0 0 8px #ffe06644;
+}
+.order-table td {
+  color: #f5f5f5;
+  font-size: 1.05rem;
+  border: none;
+}
+.order-table tr {
+  transition: background 0.2s;
+}
+.order-table tr:hover {
+  background: #333a;
+}
+.badge-new {
+  background: #ffe066;
+  color: #181818;
+  font-weight: 700;
+  border-radius: 0.7em;
+  font-size: 0.85em;
+  margin-right: 0.4em;
+  box-shadow: 0 0 8px #ffe066;
+}
+.badge-best {
+  background: #fff200;
+  color: #181818;
+  font-weight: 700;
+  border-radius: 0.7em;
+  font-size: 0.85em;
+  margin-right: 0.4em;
+  box-shadow: 0 0 8px #fff200;
+}
+.btn-yellow-glow {
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.08rem;
+  padding: 0.5rem 1.4rem;
+  margin: 0 0.3rem;
+  box-shadow: 0 0 12px #ffe066, 0 2px 8px #000a;
+  outline: none;
+  border: 2px solid #ffe066;
+  color: #ffe066;
+  background: #181818;
+  text-shadow: 0 0 8px #ffe06644;
+  transition: box-shadow 0.18s, color 0.18s, background 0.18s, border 0.18s;
+}
+.btn-yellow-glow:focus, .btn-yellow-glow:hover {
+  box-shadow: 0 0 32px 8px #ffe066, 0 4px 32px #000a;
+  color: #181818 !important;
+  background: #ffe066 !important;
+  border: 2px solid #fff;
+}
+.order-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: none; }
+}
+@media (max-width: 768px) {
+  .order-detail-container {
+      padding: 1rem;
+  }
+  .order-detail-title {
+      font-size: 1.4rem;
+  }
+  .order-detail-info {
+      flex-direction: column;
+      gap: 0.7rem;
+  }
+  .order-actions {
+      flex-direction: column;
+      gap: 0.7rem;
+  }
+}
 </style>

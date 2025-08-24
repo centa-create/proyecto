@@ -8,4 +8,5 @@ class Review(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.Text)
+    image_path = db.Column(db.String(256))  # Ruta de la imagen subida
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

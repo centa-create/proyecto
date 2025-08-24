@@ -1,5 +1,3 @@
-
-
 {% extends 'base.html' %}
 {% block title %}{{ product.name }} | Tienda Virtual{% endblock %}
 {% block head %}
@@ -105,7 +103,10 @@
 <div class="product-detail-container">
     <div class="product-detail-row">
       <div>
-        <img src="{{ url_for('static', filename='product_images/' ~ product.image) }}" class="product-detail-img" alt="{{ product.name }}">
+        <picture>
+          <source srcset="{{ url_for('static', filename='product_images/' ~ product.image|replace('.jpg','.webp')|replace('.png','.webp')) }}" type="image/webp">
+          <img src="{{ url_for('static', filename='product_images/' ~ product.image) }}" class="product-detail-img" alt="{{ product.name }}" loading="lazy">
+        </picture>
       </div>
       <div class="product-detail-info">
         <div class="d-flex align-items-center mb-2">
@@ -119,7 +120,7 @@
         </div>
         <div class="product-detail-desc">{{ product.description }}</div>
         <ul class="product-detail-list">
-          <li><b>Precio:</b> ${{ '%.2f'|format(product.price) }}</li>
+          <li><b>Precio:</b> {{ (product.price * 4000)|int | string | replace(',', '.') }} COP</li>
           <li><b>Talla:</b> {{ product.size }}</li>
           <li><b>Color:</b> {{ product.color }}</li>
           <li><b>Stock:</b> {{ product.stock }}</li>

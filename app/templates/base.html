@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Eliminado sistema de tema claro/oscuro -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Tienda Virtual{% endblock %}</title>
@@ -8,6 +9,135 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='star-bg.css') }}">
     <style>
+        :root {
+            --color-bg: #181818;
+            --color-bg-light: #23272f;
+            --color-text: #f5f5f5;
+            --color-card: #23272f;
+            --color-border: #fff;
+            --color-glow: #fff8;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-bg: #181818;
+                --color-bg-light: #23272f;
+                --color-text: #f5f5f5;
+                --color-card: #23272f;
+                --color-border: #fff;
+                --color-glow: #fff8;
+            }
+            body {
+                background: linear-gradient(120deg, #111 0%, #222 100%), url('https://www.transparenttextures.com/patterns/asfalt-light.png');
+                color: var(--color-text);
+            }
+        }
+        @media (prefers-color-scheme: light) {
+            :root {
+                --color-bg: #f5f5f5;
+                --color-bg-light: #fff;
+                --color-text: #181818;
+                --color-card: #fff;
+                --color-border: #23272f;
+                --color-glow: #23272f22;
+            }
+            body {
+                background: linear-gradient(120deg, #fff 0%, #eaeaea 100%);
+                color: var(--color-text);
+            }
+            .navbar, .container, .product-card {
+                background: var(--color-bg-light) !important;
+                color: var(--color-text) !important;
+            }
+            .product-card {
+                border: 2px solid var(--color-border) !important;
+                box-shadow: 0 0 24px 0 var(--color-glow), 0 4px 24px #0002 !important;
+            }
+        }
+        /* Glow y degradado blanco global */
+        .glow-white {
+            background: linear-gradient(90deg, #fff 0%, #eaeaea 100%) !important;
+            color: #23272f !important;
+            box-shadow: 0 0 16px #fff8, 0 2px 8px #0005;
+            border: 2px solid #fff !important;
+            font-weight: 800;
+            text-shadow: 0 0 8px #fff, 0 0 16px #fff8;
+        }
+        .badge-glow-white, .badge.bg-warning, .badge.bg-info, .badge.bg-danger {
+            background: linear-gradient(90deg, #fff 0%, #eaeaea 100%) !important;
+            color: #23272f !important;
+            font-weight: 800;
+            box-shadow: 0 0 8px #fff8;
+            border: 1.5px solid #fff;
+            text-shadow: 0 0 8px #fff, 0 0 16px #fff8;
+        }
+        .alert-info, .alert-warning, .alert-danger, .alert-success {
+            background: linear-gradient(90deg, #fff 0%, #eaeaea 100%) !important;
+            color: #23272f !important;
+            border: 2px solid #fff !important;
+            font-weight: 700;
+            box-shadow: 0 0 12px #fff8;
+            text-shadow: 0 0 8px #fff8;
+        }
+        .btn, .btn-outline-primary, .btn-outline-info, .btn-outline-success, .btn-outline-warning, .btn-outline-secondary, .btn-outline-dark, .btn-primary {
+            border-radius: 8px !important;
+            font-weight: 800 !important;
+            font-size: 1rem !important;
+            padding: 0.5rem 1.2rem !important;
+            border: 2px solid #fff !important;
+            color: #23272f !important;
+            background: linear-gradient(90deg, #fff 0%, #eaeaea 100%) !important;
+            box-shadow: 0 0 12px #fff8 !important;
+            transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.12s !important;
+            margin-bottom: 0.5rem;
+        }
+        .btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 0 32px 8px var(--color-glow), 0 2px 8px #0005 !important;
+        }
+        .btn:focus {
+            outline: 2px solid #fff;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px #fff8 !important;
+        }
+        .btn:hover, .btn-outline-primary:hover, .btn-outline-info:hover, .btn-outline-success:hover, .btn-outline-warning:hover, .btn-outline-secondary:hover, .btn-outline-dark:hover, .btn-primary:hover {
+            background: #23272f !important;
+            color: #fff !important;
+            box-shadow: 0 0 24px #fff, 0 0 16px #fff8 !important;
+            border: 2px solid #fff !important;
+        }
+        input, select, textarea {
+            transition: border 0.18s, box-shadow 0.18s;
+            border-radius: 8px;
+            border: 2px solid var(--color-border);
+            background: var(--color-bg-light);
+            color: var(--color-text);
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #fff;
+            box-shadow: 0 0 8px #fff8;
+            outline: none;
+        }
+        th, .table th {
+            background: linear-gradient(90deg, #fff 0%, #eaeaea 100%) !important;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: #fff !important;
+            font-weight: 800;
+            text-shadow: 0 0 8px #fff, 0 0 16px #fff8;
+        }
+        .table, .table-bordered {
+            border: 2px solid #fff !important;
+            box-shadow: 0 2px 8px #fff2 !important;
+            background: #23272f !important;
+            color: #fff !important;
+        }
+        .fade-in {
+            animation: fadeIn 1.2s cubic-bezier(.4,2,.3,1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: none; }
+        }
         /* Clases personalizadas para glow blanco */
         .bg-glow-white {
             background: #f5f5f5 !important;
@@ -250,15 +380,109 @@
             background: #f5f5f5;
             border-radius: 8px;
         }
+        /* Microinteracciones y feedback visual */
+        .btn, .btn-outline-primary, .btn-outline-info, .btn-outline-success, .btn-outline-warning, .btn-outline-secondary, .btn-outline-dark, .btn-primary {
+            transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.12s !important;
+        }
+        .btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 0 32px 8px var(--color-glow), 0 2px 8px #0005 !important;
+        }
+        .btn:focus {
+            outline: 2px solid #fff;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px #fff8 !important;
+        }
+        input, select, textarea {
+            transition: border 0.18s, box-shadow 0.18s;
+            border-radius: 8px;
+            border: 2px solid var(--color-border);
+            background: var(--color-bg-light);
+            color: var(--color-text);
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #fff;
+            box-shadow: 0 0 8px #fff8;
+            outline: none;
+        }
+        /* Feedback visual en formularios */
+        .form-control:invalid {
+            border-color: #e74c3c !important;
+            box-shadow: 0 0 8px #e74c3c88 !important;
+        }
+        .form-control:valid {
+            border-color: #2ecc40 !important;
+            box-shadow: 0 0 8px #2ecc4088 !important;
+        }
+        /* Accesibilidad: alto contraste y focus visible */
+        .high-contrast {
+            filter: contrast(1.3) brightness(1.1);
+        }
+        [aria-live] {
+            outline: 2px dashed #fff;
+            outline-offset: 2px;
+        }
+        /* Mejoras para lectores de pantalla */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
     </style>
+    <!-- SEO y PWA -->
+    <meta name="description" content="SAMMS.FO - Tu tienda virtual de productos destacados, sneakers y moda urbana. Compra fácil, seguro y rápido.">
+    <meta name="keywords" content="sneakers, tienda, ecommerce, moda, ofertas, productos, carrito, pedidos, reviews, favoritos">
+    <meta name="theme-color" content="#181818">
+            <!-- Rich Snippets SEO -->
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "SAMMS.FO",
+                "url": "https://samms.fo/",
+                "logo": "https://samms.fo/static/logo.png"
+            }
+            </script>
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org/",
+                "@type": "Product",
+                "name": "Zapatilla AirMax",
+                "image": [
+                    "https://samms.fo/static/product_images/airmax.jpg"
+                ],
+                "description": "Zapatilla deportiva AirMax original.",
+                "brand": {
+                    "@type": "Brand",
+                    "name": "Nike"
+                }
+            }
+            </script>
+    <meta property="og:title" content="SAMMS.FO - Tienda Virtual" />
+    <meta property="og:description" content="Descubre los mejores productos y ofertas en SAMMS.FO. ¡Compra fácil y seguro!" />
+    <meta property="og:image" content="{{ url_for('static', filename='logo.png') }}" />
+    <meta property="og:type" content="website" />
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='logo.png') }}">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/static/service-worker.js');
+        });
+      }
+    </script>
     {% block head %}{% endblock %}
 </head>
-<body>
+<body role="main" tabindex="0">
     <div class="stars"></div>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center gap-2" href="/">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo SAMMS.FO" height="48" style="filter: drop-shadow(0 0 16px #fff200);border-radius:50%;background:#fff;object-fit:cover;" title="Ir al inicio">
             <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo SAMMS.FO" height="48" style="filter: drop-shadow(0 0 16px #f5f5f5);border-radius:50%;background:#fff;object-fit:cover;" title="Ir al inicio">
             <span class="ms-2">SAMMS.FO</span>
         </a>
@@ -321,6 +545,53 @@
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Eliminado JS de sistema de tema claro/oscuro -->
+<script>
+// Efecto ripple en botones
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('button, .btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            let ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            ripple.style.left = (e.offsetX - 10) + 'px';
+            ripple.style.top = (e.offsetY - 10) + 'px';
+            this.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+    });
+});
+// Animación de validación en formularios
+document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, false);
+});
+</script>
+<style>
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    background: rgba(255,255,255,0.7);
+    pointer-events: none;
+    animation: ripple-effect 0.6s linear;
+    z-index: 10;
+}
+@keyframes ripple-effect {
+    to {
+        transform: scale(8);
+        opacity: 0;
+    }
+}
+button, .btn { position: relative; overflow: hidden; }
+.was-validated :invalid { box-shadow: 0 0 8px #ff4c4c, 0 0 2px #fff; }
+.was-validated :valid { box-shadow: 0 0 8px #4cff4c, 0 0 2px #fff; }
+</style>
 <script>
 async function updateCartCount() {
     try {
@@ -364,6 +635,51 @@ async function updateCartCount() {
     } catch (e) {}
 }
 window.addEventListener('DOMContentLoaded', updateCartCount);
+</script>
+<script>
+// Notificaciones Push básicas (ejemplo)
+if ('Notification' in window && 'serviceWorker' in navigator) {
+  function askNotificationPermission() {
+    if (Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }
+  window.addEventListener('load', askNotificationPermission);
+  function showTestNotification() {
+    if (Notification.permission === 'granted') {
+      navigator.serviceWorker.getRegistration().then(function(reg) {
+        if (reg) {
+          reg.showNotification('¡Bienvenido a SAMMS.FO!', {
+            body: 'Activa las notificaciones para recibir ofertas y novedades.',
+            icon: '/static/logo.png',
+            vibrate: [100, 50, 100]
+          });
+        }
+      });
+    }
+  }
+  // Botón flotante para probar notificaciones
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.createElement('button');
+    btn.innerText = '🔔';
+    btn.title = 'Probar notificación push';
+    btn.style.position = 'fixed';
+    btn.style.bottom = '24px';
+    btn.style.right = '24px';
+    btn.style.zIndex = '9999';
+    btn.style.background = 'linear-gradient(90deg,#fff,#eaeaea)';
+    btn.style.color = '#23272f';
+    btn.style.border = '2px solid #fff';
+    btn.style.borderRadius = '50%';
+    btn.style.width = '48px';
+    btn.style.height = '48px';
+    btn.style.fontSize = '2rem';
+    btn.style.boxShadow = '0 0 16px #fff8';
+    btn.style.cursor = 'pointer';
+    btn.onclick = showTestNotification;
+    document.body.appendChild(btn);
+  });
+}
 </script>
 {% block scripts %}{% endblock %}
 </body>

@@ -52,6 +52,61 @@
         letter-spacing: 0.04em;
         text-shadow: 0 2px 12px #000a;
     }
+    .cart-empty-message {
+        background: #23272f;
+        border-radius: 1.2rem;
+        padding: 2rem 1rem 1.5rem 1rem;
+        margin: 2rem auto 1rem auto;
+        max-width: 700px;
+        box-shadow: 0 0 24px #fff20022, 0 4px 24px #000a;
+        text-align: center;
+        border: 2px solid #fff200;
+        color: #fff;
+        animation: fadeIn 1.2s cubic-bezier(.4,2,.3,1);
+    }
+    .cart-empty-icon {
+        font-size: 3.5rem;
+        margin-bottom: 0.5rem;
+        color: #fff200;
+        text-shadow: 0 0 16px #fff20099;
+    }
+    .cart-empty-title {
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #fff200;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 8px #fff20044;
+    }
+    .cart-empty-desc {
+        font-size: 1.1rem;
+        color: #f5f5f5;
+        margin-bottom: 0.5rem;
+    }
+    .btn-yellow-glow {
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 1.08rem;
+        padding: 0.5rem 1.4rem;
+        margin: 0 0.3rem;
+        box-shadow: 0 0 12px #fff200, 0 2px 8px #000a;
+        outline: none;
+        border: 2px solid #fff200;
+        color: #fff200;
+        background: #181818;
+        text-shadow: 0 0 8px #fff20044;
+        transition: box-shadow 0.18s, color 0.18s, background 0.18s, border 0.18s;
+        display: inline-block;
+    }
+    .btn-yellow-glow:focus, .btn-yellow-glow:hover {
+        box-shadow: 0 0 32px 8px #fff200, 0 4px 32px #000a;
+        color: #181818 !important;
+        background: #fff200 !important;
+        border: 2px solid #fff;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: none; }
+    }
     @media (max-width: 768px) {
         .cart-container {
             padding: 1rem;
@@ -76,11 +131,16 @@
         <tbody id="cartItems"></tbody>
       </table>
     </div>
-    <div class="cart-total mb-4" id="cartTotal">Total: $0</div>
+  <div class="cart-total mb-4" id="cartTotal">Total: 0 COP</div>
     <div class="text-end mb-4">
       <button class="btn btn-success" id="checkoutBtn">Pagar con Stripe</button>
     </div>
-    <div id="cartEmpty" class="alert alert-info text-center" style="display:none;">No tienes productos en el carrito.</div>
+    <div id="cartEmpty" class="cart-empty-message" style="display:none;">
+      <div class="cart-empty-icon">🛒</div>
+      <div class="cart-empty-title">¡Tu carrito está vacío!</div>
+      <div class="cart-empty-desc">Agrega algunos productos increíbles a tu carrito y disfruta de la experiencia SAMMS.FO.</div>
+      <a href="/catalog" class="btn btn-yellow-glow mt-3">Explorar Productos</a>
+    </div>
 </div>
 
 <script>
@@ -105,12 +165,12 @@ async function refreshCartUI() {
     list.innerHTML += `<tr>
       <td>${item.name}</td>
       <td><input type="number" min="1" value="${item.quantity}" onchange="updateCartItem(${item.id}, this.value)" style="width:60px;"></td>
-      <td>$${item.price_snapshot.toFixed(2)}</td>
-      <td>$${subtotal.toFixed(2)}</td>
+  <td>${(item.price_snapshot * 4000).toLocaleString('es-CO')} COP</td>
+  <td>${(subtotal * 4000).toLocaleString('es-CO')} COP</td>
       <td><button class="btn btn-danger btn-sm" onclick="removeFromCart(${item.id})">Eliminar</button></td>
     </tr>`;
   });
-  totalElem.textContent = "Total: $" + total.toFixed(2);
+  totalElem.textContent = "Total: " + (total * 4000).toLocaleString('es-CO') + " COP";
   document.getElementById("checkoutBtn").disabled = false;
 }
 

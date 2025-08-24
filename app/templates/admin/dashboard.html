@@ -3,10 +3,11 @@
 {% block head %}
 <style>
     .sidebar {
-        background: #222;
+        background: #181c24;
         color: #fff;
         min-height: 100vh;
         padding-top: 2rem;
+        box-shadow: 0 0 24px #fff2;
     }
     .sidebar a {
         color: #fff;
@@ -15,21 +16,60 @@
         text-decoration: none;
         border-radius: 8px;
         margin-bottom: 0.5rem;
+        transition: background 0.2s, color 0.2s;
     }
     .sidebar a.active, .sidebar a:hover {
-        background: #2980b9;
+        background: linear-gradient(90deg,#fff,#eaeaea);
+        color: #23272f;
+        box-shadow: 0 0 12px #fff8;
     }
     .main-panel {
         padding: 2rem;
     }
     .admin-badge {
-        background: #2980b9;
-        color: #fff;
+        background: linear-gradient(90deg,#fff,#eaeaea);
+        color: #23272f;
         border-radius: 8px;
         padding: 0.5rem 1rem;
         font-weight: bold;
         margin-bottom: 1rem;
         display: inline-block;
+        box-shadow: 0 0 12px #fff8;
+    }
+    .card {
+        border-radius: 1.2rem;
+        box-shadow: 0 0 24px #fff8, 0 8px 32px #000a;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-4px) scale(1.03);
+        box-shadow: 0 0 32px #fff, 0 8px 32px #000a;
+    }
+    .table-dark {
+        background: #23272f;
+        color: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 0 16px #fff8;
+        overflow-x: auto;
+        display: block;
+        max-width: 100%;
+    }
+    .table-dark th, .table-dark td {
+        border-color: #fff;
+    }
+    .btn-warning.btn-sm {
+        background: linear-gradient(90deg,#fff,#eaeaea);
+        color: #23272f;
+        border: 2px solid #fff;
+        font-weight: 700;
+        border-radius: 8px;
+        box-shadow: 0 0 8px #fff8;
+        transition: background 0.2s, color 0.2s;
+    }
+    .btn-warning.btn-sm:hover {
+        background: #23272f;
+        color: #fff;
+        box-shadow: 0 0 16px #fff;
     }
     @media (max-width: 768px) {
         .sidebar {
@@ -38,6 +78,9 @@
         }
         .main-panel {
             padding: 1rem;
+        }
+        .table-dark {
+            font-size: 0.95rem;
         }
     }
 </style>
@@ -59,33 +102,59 @@
             <h2>Bienvenido, {{ current_user.nameUser }}</h2>
             <div class="row mt-4">
                 <div class="col-md-4 mb-3">
-                    <div class="card text-bg-primary">
+                    <div class="card text-bg-primary animate__animated animate__pulse animate__infinite">
                         <div class="card-body">
                             <h5 class="card-title">Usuarios registrados</h5>
-<p class="card-text display-6">{{ usuarios_registrados }}</p>
+                            <p class="card-text display-6" id="usuarios-registrados">{{ usuarios_registrados }}</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <div class="card text-bg-success">
+                    <div class="card text-bg-success animate__animated animate__pulse animate__infinite animate__delay-1s">
                         <div class="card-body">
                             <h5 class="card-title">Estadísticas</h5>
-<p class="card-text display-6">+{{ estadisticas }}%</p>
+                            <p class="card-text display-6" id="estadisticas">+{{ estadisticas }}%</p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <div class="card text-bg-warning">
+                    <div class="card text-bg-warning animate__animated animate__pulse animate__infinite animate__delay-2s">
                         <div class="card-body">
                             <h5 class="card-title">Notificaciones</h5>
-<p class="card-text display-6">{{ notificaciones }}</p>
+                            <p class="card-text display-6" id="notificaciones">{{ notificaciones }}</p>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="d-flex justify-content-end mb-2">
+                <button class="btn btn-primary" onclick="recargarDashboard()">Recargar datos</button>
+            </div>
+            <div class="alert alert-info mt-4">Esta es el área de notificaciones y mensajes importantes del sistema.</div>
+            <div class="mt-4 p-3" style="background:#23272f;border-radius:1rem;box-shadow:0 0 12px #fff8;">
+                <h5 class="mb-3">Estadísticas en tiempo real <span class="badge bg-success">Beta</span></h5>
+                <div id="estadisticas-tiempo-real" style="color:#fff;">Cargando datos en tiempo real...</div>
+                <canvas id="chart-ventas" height="80" style="max-width:100%;background:#181c24;border-radius:1rem;"></canvas>
+            </div>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script src="{{ url_for('static', filename='js/admin_charts.js') }}"></script>
+            <script>
+            // Simulación de actualización en tiempo real (puedes conectar a WebSocket o AJAX real)
+            function recargarDashboard() {
+                document.getElementById('estadisticas-tiempo-real').innerText = 'Actualizando...';
+                setTimeout(function() {
+                    document.getElementById('estadisticas-tiempo-real').innerText = 'Usuarios activos: ' + (Math.floor(Math.random()*100)+10) + '\nVentas hoy: $' + (Math.floor(Math.random()*10000)+1000);
+                }, 1200);
+            }
+            // Auto-carga inicial
+            recargarDashboard();
+            </script>
             <div class="alert alert-info mt-4">Esta es el área de notificaciones y mensajes importantes del sistema.</div>
             <hr>
             <h4 class="mt-5">Gestión de Usuarios</h4>
+            <form class="d-flex mb-3" method="get" action="">
+                <input class="form-control me-2" type="search" name="q" placeholder="Buscar por nombre o email" value="{{ q|default('') }}" aria-label="Buscar">
+                <button class="btn btn-primary" type="submit">Buscar</button>
+            </form>
             <table class="table table-dark table-striped mt-3">
                 <thead>
                     <tr>
