@@ -36,7 +36,7 @@
         {% endfor %}
       </tbody>
     </table>
-  <div class="cart-total mb-4">Total: {{ (total * 4000)|int | string | replace(',', '.') | regex_replace('(?<=\d)(?=(\d{3})+$)', '.') }} COP</div>
+  <div class="cart-total mb-4">Total: {{ (total * 4000)|int|string|replace(',', '.') }} COP</div>
     <a href="/catalog" class="btn btn-secondary">Seguir Comprando</a>
     <a href="/cart/checkout" class="btn btn-success">Proceder al Pago</a>
   {% else %}
