@@ -29,6 +29,7 @@
           <td>{{ (item.subtotal * 4000)|int|string|replace(',', '.') }} COP</td>
           <td>
             <form method="post" action="{{ url_for('cart.remove_from_cart', item_id=item.id) }}" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
             </form>
           </td>
