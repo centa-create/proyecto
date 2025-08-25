@@ -98,7 +98,7 @@
           <tr>
             <td>{{ order.id }}</td>
             <td>{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
-            <td>{{ (order.total * 4000)|int | string | replace(',', '.') | regex_replace('(?<=\d)(?=(\d{3})+$)', '.') }} COP</td>
+            <td>{{ (order.total * 4000)|int|string|replace(',', '.') }} COP</td>
             <td><span class="badge badge-glow-white">{{ order.status }}</span></td>
             <td><a href="{{ url_for('orders.detail', order_id=order.id) }}" class="btn btn-outline-primary btn-sm">Ver detalle</a></td>
           </tr>

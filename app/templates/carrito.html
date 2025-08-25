@@ -25,8 +25,8 @@
             {{ item.product.name }}
           </td>
           <td>{{ item.quantity }}</td>
-          <td>{{ (item.product.price * 4000)|int | string | replace(',', '.') | regex_replace('(?<=\d)(?=(\d{3})+$)', '.') }} COP</td>
-          <td>{{ (item.subtotal * 4000)|int | string | replace(',', '.') | regex_replace('(?<=\d)(?=(\d{3})+$)', '.') }} COP</td>
+          <td>{{ (item.product.price * 4000)|int|string|replace(',', '.') }} COP</td>
+          <td>{{ (item.subtotal * 4000)|int|string|replace(',', '.') }} COP</td>
           <td>
             <form method="post" action="{{ url_for('cart.remove_from_cart', item_id=item.id) }}" style="display:inline;">
               <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
