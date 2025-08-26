@@ -4,7 +4,7 @@
     <div class="order-detail-info">
       <span class="badge badge-status">{{ order.status }}</span>
       <span class="order-meta"><i class="bi bi-calendar-event"></i> <b>Fecha:</b> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
-  <span class="order-meta"><i class="bi bi-cash-coin"></i> <b>Total:</b> {{ (order.total * 4000)|int | string | replace(',', '.') | regex_replace('(?<=\d)(?=(\d{3})+$)', '.') }} COP</span>
+  <span class="order-meta"><i class="bi bi-cash-coin"></i> <b>Total:</b> {{ (order.total * 4000)|int|string|replace(',', '.') }} COP</span>
     </div>
     <div class="table-responsive mb-4">
       <table class="table order-table align-middle">
