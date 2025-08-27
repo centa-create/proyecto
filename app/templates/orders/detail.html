@@ -29,8 +29,8 @@
               {{ detail.product.name }}
             </td>
             <td>{{ detail.quantity }}</td>
-            <td>{{ (detail.price * 4000)|int | string | replace(',', '.') | regex_replace('(?<=\d)(?=(\d{3})+$)', '.') }} COP</td>
-            <td>{{ (detail.quantity * detail.price * 4000)|int | string | replace(',', '.') | regex_replace('(?<=\d)(?=(\d{3})+$)', '.') }} COP</td>
+            <td>{{ (detail.price * 4000)|int|string|replace(',', '.') }} COP</td>
+            <td>{{ (detail.quantity * detail.price * 4000)|int|string|replace(',', '.') }} COP</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -112,23 +112,28 @@ body {
   box-shadow: 0 2px 8px #0005;
 }
 .order-table th {
-  background: #181818;
-  color: #ffe066;
+  background: linear-gradient(90deg, #f5f5f5 0%, #eaeaea 100%) !important;
+  color: #222 !important;
   font-size: 1.08rem;
   font-weight: 800;
   border: none;
-  text-shadow: 0 0 8px #ffe06644;
+  text-shadow: none;
 }
 .order-table td {
-  color: #f5f5f5;
+  background: #fff;
+  color: #222;
+  font-weight: 600;
   font-size: 1.05rem;
   border: none;
+  vertical-align: middle;
+  padding: 0.85rem 1.2rem !important;
 }
-.order-table tr {
-  transition: background 0.2s;
+.order-table tbody tr {
+  transition: background 0.18s, box-shadow 0.18s;
 }
-.order-table tr:hover {
-  background: #333a;
+.order-table tbody tr:hover {
+  background: #f0f4fa !important;
+  box-shadow: 0 2px 12px #0001;
 }
 .badge-new {
   background: #ffe066;
