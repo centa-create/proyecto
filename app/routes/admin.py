@@ -31,6 +31,7 @@ from app.models.admin_notification import AdminNotification
 from app.models.store_config import StoreConfig
 from functools import wraps
 
+
 # --- Blueprint ---
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -267,7 +268,7 @@ import secrets
 from datetime import datetime, timedelta
 import os
 
-admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+
 
 # Decorador para admins
 

@@ -70,7 +70,7 @@ def register():
             email=email,
             passwordUser=hashed,
             birthdate=birthdate,
-            is_active_db=False,
+            is_active_db=True,  # Activar usuario por defecto para pruebas
             verification_token=token,
             accepted_terms=True,
             role=rol
