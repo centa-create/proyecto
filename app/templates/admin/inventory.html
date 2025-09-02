@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Inventario | Panel Admin{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Inventario y Control de Stock</h2>
+  <div class="alert alert-info">Puedes editar el stock directamente en la tabla. Los productos con bajo stock aparecen resaltados.</div>
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Categoría</th>
+        <th>Stock</th>
+        <th>Editar stock</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+      <tr {% if product.stock <= 5 %}class="table-danger"{% endif %}>
+        <td>{{ product.id }}</td>
+        <td>{{ product.name }}</td>
+        <td>{{ product.category.name }}</td>
+        <td><span class="fw-bold">{{ product.stock }}</span></td>
+        <td>
+          <form method="post" action="{{ url_for('admin.update_stock', product_id=product.id) }}" class="d-flex align-items-center gap-2">
+            <input type="number" name="stock" min="0" value="{{ product.stock }}" class="form-control" style="max-width:90px;">
+            <button type="submit" class="btn btn-primary btn-sm">Actualizar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

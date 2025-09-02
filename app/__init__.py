@@ -1,3 +1,5 @@
+from flask_socketio import SocketIO
+socketio = SocketIO(cors_allowed_origins="*")
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -17,9 +19,10 @@ def create_app():
 
     app = Flask(__name__)
     app.config.from_object('config.Config')
-    from app.routes.social import social_bp, google_bp
+    from app.routes.social import social_bp, google_bp, facebook_bp
     # Registrar blueprints sociales después de crear y configurar la app
     app.register_blueprint(google_bp, url_prefix="/login")
+    app.register_blueprint(facebook_bp, url_prefix="/login")
     app.register_blueprint(social_bp)
 
     db.init_app(app)
@@ -27,6 +30,7 @@ def create_app():
     login_manager.login_view = 'auth.login'
     csrf.init_app(app)
     cache.init_app(app)
+    socketio.init_app(app)
 
     from flask_limiter import Limiter
     from flask_limiter.util import get_remote_address

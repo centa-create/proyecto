@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Gestión de Pedidos | Admin{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Gestión de Pedidos</h2>
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Usuario</th>
+        <th>Fecha</th>
+        <th>Total</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.user.nameUser }}</td>
+        <td>{{ order.created_at.strftime('%d/%m/%Y') }}</td>
+        <td>${{ '%.2f'|format(order.total) }}</td>
+        <td>
+          <span class="badge bg-info">{{ order.status }}</span>
+        </td>
+        <td>
+          <form method="post" action="{{ url_for('admin.update_order_status', order_id=order.id) }}" class="d-flex gap-2">
+            <select name="status" class="form-select form-select-sm" style="max-width:120px;">
+              <option value="pendiente" {% if order.status == 'pendiente' %}selected{% endif %}>Pendiente</option>
+              <option value="enviado" {% if order.status == 'enviado' %}selected{% endif %}>Enviado</option>
+              <option value="entregado" {% if order.status == 'entregado' %}selected{% endif %}>Entregado</option>
+              <option value="cancelado" {% if order.status == 'cancelado' %}selected{% endif %}>Cancelado</option>
+            </select>
+            <button type="submit" class="btn btn-primary btn-sm">Actualizar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

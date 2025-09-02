@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Historial de Compras | Admin{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Historial de Compras de {{ user.nameUser }}</h2>
+  <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary mb-3">&larr; Volver al Dashboard</a>
+  {% if orders %}
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>ID Pedido</th>
+        <th>Fecha</th>
+        <th>Total</th>
+        <th>Estado</th>
+        <th>Detalle</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.created_at.strftime('%d/%m/%Y') }}</td>
+        <td>${{ '%.2f'|format(order.total) }}</td>
+        <td>{{ order.status }}</td>
+        <td>
+          <button class="btn btn-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#order{{ order.id }}" aria-expanded="false">Ver productos</button>
+          <div class="collapse mt-2" id="order{{ order.id }}">
+            <ul>
+              {% for item in order.details %}
+              <li>{{ item.product.name }} x{{ item.quantity }} - ${{ '%.2f'|format(item.price) }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <div class="alert alert-info">Este usuario no tiene compras registradas.</div>
+  {% endif %}
+</div>
+{% endblock %}

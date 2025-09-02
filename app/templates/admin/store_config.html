@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Configuración Avanzada de la Tienda{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Configuración Avanzada de la Tienda</h2>
+  <form method="post">
+    <div class="mb-3">
+      <label for="nombre_tienda" class="form-label">Nombre de la tienda</label>
+      <input type="text" class="form-control" id="nombre_tienda" name="nombre_tienda" value="{{ config.get('nombre_tienda', '') }}">
+    </div>
+    <div class="mb-3">
+      <label for="email_contacto" class="form-label">Email de contacto</label>
+      <input type="email" class="form-control" id="email_contacto" name="email_contacto" value="{{ config.get('email_contacto', '') }}">
+    </div>
+    <div class="mb-3">
+      <label for="horario" class="form-label">Horario de atención</label>
+      <input type="text" class="form-control" id="horario" name="horario" value="{{ config.get('horario', '') }}">
+    </div>
+    <div class="mb-3">
+      <label for="mensaje_bienvenida" class="form-label">Mensaje de bienvenida</label>
+      <input type="text" class="form-control" id="mensaje_bienvenida" name="mensaje_bienvenida" value="{{ config.get('mensaje_bienvenida', '') }}">
+    </div>
+    <div class="mb-3">
+      <label for="color_principal" class="form-label">Color principal (hex)</label>
+      <input type="text" class="form-control" id="color_principal" name="color_principal" value="{{ config.get('color_principal', '') }}">
+    </div>
+    <button type="submit" class="btn btn-success">Guardar cambios</button>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

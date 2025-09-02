@@ -85,6 +85,11 @@
 <div class="wishlist-container">
     <div class="wishlist-title">Mis Favoritos</div>
     {% if items %}
+    <div class="mb-3">
+      <label class="fw-bold">Comparte tu lista de deseos:</label>
+      <input type="text" class="form-control" value="{{ share_url }}" readonly onclick="this.select();document.execCommand('copy');" style="max-width:400px;display:inline-block;">
+      <small class="text-muted ms-2">Copia y comparte este enlace</small>
+    </div>
     <ul class="wishlist-list mb-4">
       {% for item in items %}
       <li class="wishlist-item position-relative">

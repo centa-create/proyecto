@@ -10,3 +10,4 @@ class Review(db.Model):
     comment = db.Column(db.Text)
     image_path = db.Column(db.String(256))  # Ruta de la imagen subida
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    aprobada = db.Column(db.Boolean, default=False)  # Moderación: solo reseñas aprobadas se muestran

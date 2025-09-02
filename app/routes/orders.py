@@ -39,6 +39,19 @@ def detail(order_id):
     if order.user_id != current_user.idUser:
         flash('No tienes acceso a este pedido.', 'danger')
         return redirect(url_for('orders.history'))
+    # Simulación: Si el usuario accede al detalle y el pedido está pendiente, lo marcamos como enviado y notificamos
+    if order.status == 'pendiente':
+        order.status = 'enviado'
+        db.session.commit()
+        # Crear notificación
+        from app.models.notifications import Notification
+        notif = Notification(user_id=current_user.idUser, mensaje=f'Tu pedido #{order.id} ha sido enviado.')
+        db.session.add(notif)
+        db.session.commit()
+        # Emitir notificación en tiempo real por WebSocket
+        from app import socketio
+        socketio.emit('nueva_notificacion', {'mensaje': notif.mensaje}, room=None)
+        return redirect(url_for('orders.history'))
     return render_template('orders/detail.html', order=order)
 
 @orders_bp.route('/pay/<int:order_id>', methods=['GET', 'POST'])

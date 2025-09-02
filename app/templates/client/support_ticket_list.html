@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Mis Tickets de Soporte{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Mis Tickets de Soporte</h2>
+  <a href="{{ url_for('client.create_support_ticket') }}" class="btn btn-primary mb-3">Nuevo Ticket</a>
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Asunto</th>
+        <th>Estado</th>
+        <th>Creado</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ticket in tickets %}
+      <tr>
+        <td>{{ ticket.id }}</td>
+        <td>{{ ticket.subject }}</td>
+        <td>{{ ticket.status }}</td>
+        <td>{{ ticket.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{{ url_for('client.dashboard') }}" class="btn btn-secondary mt-3">Volver al panel</a>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Gestión de Cupones | Admin{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Gestión de Cupones y Promociones</h2>
+  <form method="post" action="{{ url_for('admin.add_coupon') }}" class="row g-3 mb-4">
+    <div class="col-md-2">
+      <input type="text" name="code" class="form-control" placeholder="Código" required maxlength="32">
+    </div>
+    <div class="col-md-2">
+      <input type="number" name="discount_percent" class="form-control" placeholder="% Descuento" min="1" max="100" required>
+    </div>
+    <div class="col-md-2">
+      <input type="date" name="valid_from" class="form-control" required>
+    </div>
+    <div class="col-md-2">
+      <input type="date" name="valid_to" class="form-control" required>
+    </div>
+    <div class="col-md-2">
+      <input type="number" name="usage_limit" class="form-control" placeholder="Límite uso">
+    </div>
+    <div class="col-md-2">
+      <select name="product_id" class="form-select">
+        <option value="">Producto (opcional)</option>
+        {% for p in products %}
+        <option value="{{ p.id }}">{{ p.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select name="category_id" class="form-select">
+        <option value="">Categoría (opcional)</option>
+        {% for c in categories %}
+        <option value="{{ c.id }}">{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <input type="text" name="description" class="form-control" placeholder="Descripción">
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-success w-100">Crear cupón</button>
+    </div>
+  </form>
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Descripción</th>
+        <th>%</th>
+        <th>Válido desde</th>
+        <th>Hasta</th>
+        <th>Usos</th>
+        <th>Producto</th>
+        <th>Categoría</th>
+        <th>Activo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for coupon in coupons %}
+      <tr>
+        <td>{{ coupon.code }}</td>
+        <td>{{ coupon.description }}</td>
+        <td>{{ coupon.discount_percent }}%</td>
+        <td>{{ coupon.valid_from.strftime('%d/%m/%Y') }}</td>
+        <td>{{ coupon.valid_to.strftime('%d/%m/%Y') }}</td>
+        <td>{% if coupon.usage_limit %}{{ coupon.used_count }}/{{ coupon.usage_limit }}{% else %}Ilimitado{% endif %}</td>
+        <td>{% if coupon.product_id %}{{ products|selectattr('id', 'equalto', coupon.product_id)|first.name }}{% else %}-{% endif %}</td>
+        <td>{% if coupon.category_id %}{{ categories|selectattr('id', 'equalto', coupon.category_id)|first.name }}{% else %}-{% endif %}</td>
+        <td>{% if coupon.active %}<span class="badge bg-success">Sí</span>{% else %}<span class="badge bg-danger">No</span>{% endif %}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin.toggle_coupon', coupon_id=coupon.id) }}" style="display:inline;">
+            <button class="btn btn-secondary btn-sm">{{ 'Desactivar' if coupon.active else 'Activar' }}</button>
+          </form>
+          <form method="post" action="{{ url_for('admin.delete_coupon', coupon_id=coupon.id) }}" style="display:inline;">
+            <button class="btn btn-danger btn-sm">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

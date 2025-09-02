@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Banners y Contenido Destacado{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Banners y Contenido Destacado</h2>
+  <a href="{{ url_for('admin.add_banner') }}" class="btn btn-primary mb-3">Nuevo Banner</a>
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Título</th>
+        <th>Imagen</th>
+        <th>Enlace</th>
+        <th>Activo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for banner in banners %}
+      <tr>
+        <td>{{ banner.id }}</td>
+        <td>{{ banner.title }}</td>
+        <td><img src="{{ url_for('static', filename='banners/' ~ banner.image) }}" alt="banner" width="120"></td>
+        <td>{{ banner.link or '-' }}</td>
+        <td>{{ 'Sí' if banner.active else 'No' }}</td>
+        <td>
+          <a href="{{ url_for('admin.edit_banner', banner_id=banner.id) }}" class="btn btn-sm btn-warning">Editar</a>
+          <form action="{{ url_for('admin.toggle_banner', banner_id=banner.id) }}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-secondary">{{ 'Desactivar' if banner.active else 'Activar' }}</button>
+          </form>
+          <form action="{{ url_for('admin.delete_banner', banner_id=banner.id) }}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

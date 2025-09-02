@@ -159,12 +159,18 @@ async function addToCart(productId, qty = 1) {
 <div class="catalog-container">
     <div class="catalog-title">Catálogo de Productos</div>
     <form method="get" class="catalog-filter">
+      <input type="text" name="q" placeholder="Buscar productos..." value="{{ request.args.get('q', '') }}" class="form-control" style="max-width:200px;">
       <select name="category" onchange="this.form.submit()">
         <option value="">Todas las categorías</option>
         {% for cat in categories %}
           <option value="{{ cat.id }}" {% if request.args.get('category', type=int) == cat.id %}selected{% endif %}>{{ cat.name }}</option>
         {% endfor %}
       </select>
+      <input type="number" name="min_price" placeholder="Precio mín" value="{{ request.args.get('min_price', '') }}" class="form-control" style="max-width:120px;">
+      <input type="number" name="max_price" placeholder="Precio máx" value="{{ request.args.get('max_price', '') }}" class="form-control" style="max-width:120px;">
+      <input type="text" name="color" placeholder="Color" value="{{ request.args.get('color', '') }}" class="form-control" style="max-width:120px;">
+      <input type="text" name="size" placeholder="Talla" value="{{ request.args.get('size', '') }}" class="form-control" style="max-width:120px;">
+      <button type="submit" class="btn btn-primary">Filtrar</button>
     </form>
     <div class="row justify-content-center">
       {% for product in products %}

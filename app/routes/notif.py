@@ -1,11 +1,20 @@
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-
 from app import db
 from app.models.notifications import Notification
 from datetime import datetime
 
 notif_bp = Blueprint('notif', __name__, url_prefix='/notificaciones')
+
+@notif_bp.route('/api/check', methods=['GET'])
+@login_required
+def check_new():
+    # Devuelve la notificación más reciente no leída
+    notif = Notification.query.filter_by(user_id=current_user.idUser, leida=False).order_by(Notification.fecha.desc()).first()
+    if notif:
+        return jsonify({'new': True, 'mensaje': notif.mensaje, 'id': notif.id})
+    return jsonify({'new': False})
 
 
 def get_user_notifs():

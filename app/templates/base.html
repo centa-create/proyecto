@@ -714,4 +714,22 @@ if ('Notification' in window && 'serviceWorker' in navigator) {
 </script>
 {% block scripts %}{% endblock %}
 </body>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/socketio-notify.js') }}"></script>
+<script>
+// Notificaciones push en tiempo real (simulado)
+if (window.Notification && Notification.permission === 'granted') {
+    setInterval(async function() {
+        try {
+            const resp = await fetch('/notificaciones/api/check');
+            const data = await resp.json();
+            if (data.new) {
+                new Notification('¡Tienes una nueva notificación!', { body: data.mensaje });
+                // Marcar como leída automáticamente
+                await fetch(`/notificaciones/marcar_leida/${data.id}`, {method:'POST'});
+            }
+        } catch (e) {}
+    }, 10000); // cada 10 segundos
+}
+</script>
 </html>

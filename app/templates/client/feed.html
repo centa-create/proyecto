@@ -185,6 +185,55 @@
       <div class="feed-title">Los Más Populares</div>
       <div class="feed-subtitle">Descubre las mejores ofertas y productos destacados</div>
   </div>
+
+  {% if recomendaciones_historial and recomendaciones_historial|length > 0 %}
+  <h4 class="mb-3">Recomendados para ti</h4>
+  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mb-4">
+      {% for product in recomendaciones_historial %}
+      <div class="col">
+          <div class="card product-card h-100 position-relative">
+              <picture>
+                <source srcset="{{ url_for('static', filename='profile_pics/' ~ (product.image or 'default.png')|replace('.jpg','.webp')|replace('.png','.webp')) }}" type="image/webp">
+                <img src="{{ url_for('static', filename='profile_pics/' ~ (product.image or 'default.png')) }}" class="card-img-top product-img" alt="{{ product.name }}" loading="lazy">
+              </picture>
+              <div class="card-body d-flex flex-column">
+                  <div class="product-title mb-1">{{ product.name }}</div>
+                  <div class="product-price mb-2">{{ (product.price * 4000)|int | string | replace(',', '.') }} COP</div>
+                  {% if product.promo %}
+                  <div class="product-promo mb-2">{{ product.promo }}</div>
+                  {% endif %}
+                  <a href="{{ url_for('catalog.product_detail', product_id=product.id) }}" class="btn btn-outline-primary mt-auto" title="Ver detalle del producto">Ver detalle</a>
+              </div>
+          </div>
+      </div>
+      {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if populares and populares|length > 0 %}
+  <h4 class="mb-3">Productos más vendidos</h4>
+  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mb-4">
+      {% for product in populares %}
+      <div class="col">
+          <div class="card product-card h-100 position-relative">
+              <picture>
+                <source srcset="{{ url_for('static', filename='profile_pics/' ~ (product.image or 'default.png')|replace('.jpg','.webp')|replace('.png','.webp')) }}" type="image/webp">
+                <img src="{{ url_for('static', filename='profile_pics/' ~ (product.image or 'default.png')) }}" class="card-img-top product-img" alt="{{ product.name }}" loading="lazy">
+              </picture>
+              <div class="card-body d-flex flex-column">
+                  <div class="product-title mb-1">{{ product.name }}</div>
+                  <div class="product-price mb-2">{{ (product.price * 4000)|int | string | replace(',', '.') }} COP</div>
+                  {% if product.promo %}
+                  <div class="product-promo mb-2">{{ product.promo }}</div>
+                  {% endif %}
+                  <a href="{{ url_for('catalog.product_detail', product_id=product.id) }}" class="btn btn-outline-primary mt-auto" title="Ver detalle del producto">Ver detalle</a>
+              </div>
+          </div>
+      </div>
+      {% endfor %}
+  </div>
+  {% endif %}
+  </div>
 <div class="filters-bar mb-4">
     <label for="filter-category">Categoría:</label>
     <select id="filter-category" name="category" disabled>

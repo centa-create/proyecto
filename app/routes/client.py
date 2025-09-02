@@ -1,13 +1,36 @@
-
 from flask import Blueprint, render_template, flash, request, redirect, url_for, current_app, send_file
 from flask_login import login_required, current_user
-
 from werkzeug.utils import secure_filename
 from app import db
 import os, json
 from app.models.products import Product
+from app.models.support_ticket import SupportTicket
 
 client_bp = Blueprint('client', __name__, url_prefix='/client')
+
+# Crear ticket de soporte
+@client_bp.route('/support_ticket/create', methods=['GET', 'POST'])
+@login_required
+def create_support_ticket():
+    if request.method == 'POST':
+        subject = request.form.get('subject', '').strip()
+        message = request.form.get('message', '').strip()
+        if not subject or not message:
+            flash('Asunto y mensaje requeridos.', 'danger')
+            return render_template('client/support_ticket_create.html')
+        ticket = SupportTicket(user_id=current_user.idUser, subject=subject, message=message)
+        db.session.add(ticket)
+        db.session.commit()
+        flash('Ticket de soporte enviado.', 'success')
+        return redirect(url_for('client.list_support_tickets'))
+    return render_template('client/support_ticket_create.html')
+
+# Listar tickets del usuario
+@client_bp.route('/support_tickets')
+@login_required
+def list_support_tickets():
+    tickets = SupportTicket.query.filter_by(user_id=current_user.idUser).order_by(SupportTicket.created_at.desc()).all()
+    return render_template('client/support_ticket_list.html', tickets=tickets)
 @client_bp.route('/social')
 @login_required
 def social():
@@ -20,11 +43,26 @@ def feed():
     # Productos destacados primero, luego el resto
     destacados = Product.query.filter_by(destacado=True).all()
     normales = Product.query.filter_by(destacado=False).all()
-    # Promociones: productos con promo no nulo
     promociones = Product.query.filter(Product.promo != None).all()
+    # Recomendaciones personalizadas por historial de usuario
+    recomendaciones_historial = []
+    if hasattr(current_user, 'idUser'):
+        from app.models.orders import Order, OrderDetail
+        user_orders = Order.query.filter_by(user_id=current_user.idUser).all()
+        product_ids = set()
+        for order in user_orders:
+            for detail in order.details:
+                product_ids.add(detail.product_id)
+        if product_ids:
+            # Recomendar productos de la misma categoría que los comprados
+            categorias = set([Product.query.get(pid).category_id for pid in product_ids if Product.query.get(pid)])
+            recomendaciones_historial = Product.query.filter(Product.category_id.in_(categorias), ~Product.id.in_(product_ids)).limit(8).all()
+    # Recomendaciones por productos populares (más vendidos)
+    from sqlalchemy import func
+    populares = Product.query.join(Product.order_details).group_by(Product.id).order_by(func.count().desc()).limit(8).all()
     # Mezcla destacados y normales para el feed
     products = destacados + [p for p in normales if p not in destacados]
-    return render_template('client/feed.html', products=products, promociones=promociones, destacados=destacados)
+    return render_template('client/feed.html', products=products, promociones=promociones, destacados=destacados, recomendaciones_historial=recomendaciones_historial, populares=populares)
 
 @client_bp.route('/dashboard')
 @login_required

@@ -26,6 +26,9 @@ class Users(db.Model, UserMixin):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     profile_pic = db.Column(db.String(255), nullable=True)
     role = db.Column(db.Enum(UserRole), default=UserRole.USER, nullable=False)
+    wishlist_token = db.Column(db.String(32), unique=True, nullable=True)
+
+    is_blocked = db.Column(db.Boolean, default=False)  # Nuevo campo: usuario bloqueado
 
     def get_id(self):
         """Obtener el ID del usuario para Flask-Login."""
@@ -37,8 +40,8 @@ class Users(db.Model, UserMixin):
 
     @property
     def is_active(self):
-        """Retorna True si el usuario está activo."""
-        return True
+        """Retorna True si el usuario está activo y no está bloqueado."""
+        return not self.is_blocked and self.is_active_db
 
     def set_password(self, password):
         """Hashea y almacena la contraseña del usuario."""

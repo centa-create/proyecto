@@ -43,12 +43,12 @@
 <div class="social-container">
     <h2 class="social-title">Vinculación de Redes Sociales</h2>
     <div class="mb-3">
-        <button class="btn btn-danger btn-social" disabled>Vincular con Google (próximamente)</button>
-        <button class="btn btn-primary btn-social" disabled>Vincular con Facebook (próximamente)</button>
+  <a href="{{ url_for('social.google_login') }}" class="btn btn-danger btn-social">Vincular con Google</a>
+  <a href="{{ url_for('social.facebook_login') }}" class="btn btn-primary btn-social">Vincular con Facebook</a>
     </div>
     <div class="mb-3">
-        <button class="btn btn-outline-danger btn-social" disabled>Desvincular Google</button>
-        <button class="btn btn-outline-primary btn-social" disabled>Desvincular Facebook</button>
+  <button class="btn btn-outline-danger btn-social" disabled>Desvincular Google</button>
+  <button class="btn btn-outline-primary btn-social" disabled>Desvincular Facebook</button>
     </div>
     <div class="mt-4 text-center">
         <a href="{{ url_for('client.dashboard') }}" class="btn btn-outline-secondary">Volver al dashboard</a>

@@ -1,0 +1,48 @@
+{% extends 'admin/dashboard.html' %}
+{% block title %}Moderar Reseñas{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Moderación de Reseñas</h2>
+  {% if reviews %}
+    <table class="table table-bordered table-hover">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Producto</th>
+          <th>Usuario</th>
+          <th>Calificación</th>
+          <th>Comentario</th>
+          <th>Fecha</th>
+          <th>Aprobada</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reviews %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.product_id }}</td>
+          <td>{{ r.user_id }}</td>
+          <td>{{ r.rating }}</td>
+          <td>{{ r.comment }}</td>
+          <td>{{ r.created_at.strftime('%Y-%m-%d') }}</td>
+          <td>{% if r.aprobada %}<span class="badge bg-success">Sí</span>{% else %}<span class="badge bg-warning">No</span>{% endif %}</td>
+          <td>
+            {% if not r.aprobada %}
+            <form method="post" action="{{ url_for('admin.approve_review', review_id=r.id) }}" style="display:inline-block;">
+              <button class="btn btn-success btn-sm">Aprobar</button>
+            </form>
+            {% endif %}
+            <form method="post" action="{{ url_for('admin.reject_review', review_id=r.id) }}" style="display:inline-block;">
+              <button class="btn btn-danger btn-sm">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-info">No hay reseñas para moderar.</div>
+  {% endif %}
+</div>
+{% endblock %}

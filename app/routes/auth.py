@@ -12,6 +12,9 @@ def login():
         passwordUser = request.form.get('passwordUser', '')
         user = Users.query.filter_by(email=email).first()
         if user and bcrypt.checkpw(passwordUser.encode('utf-8'), user.passwordUser.encode('utf-8')):
+            if user.is_blocked:
+                flash('Tu cuenta ha sido bloqueada por un administrador.', 'danger')
+                return redirect(url_for('auth.login'))
             login_user(user)
             flash("¡Inicio de sesión exitoso!", "success")
             # Redirigir a dashboard admin si es admin, si no al FEED tipo marketplace

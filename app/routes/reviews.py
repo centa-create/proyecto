@@ -26,8 +26,8 @@ def add_review(product_id):
     if not rating or rating < 1 or rating > 5:
         flash('La calificación debe ser entre 1 y 5.', 'danger')
         return redirect(url_for('catalog.product_detail', product_id=product_id))
-    review = Review(user_id=current_user.idUser, product_id=product_id, rating=rating, comment=comment, image_path=image_path)
+    review = Review(user_id=current_user.idUser, product_id=product_id, rating=rating, comment=comment, image_path=image_path, aprobada=False)
     db.session.add(review)
     db.session.commit()
-    flash('¡Gracias por tu reseña!', 'success')
+    flash('¡Gracias por tu reseña! Será visible tras ser aprobada por un administrador.', 'info')
     return redirect(url_for('catalog.product_detail', product_id=product_id))

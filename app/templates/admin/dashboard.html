@@ -90,11 +90,24 @@
     <div class="row">
         <nav class="col-md-3 col-lg-2 sidebar">
             <h4 class="mb-4">Panel de Administración</h4>
-            <a href="#" class="active">Dashboard</a>
-            <a href="#">Gestión de Usuarios</a>
-            <a href="#">Configuración</a>
-            <a href="#">Estadísticas</a>
-            <a href="#">Notificaciones</a>
+            <a href="{{ url_for('admin.dashboard') }}" class="active">Dashboard</a>
+            <a href="{{ url_for('admin.orders') }}">Pedidos</a>
+            <a href="{{ url_for('admin.returns') }}">Devoluciones</a>
+            <a href="{{ url_for('admin.coupons') }}">Cupones</a>
+            <a href="{{ url_for('admin.audit') }}">Auditoría</a>
+            <a href="{{ url_for('admin.store_config') }}">Configuración</a>
+            <a href="{{ url_for('admin.admin_notifications') }}">Notificaciones</a>
+            <a href="{{ url_for('admin.banners') }}">Banners</a>
+            <a href="{{ url_for('admin.support_tickets') }}">Soporte/Tickets</a>
+            <a href="{{ url_for('admin.products') }}">Productos</a>
+            <a href="{{ url_for('admin.categories') }}">Categorías</a>
+            <a href="{{ url_for('admin.inventory') }}">Inventario</a>
+            <a href="{{ url_for('admin.reports') }}">Reportes</a>
+            <div class="mt-2 ms-2">
+                <a href="{{ url_for('admin.export_users') }}" class="btn btn-sm btn-outline-info">Exportar Usuarios</a>
+                <a href="{{ url_for('admin.export_products') }}" class="btn btn-sm btn-outline-info">Exportar Productos</a>
+                <a href="{{ url_for('admin.export_orders') }}" class="btn btn-sm btn-outline-info">Exportar Pedidos</a>
+            </div>
             <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
         </nav>
         <main class="col-md-9 col-lg-10 main-panel">
@@ -163,28 +176,41 @@
                         <th>Email</th>
                         <th>Rol</th>
                         <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in usuarios %}
-                    <tr>
-                        <td>{{ user.idUser }}</td>
-                        <td>{{ user.nameUser }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.role.value }}</td>
-                        <td>
-                            {% if user.role.value != 'admin' %}
-                            <form method="POST" action="{{ url_for('admin.make_admin', user_id=user.idUser) }}" style="display:inline;">
-                                <button type="submit" class="btn btn-warning btn-sm">Hacer admin</button>
-                            </form>
-                            {% else %}
-                            <span class="badge bg-success">Admin</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in usuarios %}
+                        <tr>
+                            <td>{{ user.idUser }}</td>
+                            <td>{{ user.nameUser }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.role.value }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.user_orders', user_id=user.idUser) }}" class="btn btn-info btn-sm mb-1">Ver compras</a>
+                                <form method="POST" action="{{ url_for('admin.reset_password', user_id=user.idUser) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-secondary btn-sm mb-1">Restablecer contraseña</button>
+                                </form>
+                                {% if user.role.value != 'admin' %}
+                                    {% if not user.is_blocked %}
+                                    <form method="POST" action="{{ url_for('admin.block_user', user_id=user.idUser) }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm mb-1">Bloquear</button>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST" action="{{ url_for('admin.unblock_user', user_id=user.idUser) }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-success btn-sm mb-1">Desbloquear</button>
+                                    </form>
+                                    {% endif %}
+                                    <form method="POST" action="{{ url_for('admin.make_admin', user_id=user.idUser) }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-warning btn-sm">Hacer admin</button>
+                                    </form>
+                                {% else %}
+                                <span class="badge bg-success">Admin</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
         </main>
     </div>
 </div>

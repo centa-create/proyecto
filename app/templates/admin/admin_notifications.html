@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Notificaciones Internas{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Notificaciones Internas</h2>
+  <form action="{{ url_for('admin.create_admin_notification') }}" method="post" class="mb-3">
+    <div class="input-group">
+      <input type="text" name="message" class="form-control" placeholder="Nueva notificación para admins" required>
+      <button class="btn btn-success" type="submit">Enviar</button>
+    </div>
+  </form>
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>Mensaje</th>
+        <th>Fecha</th>
+        <th>Leída</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for notif in notifications %}
+      <tr {% if not notif.is_read %}class="table-warning"{% endif %}>
+        <td>{{ notif.message }}</td>
+        <td>{{ notif.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>{{ 'Sí' if notif.is_read else 'No' }}</td>
+        <td>
+          {% if not notif.is_read %}
+          <form action="{{ url_for('admin.mark_notification_read', notif_id=notif.id) }}" method="post">
+            <button type="submit" class="btn btn-sm btn-info">Marcar como leída</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
