@@ -3,16 +3,16 @@
 <div class="container mt-4">
   <h2>Agregar Categoría</h2>
   <form method="post">
-    {{ csrf_token() }}
+    {{ form.hidden_tag() }}
     <div class="mb-3">
-      <label>Nombre</label>
-      <input type="text" name="name" class="form-control" required>
+      {{ form.name.label }}
+      {{ form.name(class_="form-control") }}
     </div>
     <div class="mb-3">
-      <label>Descripción</label>
-      <textarea name="description" class="form-control"></textarea>
+      {{ form.description.label }}
+      {{ form.description(class_="form-control") }}
     </div>
-    <button class="btn btn-success">Agregar</button>
+    {{ form.submit(class_="btn btn-success") }}
     <a href="{{ url_for('admin.categories') }}" class="btn btn-secondary">Cancelar</a>
   </form>
 </div>

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Asignar Promoción a {{ product.name }}</h2>
+  <form method="post">
+    <div class="mb-3">
+      <label>Promoción</label>
+      <input type="text" name="promo" class="form-control" value="{{ product.promo or '' }}" required>
+    </div>
+    <button class="btn btn-success">Guardar</button>
+    <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

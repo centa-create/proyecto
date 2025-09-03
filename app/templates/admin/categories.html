@@ -2,7 +2,7 @@
 {% block content %}
 <div class="container mt-4">
   <h2>Administrar Categorías</h2>
-  <a href="#" class="btn btn-success mb-3 disabled">Agregar categoría (próximamente)</a>
+  <a href="{{ url_for('admin.add_category') }}" class="btn btn-success mb-3">Agregar categoría</a>
   <table class="table table-bordered">
     <thead>
       <tr>

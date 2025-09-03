@@ -1,3 +1,7 @@
+
+
+from app.forms import ProductForm
+from app.forms import CategoryForm
 """
 Bloques de importación organizados: estándar, externas, internas
 """
@@ -29,11 +33,54 @@ from app.models.reviews import Review
 from app.models.banner import Banner
 from app.models.admin_notification import AdminNotification
 from app.models.store_config import StoreConfig
+
 from functools import wraps
+
+# --- Decorador para admins ---
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != UserRole.ADMIN:
+            flash('Acceso denegado: solo administradores.', 'danger')
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 # --- Blueprint ---
+
+
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+# --- DESCUENTOS ---
+@admin_bp.route('/products/<int:product_id>/discount', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_discount(product_id):
+    product = Product.query.get_or_404(product_id)
+    from app.forms import DiscountForm
+    form = DiscountForm()
+    if form.validate_on_submit():
+        discount = form.discount.data
+        product.discount = discount
+        db.session.commit()
+        flash('Descuento asignado al producto.', 'success')
+        return redirect(url_for('admin.products'))
+    return render_template('admin/add_discount.html', product=product, form=form)
+
+# --- PROMOCIONES ---
+@admin_bp.route('/products/<int:product_id>/promo', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_promo(product_id):
+    product = Product.query.get_or_404(product_id)
+    if request.method == 'POST':
+        promo = request.form.get('promo', '').strip()
+        product.promo = promo
+        db.session.commit()
+        flash('Promoción asignada al producto.', 'success')
+        return redirect(url_for('admin.products'))
+    return render_template('admin/add_promo.html', product=product)
 
 # --- Decorador para admins ---
 def admin_required(f):
@@ -594,21 +641,20 @@ def categories():
 @admin_required
 def add_product():
     """Agrega un nuevo producto con validación y manejo de errores."""
-    if request.method == 'POST':
+    form = ProductForm()
+    form.category_id.choices = [(c.id, c.name) for c in Category.query.all()]
+    if form.validate_on_submit():
         try:
-            name = request.form.get('name', '').strip()
-            description = request.form.get('description', '').strip()
-            price = float(request.form.get('price') or 0)
-            stock = int(request.form.get('stock') or 0)
-            size = request.form.get('size', '').strip()
-            color = request.form.get('color', '').strip()
-            category_id = int(request.form.get('category_id') or 0)
-            if not name or price <= 0 or stock < 0 or not Category.query.get(category_id):
-                flash('Datos inválidos: nombre, precio > 0, stock >= 0 y categoría válida son obligatorios.', 'danger')
-                return redirect(url_for('admin.add_product'))
+            name = form.name.data.strip()
+            description = form.description.data.strip()
+            price = float(form.price.data)
+            stock = int(form.stock.data)
+            size = form.size.data.strip()
+            color = form.color.data.strip()
+            category_id = form.category_id.data
             image_filename = None
-            image_file = request.files.get('image')
-            if image_file and image_file.filename:
+            image_file = form.image.data
+            if image_file and hasattr(image_file, 'filename') and image_file.filename:
                 filename = secure_filename(image_file.filename)
                 upload_folder = os.path.join(current_app.root_path, current_app.config.get('UPLOAD_FOLDER', 'static/product_images'))
                 os.makedirs(upload_folder, exist_ok=True)
@@ -629,8 +675,7 @@ def add_product():
             db.session.rollback()
             current_app.logger.error(f'Error inesperado: {e}')
             flash('Error al agregar producto.', 'danger')
-    categories = Category.query.all()
-    return render_template('admin/add_product.html', categories=categories)
+    return render_template('admin/add_product.html', form=form)
 
 @admin_bp.route('/products/edit/<int:product_id>', methods=['GET', 'POST'])
 @login_required
@@ -691,11 +736,12 @@ def delete_product(product_id):
 @login_required
 @admin_required
 def add_category():
-    if request.method == 'POST':
-        name = request.form.get('name', '').strip()
-        description = request.form.get('description', '').strip()
-        if not name or Category.query.filter_by(name=name).first():
-            flash('Nombre obligatorio y único.', 'danger')
+    form = CategoryForm()
+    if form.validate_on_submit():
+        name = form.name.data.strip()
+        description = form.description.data.strip()
+        if Category.query.filter_by(name=name).first():
+            flash('El nombre de la categoría ya existe.', 'danger')
             return redirect(url_for('admin.add_category'))
         category = Category(name=name, description=description)
         db.session.add(category)
@@ -703,7 +749,7 @@ def add_category():
         log_admin_action(current_user.idUser, 'crear', 'categoria', category.id, f'Categoría: {name}')
         flash('Categoría agregada.', 'success')
         return redirect(url_for('admin.categories'))
-    return render_template('admin/add_category.html')
+    return render_template('admin/add_category.html', form=form)
 
 @admin_bp.route('/categories/edit/<int:category_id>', methods=['GET', 'POST'])
 @login_required

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Asignar Descuento a {{ product.name }}</h2>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+      {{ form.discount.label }}
+      {{ form.discount(class_="form-control") }}
+    </div>
+    {{ form.submit(class_="btn btn-success") }}
+    <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}
