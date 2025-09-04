@@ -12,7 +12,8 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-    price = db.Column(db.Float, nullable=False)
+    from decimal import Decimal
+    price = db.Column(db.Numeric(10, 2), nullable=False)
     stock = db.Column(db.Integer, default=0)
     image = db.Column(db.String(255))  # Nombre del archivo de imagen
     size = db.Column(db.String(20))

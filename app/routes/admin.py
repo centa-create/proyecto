@@ -647,7 +647,7 @@ def add_product():
         try:
             name = form.name.data.strip()
             description = form.description.data.strip()
-            price = float(form.price.data)
+            price = form.price.data  # Decimal, se guarda tal cual
             stock = int(form.stock.data)
             size = form.size.data.strip()
             color = form.color.data.strip()
