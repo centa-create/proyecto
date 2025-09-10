@@ -1,0 +1,23 @@
+/* Estilos para asegurar que el botón de tema sea visible */
+.theme-toggle-advanced {
+  position: fixed !important;
+  bottom: 24px !important;
+  left: 24px !important;
+  z-index: 10001 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: flex !important;
+  width: 48px !important;
+  height: 48px !important;
+  background: rgba(0,0,0,0.2) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+.theme-toggle-advanced:hover {
+  transform: scale(1.1) !important;
+}
+
+.theme-toggle-advanced .icon {
+  font-size: 1.7em !important;
+}

@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const btn = document.querySelector('.theme-toggle-advanced');
   const icon = document.getElementById('themeIcon');
   if (!btn || !icon) return;
+  
+  // Asegurar que el botón sea visible
+  btn.style.opacity = '1';
+  btn.style.visibility = 'visible';
   function updateIcon(animated = false) {
     const isDark = document.body.getAttribute('data-theme') === 'dark';
     icon.textContent = isDark ? '🌙' : '🌞';

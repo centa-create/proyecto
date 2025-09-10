@@ -14,21 +14,23 @@ body[data-theme="dark"] {
 }
 .theme-toggle-advanced {
   position: fixed;
-  top: 1.2rem;
-  right: 1.2rem;
-  z-index: 2000;
+  bottom: 24px;
+  left: 24px;
+  z-index: 10001;
 /* Botón circular con fondo sutil y sombra */
-  background: rgba(0,0,0,0.07);
+  background: rgba(0,0,0,0.2);
   border: none;
   border-radius: 50%;
   cursor: pointer;
   padding: 0.4em 0.5em;
   font-size: 1.7em;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   transition: background 0.3s, color 0.3s, transform 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .theme-toggle-advanced:hover {
   background: rgba(0,0,0,0.16);
