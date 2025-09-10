@@ -555,7 +555,9 @@
                         <li class="nav-item"><a class="nav-link" href="/admin/dashboard">Admin</a></li>
                     {% endif %}
                     <li class="nav-item d-flex align-items-center">
-                        <!-- Botón de cambio de tema removido completamente de la navbar -->
+                        <button class="theme-toggle-advanced" title="Cambiar tema" aria-label="Cambiar tema">
+                            <span id="themeIcon" class="icon">🌞</span>
+                        </button>
                     </li>
                     <li class="nav-item"><a class="nav-link" href="/logout">Salir</a></li>
                 {% else %}
