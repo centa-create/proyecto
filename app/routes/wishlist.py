@@ -18,15 +18,17 @@ from app.models.products import Product
 wishlist_bp = Blueprint('wishlist', __name__, url_prefix='/wishlist')
 
 @wishlist_bp.route('/add/<int:product_id>', methods=['POST'])
-@login_required
 def add_to_wishlist(product_id):
+    from flask import jsonify, request
+    if not current_user.is_authenticated:
+        if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'login_required': True, 'message': 'Debes iniciar sesión para agregar a favoritos.'}), 401
+        return redirect(url_for('auth.login'))
     if Wishlist.query.filter_by(user_id=current_user.idUser, product_id=product_id).first():
-        flash('El producto ya está en tu lista de deseos.', 'info')
-    else:
-        db.session.add(Wishlist(user_id=current_user.idUser, product_id=product_id))
-        db.session.commit()
-        flash('Producto agregado a tu lista de deseos.', 'success')
-    return redirect(url_for('catalog.product_detail', product_id=product_id))
+        return jsonify({'success': False, 'message': 'El producto ya está en tu lista de deseos.'}), 400
+    db.session.add(Wishlist(user_id=current_user.idUser, product_id=product_id))
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Producto agregado a tu lista de deseos.'})
 
 @wishlist_bp.route('/remove/<int:product_id>', methods=['POST'])
 @login_required

@@ -3,6 +3,21 @@ body {
   background: #0a0a23;
   overflow-x: hidden;
 }
+
+@media (prefers-color-scheme: light) {
+  body {
+    background: linear-gradient(120deg, #f7f7fa 0%, #e3e3e9 100%) !important;
+    /* Puedes agregar una textura clara si lo deseas */
+    /* background-image: url('https://www.transparenttextures.com/patterns/asfalt-light.png'); */
+  }
+  .stars span {
+    background: #222;
+    opacity: 0.32;
+    width: 4px;
+    height: 4px;
+    box-shadow: 0 0 2px #2228;
+  }
+}
 .stars {
   position: fixed;
   width: 100vw;
@@ -12,6 +27,8 @@ body {
   z-index: 0;
   pointer-events: none;
 }
+/* Estrellas por defecto blancas (modo oscuro) */
+/* Estrellas por defecto blancas (modo oscuro) */
 .stars span {
   position: absolute;
   display: block;
@@ -21,7 +38,20 @@ body {
   border-radius: 50%;
   opacity: 0.8;
   animation: twinkle 2s infinite ease-in-out;
+  z-index: 1;
 }
+
+@media (prefers-color-scheme: light) {
+  .stars span {
+    background: #222;
+    opacity: 0.32;
+    width: 4px;
+    height: 4px;
+    box-shadow: 0 0 2px #2228;
+  }
+}
+
+
 @keyframes twinkle {
   0%, 100% { opacity: 0.8; }
   50% { opacity: 0.2; }

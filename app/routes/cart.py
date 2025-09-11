@@ -27,12 +27,17 @@ def view_cart():
     return render_template('carrito.html', cart_items=products_in_cart, total=total)
 
 @cart_bp.route('/add/<int:product_id>', methods=['POST'])
-@login_required
 def add_to_cart(product_id):
+    from flask import jsonify
+    if not current_user.is_authenticated:
+        # Si es petición AJAX, devolver JSON especial
+        if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'login_required': True, 'message': 'Debes iniciar sesión para agregar al carrito.'}), 401
+        # Si no, redirigir a login
+        return redirect(url_for('auth.login'))
     product = Product.query.get_or_404(product_id)
     if product.stock <= 0:
-        flash('Producto sin stock disponible.', 'danger')
-        return redirect(url_for('catalog.catalog'))
+        return jsonify({'success': False, 'message': 'Producto sin stock disponible.'}), 400
     cantidad = request.form.get('cantidad', 1)
     try:
         cantidad = int(cantidad)
@@ -41,8 +46,7 @@ def add_to_cart(product_id):
     if cantidad < 1:
         cantidad = 1
     if cantidad > product.stock:
-        flash('No hay suficiente stock disponible.', 'danger')
-        return redirect(url_for('catalog.product_detail', product_id=product_id))
+        return jsonify({'success': False, 'message': 'No hay suficiente stock disponible.'}), 400
     cart = Cart.query.filter_by(user_id=current_user.idUser).first()
     if not cart:
         cart = Cart(user_id=current_user.idUser)
@@ -51,15 +55,13 @@ def add_to_cart(product_id):
     item = CartItem.query.filter_by(cart_id=cart.id, product_id=product_id).first()
     if item:
         if item.quantity + cantidad > product.stock:
-            flash('No hay suficiente stock.', 'danger')
-            return redirect(url_for('catalog.product_detail', product_id=product_id))
+            return jsonify({'success': False, 'message': 'No hay suficiente stock.'}), 400
         item.quantity += cantidad
     else:
         item = CartItem(cart_id=cart.id, product_id=product_id, quantity=cantidad, price_snapshot=product.price)
         db.session.add(item)
     db.session.commit()
-    flash('Producto agregado al carrito.', 'success')
-    return redirect(url_for('cart.view_cart'))
+    return jsonify({'success': True, 'message': 'Producto agregado al carrito.'})
 
 @cart_bp.route('/remove/<int:item_id>', methods=['POST'])
 @login_required

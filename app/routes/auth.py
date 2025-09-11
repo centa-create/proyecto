@@ -5,7 +5,7 @@ import bcrypt
 
 bp = Blueprint('auth', __name__)
 
-@bp.route('/', methods=['GET', 'POST'])
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email', '').strip().lower()

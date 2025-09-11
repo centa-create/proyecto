@@ -6,7 +6,7 @@ import os, json
 from app.models.products import Product
 from app.models.support_ticket import SupportTicket
 
-client_bp = Blueprint('client', __name__, url_prefix='/client')
+client_bp = Blueprint('client', __name__)
 
 # Crear ticket de soporte
 @client_bp.route('/support_ticket/create', methods=['GET', 'POST'])
@@ -38,13 +38,11 @@ def social():
 
 # FEED tipo marketplace
 @client_bp.route('/feed')
-@login_required
+@client_bp.route('/')
 def feed():
-    # Productos destacados primero, luego el resto
     destacados = Product.query.filter_by(destacado=True).all()
     normales = Product.query.filter_by(destacado=False).all()
     promociones = Product.query.filter(Product.promo != None).all()
-    # Recomendaciones personalizadas por historial de usuario
     recomendaciones_historial = []
     if hasattr(current_user, 'idUser'):
         from app.models.orders import Order, OrderDetail
@@ -54,10 +52,8 @@ def feed():
             for detail in order.details:
                 product_ids.add(detail.product_id)
         if product_ids:
-            # Recomendar productos de la misma categoría que los comprados
             categorias = set([Product.query.get(pid).category_id for pid in product_ids if Product.query.get(pid)])
             recomendaciones_historial = Product.query.filter(Product.category_id.in_(categorias), ~Product.id.in_(product_ids)).limit(8).all()
-    # Recomendaciones por productos populares (más vendidos)
     from sqlalchemy import func
     populares = Product.query.join(Product.order_details).group_by(Product.id).order_by(func.count().desc()).limit(8).all()
     # Mezcla destacados y normales para el feed

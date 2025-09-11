@@ -15,7 +15,16 @@ mail = Mail()
 csrf = CSRFProtect()
 cache = Cache()
 
+
 def create_app():
+    app = Flask(__name__)
+    app.config.from_object('config.Config')
+
+    from flask import redirect, url_for
+    @app.route('/')
+    def index():
+        # Ahora el blueprint client_bp maneja '/'
+        return redirect(url_for('client.feed'))
 
     app = Flask(__name__)
     app.config.from_object('config.Config')

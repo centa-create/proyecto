@@ -141,16 +141,52 @@
 </style>
 {% endblock %}
 {% block scripts %}
+<!-- Modal de login -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="loginModalLabel">Iniciar sesión</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="modalLoginForm" method="post" action="{{ url_for('auth.login') }}">
+          <div class="mb-3">
+            <label for="loginEmail" class="form-label">Correo electrónico</label>
+            <input type="email" class="form-control" id="loginEmail" name="email" required>
+          </div>
+          <div class="mb-3">
+            <label for="loginPassword" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="loginPassword" name="password" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 async function addToCart(productId, qty = 1) {
-  await fetch("/api/cart/add", {
+  const response = await fetch("/cart/add/" + productId, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ product_id: productId, quantity: qty })
+    headers: { "X-Requested-With": "XMLHttpRequest" },
+    body: new URLSearchParams({ cantidad: qty })
   });
-  alert('Producto agregado al carrito');
-  if (typeof updateCartCount === 'function') {
-    updateCartCount();
+  if (response.status === 401) {
+    // Mostrar modal de login
+    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+    loginModal.show();
+    return;
+  }
+  const data = await response.json();
+  if (data.success) {
+    alert('Producto agregado al carrito');
+    if (typeof updateCartCount === 'function') {
+      updateCartCount();
+    }
+  } else {
+    alert(data.message || 'No se pudo agregar al carrito');
   }
 }
 </script>
@@ -186,12 +222,9 @@ async function addToCart(productId, qty = 1) {
             <source srcset="{{ url_for('static', filename='product_images/' ~ product.image|replace('.jpg','.webp')|replace('.png','.webp')) }}" type="image/webp">
             <img src="{{ url_for('static', filename='product_images/' ~ product.image) }}" class="product-img" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null;this.src='/static/product_images/placeholder.png';">
           </picture>
-          <form method="post" action="{% if product.id in favoritos %}{{ url_for('wishlist.remove_from_wishlist', product_id=product.id) }}{% else %}{{ url_for('wishlist.add_to_wishlist', product_id=product.id) }}{% endif %}" class="favorite-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="favorite-btn" title="Agregar a Favoritos" style="background: none; border: none; position: absolute; top: 10px; right: 14px; font-size: 1.7rem; color: {% if product.id in favoritos %}#e74c3c{% else %}#bbb{% endif %}; cursor: pointer; z-index: 2;">
-              {% if product.id in favoritos %}&#10084;{% else %}&#9825;{% endif %}
-            </button>
-          </form>
+          <button type="button" class="favorite-btn" title="Agregar a Favoritos" style="background: none; border: none; position: absolute; top: 10px; right: 14px; font-size: 1.7rem; color: {% if product.id in favoritos %}#e74c3c{% else %}#bbb{% endif %}; cursor: pointer; z-index: 2;" onclick="addToWishlist({{ product.id }})">
+            {% if product.id in favoritos %}&#10084;{% else %}&#9825;{% endif %}
+          </button>
           <div class="card-body d-flex flex-column">
             <div class="product-title mb-1">{{ product.name }}</div>
               <div class="product-price mb-2">{{ (product.price * 4000)|int | string | replace(',', '.') }} COP</div>
@@ -208,6 +241,24 @@ async function addToCart(productId, qty = 1) {
   alert('Producto agregado al carrito');
   if (typeof updateCartCount === 'function') {
     updateCartCount();
+  }
+}
+async function addToWishlist(productId) {
+  const response = await fetch("/wishlist/add/" + productId, {
+    method: "POST",
+    headers: { "X-Requested-With": "XMLHttpRequest" }
+  });
+  if (response.status === 401) {
+    var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+    loginModal.show();
+    return;
+  }
+  const data = await response.json();
+  if (data.success) {
+    alert('Producto agregado a favoritos');
+    window.location.reload();
+  } else {
+    alert(data.message || 'No se pudo agregar a favoritos');
   }
 }
 </script>
