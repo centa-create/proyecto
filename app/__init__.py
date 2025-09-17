@@ -1,35 +1,37 @@
-from flask_socketio import SocketIO
-socketio = SocketIO(cors_allowed_origins="*")
-from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-from flask_mail import Mail
-from flask_wtf import CSRFProtect
-from flask_caching import Cache
+"""
+Módulo principal de la aplicación Flask.
+
+Este módulo configura y crea la aplicación Flask con todas sus extensiones,
+blueprints y configuraciones necesarias para el funcionamiento del e-commerce.
+"""
+
 import os
+from flask import Flask, redirect, render_template, url_for
 
-
-db = SQLAlchemy()
-login_manager = LoginManager()
-mail = Mail()
-csrf = CSRFProtect()
-cache = Cache()
+# Imports de rutas, base de datos y extensiones
+from app.db import db
+from app.extensions import socketio, login_manager, mail, csrf, cache, limiter
+from app.routes.social import social_bp, google_bp, facebook_bp
+from app.routes import auth
+from app.routes import register
+from app.routes import client
+from app.routes import notif
+from app.routes.catalog import catalog_bp
+from app.routes.cart import cart_bp
+from app.routes.cart_api import cart_api_bp, webhook_bp
+from app.routes.admin import admin_bp
+from app.routes.wishlist import wishlist_bp
+from app.routes.reviews import reviews_bp
+from app.routes.orders import orders_bp
+from app.routes.reset import reset_bp
 
 
 def create_app():
+    """Crea y configura la aplicación Flask con todas sus extensiones."""
     app = Flask(__name__)
     app.config.from_object('config.Config')
 
-    from flask import redirect, url_for
-    @app.route('/')
-    def index():
-        # Ahora el blueprint client_bp maneja '/'
-        return redirect(url_for('client.feed'))
-
-    app = Flask(__name__)
-    app.config.from_object('config.Config')
-    from app.routes.social import social_bp, google_bp, facebook_bp
-    # Registrar blueprints sociales después de crear y configurar la app
+    # Registrar blueprints sociales
     app.register_blueprint(google_bp, url_prefix="/login")
     app.register_blueprint(facebook_bp, url_prefix="/login")
     app.register_blueprint(social_bp)
@@ -41,32 +43,15 @@ def create_app():
     cache.init_app(app)
     socketio.init_app(app)
 
-    from flask_limiter import Limiter
-    from flask_limiter.util import get_remote_address
     mail.init_app(app)
     # Limiter activado para producción y pruebas
-    limiter = Limiter(key_func=get_remote_address, default_limits=["10 per minute"])
     limiter.init_app(app)
 
     @login_manager.user_loader
-    def load_user(idUser):
-        from .models.users import Users
-        return Users.query.get(int(idUser))
-
-    from app.routes import auth
-    from app.routes import register
-    from app.routes import admin
-    from app.routes import client
-    from app.routes import notif
-    from app.models.notifications import Notification  # Asegura que el modelo esté registrado
-    from app.routes.catalog import catalog_bp
-    from app.routes.cart import cart_bp
-    from app.routes.cart_api import cart_api_bp, webhook_bp
-    from app.routes.admin import admin_bp
-    from app.routes.wishlist import wishlist_bp
-    from app.routes.reviews import reviews_bp
-    from app.routes.orders import orders_bp
-    from app.routes.reset import reset_bp
+    def load_user(user_id):
+        """Carga un usuario por su ID para Flask-Login."""
+        from app.models.users import Users
+        return Users.query.get(int(user_id))
     app.register_blueprint(auth.bp)
     app.register_blueprint(register.bp)
     app.register_blueprint(client.client_bp)
@@ -81,13 +66,21 @@ def create_app():
     app.register_blueprint(orders_bp)
     app.register_blueprint(reset_bp)
 
+    @app.route('/')
+    def index():
+        # Ahora el blueprint client_bp maneja '/'
+        return redirect(url_for('client.feed'))
+
     # Manejo de errores personalizados
     @app.errorhandler(404)
-    def not_found_error(error):
+    def not_found_error(_error):
+        """Maneja errores 404 - Página no encontrada."""
         return render_template('errors/404.html'), 404
 
     @app.errorhandler(500)
-    def internal_error(error):
+    def internal_error(_error):
+        """Maneja errores 500 - Error interno del servidor."""
         return render_template('errors/500.html'), 500
 
     return app
+ 

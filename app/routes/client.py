@@ -55,7 +55,7 @@ def feed():
             categorias = set([Product.query.get(pid).category_id for pid in product_ids if Product.query.get(pid)])
             recomendaciones_historial = Product.query.filter(Product.category_id.in_(categorias), ~Product.id.in_(product_ids)).limit(8).all()
     from sqlalchemy import func
-    populares = Product.query.join(Product.order_details).group_by(Product.id).order_by(func.count().desc()).limit(8).all()
+    populares = Product.query.join(Product.order_details).group_by(Product.id).order_by(func.count(Product.id).desc()).limit(8).all()
     # Mezcla destacados y normales para el feed
     products = destacados + [p for p in normales if p not in destacados]
     return render_template('client/feed.html', products=products, promociones=promociones, destacados=destacados, recomendaciones_historial=recomendaciones_historial, populares=populares)
@@ -78,7 +78,7 @@ def profile():
     if request.method == 'POST':
         name = request.form.get('nameUser', '').strip()
         email = request.form.get('email', '').strip().lower()
-        password = request.form.get('passwordUser', '')
+        password = request.form.get('password_user', '')
         file = request.files.get('profile_pic')
         user = current_user
         # Validación de email único

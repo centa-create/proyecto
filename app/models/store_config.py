@@ -1,4 +1,4 @@
-from app import db
+from app.db import db
 
 class StoreConfig(db.Model):
     __tablename__ = 'store_config'

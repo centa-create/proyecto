@@ -1,6 +1,6 @@
 
 from flask_login import UserMixin
-from app import db
+from app.db import db
 import enum
 
 class UserRole(enum.Enum):
@@ -17,7 +17,7 @@ class Users(db.Model, UserMixin):
     idUser = db.Column(db.Integer, primary_key=True)
     nameUser = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    passwordUser = db.Column(db.String(128), nullable=False)  # hash
+    password_user = db.Column(db.String(128), nullable=False)  # hash
     birthdate = db.Column(db.Date, nullable=False)
     is_active_db = db.Column(db.Boolean, default=False)  # Solo tras verificación
     verification_token = db.Column(db.String(128), nullable=True)
@@ -46,9 +46,9 @@ class Users(db.Model, UserMixin):
     def set_password(self, password):
         """Hashea y almacena la contraseña del usuario."""
         import bcrypt
-        self.passwordUser = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        self.password_user = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     def check_password(self, password):
         """Verifica si la contraseña coincide con el hash almacenado."""
         import bcrypt
-        return bcrypt.checkpw(password.encode('utf-8'), self.passwordUser.encode('utf-8'))
+        return bcrypt.checkpw(password.encode('utf-8'), self.password_user.encode('utf-8'))

@@ -1,7 +1,14 @@
-from app import db
-from app.models.products import Product
+"""
+Modelo de lista de deseos.
+
+Este módulo define el modelo para las listas de deseos de los usuarios.
+"""
+
+from app.db import db
+
 
 class Wishlist(db.Model):
+    """Modelo para las listas de deseos de los usuarios."""
     __tablename__ = 'wishlists'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.idUser'), nullable=False)

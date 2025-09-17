@@ -1,44 +1,57 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
-from flask_login import login_user, logout_user, login_required, current_user
-from app.models.users import Users
-import bcrypt
+"""
+Módulo de rutas de autenticación.
+
+Este módulo maneja todas las rutas relacionadas con la autenticación
+de usuarios: login, logout y dashboard.
+"""
+
+from flask import Blueprint, flash, redirect, render_template, url_for
+from flask_login import current_user, login_required, login_user, logout_user
+
+from app.forms import LoginForm
 
 bp = Blueprint('auth', __name__)
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email', '').strip().lower()
-        passwordUser = request.form.get('passwordUser', '')
-        user = Users.query.filter_by(email=email).first()
-        if user and bcrypt.checkpw(passwordUser.encode('utf-8'), user.passwordUser.encode('utf-8')):
+    """Maneja el inicio de sesión de usuarios."""
+    from app.models.users import UserRole, Users
+
+    if current_user.is_authenticated:
+        # Si ya está autenticado, redirigir según rol
+        if current_user.role == UserRole.ADMIN:
+            return redirect(url_for('admin.dashboard'))
+        return redirect(url_for('client.feed'))
+
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = Users.query.filter_by(email=form.email.data.lower()).first()
+        if user and user.check_password(form.password.data):
             if user.is_blocked:
                 flash('Tu cuenta ha sido bloqueada por un administrador.', 'danger')
                 return redirect(url_for('auth.login'))
+            if not user.is_active:
+                flash('Tu cuenta no está activada. Revisa tu correo electrónico.', 'warning')
+                return redirect(url_for('auth.login'))
+
             login_user(user)
             flash("¡Inicio de sesión exitoso!", "success")
-            # Redirigir a dashboard admin si es admin, si no al FEED tipo marketplace
-            role = getattr(user, 'role', None)
-            if role is not None:
-                role_str = str(role.value) if hasattr(role, 'value') else str(role)
-                if role_str.lower() == 'admin':
-                    return redirect(url_for('admin.dashboard'))
+
+            # Redirigir según rol
+            if user.role == UserRole.ADMIN:
+                return redirect(url_for('admin.dashboard'))
             return redirect(url_for('client.feed'))
         else:
             flash('Credenciales inválidas. Intenta de nuevo.', 'danger')
-    if current_user.is_authenticated:
-        # Si ya está autenticado, mándalo al feed si es user, o admin dashboard si es admin
-        role = getattr(current_user, 'role', None)
-        if role is not None:
-            role_str = str(role.value) if hasattr(role, 'value') else str(role)
-            if role_str.lower() == 'admin':
-                return redirect(url_for('admin.dashboard'))
-        return redirect(url_for('client.feed'))
-    return render_template("login.html")
+
+    return render_template("login.html", form=form)
 
 @bp.route('/dashboard')
 @login_required
 def dashboard():
+    """Redirige al dashboard apropiado según el rol del usuario."""
+    from app.models.users import UserRole
+
     user = current_user
     role = getattr(user, 'role', None)
     if role is not None:
@@ -56,6 +69,7 @@ def dashboard():
 @bp.route('/logout')
 @login_required
 def logout():
+    """Cierra la sesión del usuario actual."""
     logout_user()
     flash('Has cerrado sesión.', 'info')
     return redirect(url_for('auth.login'))

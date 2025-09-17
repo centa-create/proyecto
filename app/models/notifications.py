@@ -1,8 +1,16 @@
-from app import db
-from flask_login import current_user
+"""
+Modelo de notificaciones.
+
+Este módulo define el modelo para las notificaciones del sistema.
+"""
+
 from datetime import datetime
 
+from app.db import db
+
+
 class Notification(db.Model):
+    """Modelo para las notificaciones del sistema."""
     __tablename__ = 'notifications'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.idUser'), nullable=False)
@@ -11,6 +19,7 @@ class Notification(db.Model):
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
+        """Convierte la notificación a un diccionario."""
         return {
             'id': self.id,
             'mensaje': self.mensaje,

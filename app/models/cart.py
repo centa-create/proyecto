@@ -1,13 +1,22 @@
-from app import db
-from flask_login import UserMixin
+"""
+Modelo de carrito de compras.
+
+Este módulo define las clases para manejar el carrito de compras
+y los items del carrito.
+"""
+
+from app.db import db
+
 
 class Cart(db.Model):
+    """Modelo para el carrito de compras de un usuario."""
     __tablename__ = 'carts'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.idUser'), nullable=False)
     items = db.relationship('CartItem', backref='cart', lazy=True, cascade='all, delete-orphan')
 
 class CartItem(db.Model):
+    """Modelo para los items individuales del carrito de compras."""
     __tablename__ = 'cart_items'
     id = db.Column(db.Integer, primary_key=True)
     cart_id = db.Column(db.Integer, db.ForeignKey('carts.id'), nullable=False)

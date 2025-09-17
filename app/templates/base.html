@@ -512,8 +512,6 @@
 </head>
 <body role="main" tabindex="0">
     <div class="stars"></div>
-    <div class="stars"></div>
-        <div class="stars"></div>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center gap-2" href="/">
@@ -526,7 +524,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 {% if current_user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="/client/feed" title="Ir al inicio"><span class="d-none d-md-inline">Inicio</span> <span class="d-inline d-md-none" style="font-size:1.2em;">🏠</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('client.feed') }}" title="Ir al inicio"><span class="d-none d-md-inline">Inicio</span> <span class="d-inline d-md-none" style="font-size:1.2em;">🏠</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="/catalog" title="Ver catálogo"><span class="d-none d-md-inline">Catálogo</span> <span class="d-inline d-md-none" style="font-size:1.2em;">📦</span></a></li>
                     <li class="nav-item position-relative">
                         <a class="nav-link" href="/cart" title="Carrito de compras">
@@ -748,6 +746,22 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 <script src="{{ url_for('static', filename='js/star-bg.js') }}" defer></script>
+<script>
+// Generador de estrellas para el fondo animado (universal)
+var starsDiv = document.querySelector('.stars');
+if (starsDiv) {
+    starsDiv.innerHTML = '';
+    for (let i = 0; i < 80; i++) {
+        let star = document.createElement('span');
+        star.style.left = Math.random() * 100 + 'vw';
+        star.style.top = Math.random() * 100 + 'vh';
+        star.style.width = (Math.random() * 2 + 1) + 'px';
+        star.style.height = star.style.width;
+        star.style.opacity = Math.random() * 0.7 + 0.3;
+        starsDiv.appendChild(star);
+    }
+}
+</script>
 </body>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/socketio-notify.js') }}"></script>

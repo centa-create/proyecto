@@ -2,8 +2,6 @@ from flask import Blueprint, redirect, url_for, flash
 from flask_login import login_user
 from flask_dance.contrib.google import make_google_blueprint, google
 from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
-from app.models.users import Users, UserRole
-from app import db
 import os
 
 social_bp = Blueprint('social', __name__)
@@ -24,6 +22,9 @@ facebook_bp = make_facebook_blueprint(
 
 @social_bp.route('/social/google')
 def google_login():
+    from app.models.users import Users, UserRole
+    from app import db
+
     if not google.authorized:
         return redirect(url_for('google.login'))
     resp = google.get("/oauth2/v2/userinfo")
@@ -37,7 +38,7 @@ def google_login():
         user = Users(
             nameUser=info.get('name', email.split('@')[0]),
             email=email,
-            passwordUser=os.urandom(32).hex(),
+            password_user=os.urandom(32).hex(),
             is_active_db=True,
             role=UserRole.USER
         )
@@ -50,6 +51,9 @@ def google_login():
 # Facebook login
 @social_bp.route('/social/facebook')
 def facebook_login():
+    from app.models.users import Users, UserRole
+    from app import db
+
     if not facebook.authorized:
         return redirect(url_for('facebook.login'))
     resp = facebook.get("/me?fields=id,name,email")
@@ -63,7 +67,7 @@ def facebook_login():
         user = Users(
             nameUser=info.get('name', email.split('@')[0]),
             email=email,
-            passwordUser=os.urandom(32).hex(),
+            password_user=os.urandom(32).hex(),
             is_active_db=True,
             role=UserRole.USER
         )

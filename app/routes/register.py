@@ -1,25 +1,30 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
-from app import db
-from app.models.users import Users, UserRole
-from flask_mail import Message
-from werkzeug.security import generate_password_hash
+"""
+Rutas de registro de usuarios.
+
+Este módulo maneja el registro de nuevos usuarios en el sistema.
+"""
+
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from datetime import datetime, date
-import re, secrets
+import re
+import secrets
 from email_validator import validate_email, EmailNotValidError
 import bcrypt
 
 bp = Blueprint('users', __name__)
 
 
-from app import mail
-
-
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
+    """Maneja el registro de nuevos usuarios."""
+    from app import db
+    from app.models.users import Users, UserRole
+    from app import mail
+
     if request.method == 'POST':
         nameUser = request.form.get('nameUser', '').strip()
         email = request.form.get('email', '').strip().lower()
-        password = request.form.get('passwordUser', '')
+        password = request.form.get('password_user', '')
         confirm_password = request.form.get('confirm_password', '')
         birthdate_str = request.form.get('birthdate', '')
         terms = request.form.get('terms')
@@ -68,7 +73,7 @@ def register():
         user = Users(
             nameUser=nameUser,
             email=email,
-            passwordUser=hashed,
+            password_user=hashed,
             birthdate=birthdate,
             is_active_db=True,  # Activar usuario por defecto para pruebas
             verification_token=token,
@@ -83,6 +88,10 @@ def register():
 
 @bp.route('/verify/<token>')
 def verify(token):
+    """Verifica la cuenta de usuario usando el token de verificación."""
+    from app import db
+    from app.models.users import Users
+
     user = Users.query.filter_by(verification_token=token).first()
     if not user or user.is_active_db:
         return render_template('verify_error.html')
