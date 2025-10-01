@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 
 class Config:
@@ -39,8 +39,12 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
 
-    # Stripe (pagos)
-    STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
+    # PayU (pagos)
+    PAYU_API_KEY = os.getenv('PAYU_API_KEY')
+    PAYU_API_LOGIN = os.getenv('PAYU_API_LOGIN')
+    PAYU_MERCHANT_ID = os.getenv('PAYU_MERCHANT_ID')
+    PAYU_ACCOUNT_ID = os.getenv('PAYU_ACCOUNT_ID')
+    PAYU_TEST_MODE = os.getenv('PAYU_TEST_MODE', 'True').lower() == 'true'
     STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
 
     # Caché
@@ -70,4 +74,4 @@ class Config:
     SESSION_TYPE = os.getenv('SESSION_TYPE', 'filesystem')
     SESSION_FILE_DIR = os.getenv('SESSION_FILE_DIR', os.path.join(basedir, 'instance', 'sessions'))
     SESSION_PERMANENT = True
-    PERMANENT_SESSION_LIFETIME = 3600  # 1 hora 
+    PERMANENT_SESSION_LIFETIME = 3600  # 1 hora

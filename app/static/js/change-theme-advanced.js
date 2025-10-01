@@ -1,12 +1,14 @@
 function setTheme(theme) {
-  document.body.setAttribute('data-theme', theme);
-  localStorage.setItem('theme', theme);
-  document.querySelector('.theme-toggle-advanced').setAttribute('data-theme', theme);
+   document.body.setAttribute('data-theme', theme);
+   localStorage.setItem('theme', theme);
+   const btn = document.querySelector('.theme-toggle-advanced');
+   if (btn) {
+       btn.setAttribute('data-theme', theme);
+   }
 }
 function getPreferredTheme() {
-  const saved = localStorage.getItem('theme');
-  if (saved) return saved;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  // Forzar siempre tema oscuro para mostrar fondo estrellado
+  return 'dark';
 }
 document.addEventListener('DOMContentLoaded', function () {
   setTheme(getPreferredTheme());

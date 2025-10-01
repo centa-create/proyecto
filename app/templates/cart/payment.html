@@ -5,9 +5,9 @@
 <form method="post">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div style="margin-bottom:10px;">
-    <input type="radio" id="stripe" name="metodo_pago" value="stripe" required>
-    <label for="stripe"><span style="color:#2ecc40;font-weight:bold;">Tarjeta de crédito/débito (Stripe)</span></label>
-    <br><small style="color:#888;">Pago seguro y rápido con Stripe.</small>
+    <input type="radio" id="payu" name="metodo_pago" value="payu" required>
+    <label for="payu"><span style="color:#2ecc40;font-weight:bold;">Pago seguro (PayU)</span></label>
+    <br><small style="color:#888;">Pago seguro con PayU - Acepta tarjetas, PSE, Nequi y más métodos colombianos.</small>
   </div>
   <div style="margin-bottom:10px;">
     <input type="radio" id="nequi" name="metodo_pago" value="nequi">

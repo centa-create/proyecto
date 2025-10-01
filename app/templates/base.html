@@ -1,167 +1,37 @@
+{% macro render_csrf() %}
+    {{ csrf_token() }}
+{% endmacro %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <link rel="stylesheet" href="{{ url_for('static', filename='change-theme-advanced.css') }}">
+    {% block styles %}{% endblock %}
     <!-- Eliminado sistema de tema claro/oscuro -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Tienda Virtual{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='star-bg.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/star-bg.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home-cards.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base-theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/utilities.css') }}">
     <style>
-        :root {
-            --color-bg: #181818;
-            --color-bg-light: #23272f;
-            --color-text: #f5f5f5;
-            --color-card: #23272f;
-            --color-border: #fff;
-            --color-glow: #fff8;
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
+        body {
+            background: transparent;
+            color: #f5f5f5;
+            font-family: 'Montserrat', Arial, sans-serif;
         }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --color-bg: #181818;
-                --color-bg-light: #23272f;
-                --color-text: #f5f5f5;
-                --color-card: #23272f;
-                --color-border: #fff;
-                --color-glow: #fff8;
-            }
-            body {
-                background: linear-gradient(120deg, #111 0%, #222 100%), url('https://www.transparenttextures.com/patterns/asfalt-light.png');
-                color: var(--color-text);
-            }
-        }
-        @media (prefers-color-scheme: light) {
-            :root {
-                --color-bg: #f5f5f5;
-                --color-bg-light: #fff;
-                --color-text: #181818;
-                --color-card: #fff;
-                --color-border: #23272f;
-                --color-glow: #23272f22;
-            }
-            body {
-                background: linear-gradient(120deg, #fff 0%, #eaeaea 100%);
-                color: var(--color-text);
-            }
-            .navbar, .container, .product-card {
-                background: var(--color-bg-light) !important;
-                color: var(--color-text) !important;
-            }
-            .product-card {
-                border: 2px solid var(--color-border) !important;
-                box-shadow: 0 0 24px 0 var(--color-glow), 0 4px 24px #0002 !important;
-            }
-        }
-        /* Glow y degradado blanco global */
-        .glow-white {
-            background: linear-gradient(90deg, #fff 0%, #eaeaea 100%) !important;
-            color: #23272f !important;
-            box-shadow: 0 0 16px #fff8, 0 2px 8px #0005;
-            border: 2px solid #fff !important;
-            font-weight: 800;
-            text-shadow: 0 0 8px #fff, 0 0 16px #fff8;
-        }
-        .badge-glow-white, .badge.bg-warning, .badge.bg-info, .badge.bg-danger {
-            background: linear-gradient(90deg, #fff 0%, #eaeaea 100%) !important;
-            color: #23272f !important;
-            font-weight: 800;
-            box-shadow: 0 0 8px #fff8;
-            border: 1.5px solid #fff;
-            text-shadow: 0 0 8px #fff, 0 0 16px #fff8;
-        }
-        .alert-info, .alert-warning, .alert-danger, .alert-success {
-            background: linear-gradient(90deg, #fff 0%, #eaeaea 100%) !important;
-            color: #23272f !important;
-            border: 2px solid #fff !important;
-            font-weight: 700;
-            box-shadow: 0 0 12px #fff8;
-            text-shadow: 0 0 8px #fff8;
-        }
-        .btn, .btn-outline-primary, .btn-outline-info, .btn-outline-success, .btn-outline-warning, .btn-outline-secondary, .btn-outline-dark, .btn-primary {
-            border-radius: 8px !important;
-            font-weight: 800 !important;
-            font-size: 1rem !important;
-            padding: 0.5rem 1.2rem !important;
-            border: 2px solid #fff !important;
-            color: #23272f !important;
-            background: linear-gradient(90deg, #fff 0%, #eaeaea 100%) !important;
-            box-shadow: 0 0 12px #fff8 !important;
-            transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.12s !important;
-            margin-bottom: 0.5rem;
-        }
-        .btn:active {
-            transform: scale(0.97);
-            box-shadow: 0 0 32px 8px var(--color-glow), 0 2px 8px #0005 !important;
-        }
-        .btn:focus {
-            outline: 2px solid #fff;
-            outline-offset: 2px;
-            box-shadow: 0 0 0 4px #fff8 !important;
-        }
-        .btn:hover, .btn-outline-primary:hover, .btn-outline-info:hover, .btn-outline-success:hover, .btn-outline-warning:hover, .btn-outline-secondary:hover, .btn-outline-dark:hover, .btn-primary:hover {
-            background: #23272f !important;
-            color: #fff !important;
-            box-shadow: 0 0 24px #fff, 0 0 16px #fff8 !important;
-            border: 2px solid #fff !important;
-        }
-        input, select, textarea {
-            transition: border 0.18s, box-shadow 0.18s;
-            border-radius: 8px;
-            border: 2px solid var(--color-border);
-            background: var(--color-bg-light);
-            color: var(--color-text);
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: #fff;
-            box-shadow: 0 0 8px #fff8;
-            outline: none;
-        }
-        th, .table th {
-            background: linear-gradient(90deg, #fff 0%, #eaeaea 100%) !important;
-            color: #222 !important;
-            font-weight: 800;
-            text-shadow: none;
-        }
-        .table, .table-bordered {
-            border: none;
-            border-radius: 16px;
-            overflow: hidden;
-            background: rgba(255,255,255,0.92);
-            box-shadow: 0 4px 24px 0 #0002, 0 1.5px 8px #fff3;
-        }
-        .table thead th {
-            background: linear-gradient(90deg, #f5f5f5 0%, #eaeaea 100%) !important;
-            color: #222 !important;
-            font-weight: 800;
-            border-bottom: 2.5px solid #2222 !important;
-            letter-spacing: 0.5px;
-        }
-        .table tbody tr {
-            transition: background 0.18s, box-shadow 0.18s;
-        }
-        .table tbody tr:hover {
-            background: #f0f4fa !important;
-            box-shadow: 0 2px 12px #0001;
-        }
-        .table td, .table th {
-            padding: 0.85rem 1.2rem !important;
-            vertical-align: middle;
-        }
-        .cart-total {
-            font-size: 1.18rem;
-            font-weight: 700;
-            color: #222;
-            background: #f5f5f5;
-            border-radius: 8px;
-            padding: 0.7rem 1.2rem;
-            margin-bottom: 1.2rem;
-            box-shadow: 0 1.5px 8px #0001;
-            display: inline-block;
-        }
-            background: #23272f !important;
-            color: #fff !important;
+        .container {
+            background: #181818cc;
+            border-radius: 1.2rem;
+            box-shadow: 0 8px 32px 0 #000a;
+            padding: 2.5rem 2rem 2rem 2rem;
+            margin: 40px auto;
         }
         .fade-in {
             animation: fadeIn 1.2s cubic-bezier(.4,2,.3,1);
@@ -169,301 +39,6 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: none; }
-        }
-        /* Clases personalizadas para glow blanco */
-        .bg-glow-white {
-            background: #f5f5f5 !important;
-            color: #222 !important;
-            box-shadow: 0 0 16px 4px rgba(245,245,245,0.7), 0 2px 8px #0005;
-            border-radius: 8px;
-            font-weight: 700;
-            border: none;
-        }
-        .text-glow-white {
-            color: #f5f5f5 !important;
-            text-shadow: 0 0 8px #f5f5f5;
-        }
-        .badge-glow-white {
-            background: #f5f5f5 !important;
-            color: #222 !important;
-            box-shadow: 0 0 8px #f5f5f5;
-        }
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
-        body {
-            background: linear-gradient(120deg, #111 0%, #222 100%), url('https://www.transparenttextures.com/patterns/asfalt-light.png');
-            min-height: 100vh;
-            color: #f5f5f5;
-            font-family: 'Montserrat', Arial, sans-serif;
-            letter-spacing: 0.01em;
-            background-blend-mode: overlay;
-        }
-        /* Animación pulse para borde neón y tarjetas de producto */
-        @keyframes pulse-neon {
-            0% { box-shadow: 0 0 32px 8px rgba(245,245,245,0.7), 0 4px 32px #000a; }
-            50% { box-shadow: 0 0 48px 16px #f5f5f5, 0 4px 32px #000a; }
-            100% { box-shadow: 0 0 32px 8px rgba(245,245,245,0.7), 0 4px 32px #000a; }
-        }
-        .product-card {
-            border: 2px solid #f5f5f5;
-            border-radius: 1.2rem;
-            box-shadow: 0 0 24px 0 rgba(245,245,245,0.3), 0 4px 24px #000a;
-            transition: transform 0.18s cubic-bezier(.4,2,.3,1), box-shadow 0.18s, border-color 0.18s;
-            margin-bottom: 2rem;
-            background: #181818;
-            position: relative;
-            overflow: hidden;
-            animation: pulse-neon 1.5s infinite;
-            cursor: pointer;
-        }
-        .product-card:hover {
-            transform: translateY(-15px) scale(1.06) rotate(-1deg);
-            box-shadow: 0 0 64px 16px #f5f5f5, 0 8px 32px #000a;
-            border-color: #fff;
-            animation-play-state: paused;
-        }
-        .product-card:active {
-            animation-play-state: paused;
-            transform: scale(0.97) translateY(2px) rotate(1deg);
-            box-shadow: 0 0 24px 4px rgba(245,245,245,0.7), 0 2px 16px #000a;
-        }
-        .product-card.destacado {
-            border: 3px solid #f5f5f5;
-            z-index: 2;
-        }
-        .navbar {
-            background: #111;
-            border-bottom: 2px solid #fff2;
-            box-shadow: 0 2px 12px 0 #0008;
-        }
-        .navbar .navbar-brand {
-            font-weight: 900;
-            font-size: 2rem;
-            letter-spacing: 0.2em;
-            color: #fff !important;
-            text-shadow: 2px 2px 8px #000a;
-        }
-        .navbar .nav-link {
-            color: #f5f5f5 !important;
-            font-weight: 700;
-            margin-right: 0.7rem;
-            transition: color 0.2s;
-        }
-        .navbar .nav-link:hover, .navbar .nav-link.active {
-            color: #f5f5f5 !important;
-            text-shadow: 0 0 8px #f5f5f5;
-        }
-        .container {
-            background: #181818cc;
-            border-radius: 1.2rem;
-            box-shadow: 0 4px 32px 0 #000a;
-            padding: 2.5rem 2rem 2rem 2rem;
-            margin-top: 2.5rem;
-        }
-        .footer {
-            background: #111;
-            color: #fff;
-            padding: 1rem 0;
-            text-align: center;
-            margin-top: 2rem;
-            border-top: 2px solid #fff2;
-            letter-spacing: 0.1em;
-        }
-        .alert {
-            border-radius: 0.7rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.7em;
-        }
-        .alert-success::before {
-            content: '\2714';
-            color: #f5f5f5;
-            font-size: 1.3em;
-            filter: drop-shadow(0 0 4px #f5f5f5);
-        }
-        .alert-danger::before, .alert-error::before {
-            content: '\26A0';
-            color: #ff2d55;
-            font-size: 1.3em;
-            filter: drop-shadow(0 0 4px #ff2d55);
-        }
-        .alert-info::before {
-            content: '\2139';
-            color: #f5f5f5;
-            font-size: 1.2em;
-            filter: drop-shadow(0 0 4px #f5f5f5);
-        }
-        /* Loader neón */
-        .neon-loader {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 180px;
-        }
-        .neon-spinner {
-            width: 56px;
-            height: 56px;
-            border: 6px solid #f5f5f544;
-            border-top: 6px solid #f5f5f5;
-            border-radius: 50%;
-            animation: spin-neon 1s linear infinite;
-            box-shadow: 0 0 24px #f5f5f5;
-        }
-        @keyframes spin-neon {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        }
-        /* Botones urbanos */
-        .btn, .btn-primary, .btn-success, .btn-danger, .btn-warning {
-            border-radius: 8px;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            box-shadow: 0 2px 8px #0005;
-            border: none;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s cubic-bezier(.4,2,.3,1);
-            position: relative;
-            overflow: hidden;
-        }
-        .btn:active {
-            transform: scale(0.96) translateY(2px) rotate(-1deg);
-            box-shadow: 0 0 16px #f5f5f5, 0 2px 8px #0005;
-        }
-        .btn:hover {
-            box-shadow: 0 0 24px #f5f5f5, 0 2px 8px #0005;
-        }
-        .btn[title]:hover::after {
-            content: attr(title);
-            position: absolute;
-            left: 50%;
-            top: -2.2em;
-            transform: translateX(-50%);
-            background: #111;
-            color: #f5f5f5;
-            padding: 0.3em 0.8em;
-            border-radius: 0.6em;
-            font-size: 0.95em;
-            white-space: nowrap;
-            box-shadow: 0 0 8px #f5f5f5;
-            z-index: 10;
-            pointer-events: none;
-            opacity: 0.95;
-        }
-        }
-        .btn-primary {
-            background: #f5f5f5 !important;
-            color: #222 !important;
-            box-shadow: 0 0 16px 4px rgba(245,245,245,0.7), 0 2px 8px #0005;
-            border-radius: 8px;
-            font-weight: 800;
-            border: none;
-        }
-        .btn-primary:hover {
-            background: #fff !important;
-            color: #222 !important;
-            box-shadow: 0 0 24px #f5f5f5, 0 2px 8px #0005;
-        }
-        .btn-success {
-            background: #f5f5f5 !important;
-            color: #222 !important;
-            border: 2px solid #f5f5f5;
-            box-shadow: 0 0 16px 4px rgba(245,245,245,0.7), 0 2px 8px #0005;
-        }
-        .btn-success:hover {
-            background: #fff !important;
-            color: #222 !important;
-            box-shadow: 0 0 24px #f5f5f5, 0 2px 8px #0005;
-        }
-        .btn-danger {
-            background: #ff2d55;
-            color: #fff;
-        }
-        .btn-danger:hover {
-            background: #fff;
-            color: #ff2d55;
-        }
-        .form-control, .form-select {
-            background: #222;
-            color: #fff;
-            border: 1.5px solid #fff2;
-            border-radius: 0.7rem;
-        }
-        .form-control:focus, .form-select:focus {
-            background: #181818;
-            color: #fff;
-            border-color: #f5f5f5;
-            box-shadow: 0 0 8px #f5f5f5;
-        }
-        label, .form-label {
-            color: #fff;
-            font-weight: 700;
-        }
-        ::placeholder {
-            color: #bbb;
-            opacity: 1;
-        }
-        /* Scrollbar urbana */
-        ::-webkit-scrollbar {
-            width: 10px;
-            background: #111;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #f5f5f5;
-            border-radius: 8px;
-        }
-        /* Microinteracciones y feedback visual */
-        .btn, .btn-outline-primary, .btn-outline-info, .btn-outline-success, .btn-outline-warning, .btn-outline-secondary, .btn-outline-dark, .btn-primary {
-            transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.12s !important;
-        }
-        .btn:active {
-            transform: scale(0.97);
-            box-shadow: 0 0 32px 8px var(--color-glow), 0 2px 8px #0005 !important;
-        }
-        .btn:focus {
-            outline: 2px solid #fff;
-            outline-offset: 2px;
-            box-shadow: 0 0 0 4px #fff8 !important;
-        }
-        input, select, textarea {
-            transition: border 0.18s, box-shadow 0.18s;
-            border-radius: 8px;
-            border: 2px solid var(--color-border);
-            background: var(--color-bg-light);
-            color: var(--color-text);
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: #fff;
-            box-shadow: 0 0 8px #fff8;
-            outline: none;
-        }
-        /* Feedback visual en formularios */
-        .form-control:invalid {
-            border-color: #e74c3c !important;
-            box-shadow: 0 0 8px #e74c3c88 !important;
-        }
-        .form-control:valid {
-            border-color: #2ecc40 !important;
-            box-shadow: 0 0 8px #2ecc4088 !important;
-        }
-        /* Accesibilidad: alto contraste y focus visible */
-        .high-contrast {
-            filter: contrast(1.3) brightness(1.1);
-        }
-        [aria-live] {
-            outline: 2px dashed #fff;
-            outline-offset: 2px;
-        }
-        /* Mejoras para lectores de pantalla */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0,0,0,0);
-            border: 0;
         }
     </style>
     <!-- SEO y PWA -->
@@ -510,7 +85,7 @@
     </script>
     {% block head %}{% endblock %}
 </head>
-<body role="main" tabindex="0">
+<body role="main" tabindex="0" class="content-overlay">
     <div class="stars"></div>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
@@ -524,7 +99,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 {% if current_user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('client.feed') }}" title="Ir al inicio"><span class="d-none d-md-inline">Inicio</span> <span class="d-inline d-md-none" style="font-size:1.2em;">🏠</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/" title="Ir al inicio"><span class="d-none d-md-inline">Inicio</span> <span class="d-inline d-md-none" style="font-size:1.2em;">🏠</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="/catalog" title="Ver catálogo"><span class="d-none d-md-inline">Catálogo</span> <span class="d-inline d-md-none" style="font-size:1.2em;">📦</span></a></li>
                     <li class="nav-item position-relative">
                         <a class="nav-link" href="/cart" title="Carrito de compras">
@@ -568,7 +143,7 @@
         </div>
     </div>
 </nav>
-<div class="container mt-4">
+<div class="container fade-in">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
@@ -578,103 +153,46 @@
     {% endwith %}
     {% block content %}{% endblock %}
 </div>
-<footer class="footer">
 <script src="{{ url_for('static', filename='js/change-theme-advanced.js') }}"></script>
-    <div class="container">
-        &copy; 2025 Tienda Virtual S A M M S . F O
-    </div>
-</footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Efecto ripple en botones
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('button, .btn').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            let ripple = document.createElement('span');
-            ripple.className = 'ripple';
-            ripple.style.left = (e.offsetX - 10) + 'px';
-            ripple.style.top = (e.offsetY - 10) + 'px';
-            this.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 600);
-        });
-    });
-});
-// Animación de validación en formularios
-document.querySelectorAll('form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        if (!form.checkValidity()) {
-            form.classList.add('was-validated');
-            e.preventDefault();
-            e.stopPropagation();
-        }
-    }, false);
-});
-</script>
-<style>
-.ripple {
-    position: absolute;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    background: rgba(255,255,255,0.7);
-    pointer-events: none;
-    animation: ripple-effect 0.6s linear;
-    z-index: 10;
-}
-@keyframes ripple-effect {
-    to {
-        transform: scale(8);
-        opacity: 0;
-    }
-}
-            <div style="position:fixed;bottom:32px;left:32px;z-index:10001;display:flex;flex-direction:column;align-items:center;gap:12px;">
-                <button class="theme-toggle-advanced" title="Cambiar tema" aria-label="Cambiar tema">
-                    <span class="icon" id="themeIcon">🌙</span>
-                </button>
-            </div>
-async function updateCartCount() {
-    try {
-        const res = await fetch("/api/cart/");
-        const data = await res.json();
-        const count = data.items.reduce((acc, item) => acc + item.quantity, 0);
-        const cartCountElem = document.getElementById("cartCount");
-        if (cartCountElem) {
-            cartCountElem.textContent = count;
-            cartCountElem.style.display = count > 0 ? "inline-block" : "none";
-        }
-    } catch (e) {}
-}
-window.addEventListener('DOMContentLoaded', updateCartCount);
-</script>
-<script>
-// Generar estrellas aleatorias
-const starsContainer = document.querySelector('.stars');
-if (starsContainer) {
-    for (let i = 0; i < 120; i++) {
-        const star = document.createElement('span');
-        star.style.top = Math.random() * 100 + 'vh';
-        star.style.left = Math.random() * 100 + 'vw';
-        star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
-        star.style.opacity = Math.random() * 0.7 + 0.3;
-        star.style.animationDuration = (Math.random() * 2 + 1) + 's';
-        starsContainer.appendChild(star);
-    }
-}
-// Contador global del carrito
-async function updateCartCount() {
-    try {
-        const res = await fetch("/api/cart/");
-        const data = await res.json();
-        const count = data.items.reduce((acc, item) => acc + item.quantity, 0);
-        const cartCountElem = document.getElementById("cartCount");
-        if (cartCountElem) {
-            cartCountElem.textContent = count;
-            cartCountElem.style.display = count > 0 ? "inline-block" : "none";
-        }
-    } catch (e) {}
-}
-window.addEventListener('DOMContentLoaded', updateCartCount);
-</script>
+ // Efecto ripple en botones
+ document.addEventListener('DOMContentLoaded', function() {
+     document.querySelectorAll('button, .btn').forEach(function(btn) {
+         btn.addEventListener('click', function(e) {
+             let ripple = document.createElement('span');
+             ripple.className = 'ripple';
+             ripple.style.left = (e.offsetX - 10) + 'px';
+             ripple.style.top = (e.offsetY - 10) + 'px';
+             this.appendChild(ripple);
+             setTimeout(() => ripple.remove(), 600);
+         });
+     });
+ });
+ // Animación de validación en formularios
+ document.querySelectorAll('form').forEach(form => {
+     form.addEventListener('submit', function(e) {
+         if (!form.checkValidity()) {
+             form.classList.add('was-validated');
+             e.preventDefault();
+             e.stopPropagation();
+         }
+     }, false);
+ });
+ async function updateCartCount() {
+     try {
+         const res = await fetch("/api/cart/");
+         const data = await res.json();
+         const count = data.items.reduce((acc, item) => acc + item.quantity, 0);
+         const cartCountElem = document.getElementById("cartCount");
+         if (cartCountElem) {
+             cartCountElem.textContent = count;
+             cartCountElem.style.display = count > 0 ? "inline-block" : "none";
+         }
+     } catch (e) {}
+ }
+ window.addEventListener('DOMContentLoaded', updateCartCount);
+ </script>
 <script>
 // Notificaciones Push básicas (ejemplo)
 if ('Notification' in window && 'serviceWorker' in navigator) {
@@ -721,73 +239,11 @@ if ('Notification' in window && 'serviceWorker' in navigator) {
 }
 </script>
 {% block scripts %}{% endblock %}
+<script src="{{ url_for('static', filename='js/star-bg.js') }}"></script>
 <script>
-// Generador de estrellas para el fondo
-document.addEventListener('DOMContentLoaded', function () {
-    const starsContainer = document.querySelector('.stars');
-        if (starsContainer && starsContainer.childElementCount === 0) {
-            // Más estrellas en modo claro
-            const isLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-            const numStars = isLight ? 220 : 120;
-            for (let i = 0; i < numStars; i++) {
-                const star = document.createElement('span');
-                star.style.left = Math.random() * 100 + 'vw';
-                star.style.top = Math.random() * 100 + 'vh';
-                // En modo claro, estrellas más grandes
-                if (isLight) {
-                    star.style.width = star.style.height = (Math.random() * 3 + 2) + 'px';
-                } else {
-                    star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
-                }
-                star.style.opacity = (Math.random() * 0.5 + 0.5).toFixed(2);
-                starsContainer.appendChild(star);
-            }
-        }
-});
+
 </script>
-<script src="{{ url_for('static', filename='js/star-bg.js') }}" defer></script>
-<script>
-// Generador de estrellas para el fondo animado (universal)
-var starsDiv = document.querySelector('.stars');
-if (starsDiv) {
-    starsDiv.innerHTML = '';
-    for (let i = 0; i < 80; i++) {
-        let star = document.createElement('span');
-        star.style.left = Math.random() * 100 + 'vw';
-        star.style.top = Math.random() * 100 + 'vh';
-        star.style.width = (Math.random() * 2 + 1) + 'px';
-        star.style.height = star.style.width;
-        star.style.opacity = Math.random() * 0.7 + 0.3;
-        starsDiv.appendChild(star);
-    }
-}
-</script>
+
 </body>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/socketio-notify.js') }}"></script>
-<script>
-// Notificaciones push en tiempo real (simulado)
-if (window.Notification && Notification.permission === 'granted') {
-    setInterval(async function() {
-                body {
-                        /* display: grid; */
-                        /* place-items: center; */
-                        min-height: 100vh;
-                        font-family: 'SF Pro Text', 'SF Pro Icons', 'AOS Icons', 'Helvetica Neue',
-                            Helvetica, Arial, sans-serif, system-ui;
-                }
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 0;
-        }
-            }
-        } catch (e) {}
-    }, 10000); // cada 10 segundos
-}
-</script>
-</html>

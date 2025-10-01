@@ -5,22 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Usuario</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/star-bg.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base-theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='change-theme-advanced.css') }}">
     <style>
         .register-container {
-            max-width: 420px;
-            margin: 60px auto 0 auto;
-            padding: 2.5rem 2rem 2rem 2rem;
+            max-width: 460px;
+            padding: 0.75rem 2rem 0.25rem 2rem;
             box-shadow: 0 0 32px #f5f5f5, 0 8px 32px #000a;
             background: #181818cc;
             border-radius: 1.2rem;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-        .register-container {
-            box-shadow: 0 0 32px #fff8 0, 0 0 32px #fff5, 0 8px 32px #000a;
-            background: #181818cc;
-            border-radius: 1.2rem;
         }
         .form-control {
             background: #222;
@@ -44,7 +41,7 @@
             color: #111;
             font-weight: 800;
             border-radius: 8px;
-            box-shadow: 0 0 24px #f5f5f5, 0 2px 8px #0005;
+            box-shadow: 0 0 16px rgba(245,245,245,0.6), 0 2px 8px rgba(0,0,0,0.2);
             border: none;
             transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s cubic-bezier(.4,2,.3,1);
             animation: pulse-neon 1.5s infinite;
@@ -52,13 +49,13 @@
         .btn-primary:hover {
             background: #fff;
             color: #111;
-            box-shadow: 0 0 32px #f5f5f5;
+            box-shadow: 0 0 20px rgba(245,245,245,0.8), 0 4px 12px rgba(0,0,0,0.3);
             animation-play-state: paused;
         }
         .btn-primary:active {
             animation-play-state: paused;
             transform: scale(0.96) translateY(2px) rotate(-1deg);
-            box-shadow: 0 0 16px #f5f5f5, 0 2px 8px #0005;
+            box-shadow: 0 0 12px rgba(245,245,245,0.5), 0 2px 6px rgba(0,0,0,0.2);
         }
         a {
             color: #f5f5f5 !important;
@@ -80,9 +77,9 @@
             animation: pulse-neon 1.5s infinite;
         }
         @keyframes pulse-neon {
-            0% { box-shadow: 0 0 32px 8px #f5f5f5, 0 4px 32px #000a; }
-            50% { box-shadow: 0 0 48px 16px #f5f5f5, 0 4px 32px #000a; }
-            100% { box-shadow: 0 0 32px 8px #f5f5f5, 0 4px 32px #000a; }
+            0% { box-shadow: 0 0 16px 4px rgba(245,245,245,0.6), 0 4px 16px rgba(0,0,0,0.3); }
+            50% { box-shadow: 0 0 24px 8px rgba(245,245,245,0.7), 0 4px 16px rgba(0,0,0,0.3); }
+            100% { box-shadow: 0 0 16px 4px rgba(245,245,245,0.6), 0 4px 16px rgba(0,0,0,0.3); }
         }
         .neon-loader {
             display: none;
@@ -105,12 +102,23 @@
             100% { transform: rotate(360deg); }
         }
         body {
-            background: linear-gradient(120deg, #111 0%, #222 100%), url('https://www.transparenttextures.com/patterns/asfalt-light.png');
+            background: transparent;
             min-height: 100vh;
             color: #f5f5f5;
             font-family: 'Montserrat', Arial, sans-serif;
-            background-blend-mode: overlay;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div class="stars"></div>
 <div class="register-container fade-in">
     <div class="text-center mb-3">
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" height="64" style="filter: drop-shadow(0 0 16px #f5f5f5);border-radius:50%;background:#fff;object-fit:cover;" class="mb-2">
@@ -138,6 +146,11 @@
             <input type="email" class="form-control" id="email" name="email" required value="{{ request.form.email }}" style="padding-left:2em;" title="Introduce tu correo electrónico">
         </div>
         <div class="mb-3 position-relative">
+            <label for="phone" class="form-label">Número de teléfono (opcional)</label>
+            <span style="position:absolute;left:10px;top:38px;font-size:1.2em;color:#f5f5f5;">📱</span>
+            <input type="tel" class="form-control" id="phone" name="phone" value="{{ request.form.phone }}" style="padding-left:2em;" placeholder="+57 300 123 4567" title="Introduce tu número de teléfono para recuperación de contraseña">
+        </div>
+        <div class="mb-3 position-relative">
             <label for="passwordUser" class="form-label">Contraseña</label>
             <span style="position:absolute;left:10px;top:38px;font-size:1.2em;color:#f5f5f5;">🔒</span>
             <input type="password" class="form-control" id="passwordUser" name="passwordUser" required minlength="8" style="padding-left:2em;" title="Introduce una contraseña segura" oninput="checkStrength()">
@@ -157,7 +170,7 @@
         </div>
         <div class="mb-3 form-check">
             <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
-            <label class="form-check-label" for="terms">Acepto los <a href="#" target="_blank">términos y condiciones</a></label>
+            <label class="form-check-label" for="terms">Acepto los <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">términos y condiciones</a></label>
         </div>
         <button type="submit" class="btn btn-primary w-100 pulse-neon" title="Registrarse">Registrarse</button>
     </form>
@@ -203,65 +216,131 @@ function validatePasswordStrength(e) {
   return true;
 }
 </script>
-            color: #111;
-            box-shadow: 0 0 16px #f5f5f5;
-        }
-        .login-link {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: #fff;
-        }
-    </style>
-</head>
-<body>
-<div class="register-container">
-    <h2 class="register-title">Registro de Usuario</h2>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-    <form method="POST" action="{{ url_for('users.register') }}" novalidate>
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="mb-3 position-relative">
-            <label for="nameUser" class="form-label">Nombre completo</label>
-            <span style="position:absolute;left:10px;top:38px;font-size:1.2em;color:#f5f5f5;">👤</span>
-            <input type="text" class="form-control" id="nameUser" name="nameUser" required value="{{ request.form.nameUser }}" style="padding-left:2em;">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/change-theme-advanced.js') }}"></script>
+<script src="{{ url_for('static', filename='js/star-bg.js') }}"></script>
+
+<!-- Modal de Términos y Condiciones -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content" style="background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #2a2a2a 100%); color: #f5f5f5; border: 3px solid #f5f5f5; border-radius: 20px; box-shadow: 0 20px 60px rgba(245,245,245,0.4), 0 0 100px rgba(245,245,245,0.2); animation: modalGlow 2s ease-in-out infinite alternate;">
+      <div class="modal-header" style="border-bottom: 2px solid rgba(245,245,245,0.3); background: rgba(245,245,245,0.1); border-radius: 17px 17px 0 0;">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="termsModalLabel" style="color: #f5f5f5; text-shadow: 0 0 15px #f5f5f5;">
+          <span class="me-2" style="font-size: 1.5em;">📋</span>
+          <span>Términos y Condiciones</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="filter: drop-shadow(0 0 5px #f5f5f5);"></button>
+      </div>
+      <div class="modal-body" style="max-height: 65vh; overflow-y: auto; padding: 2.5rem;">
+        <div class="text-center mb-5">
+          <div class="mb-3">
+            <span class="display-6 fw-bold" style="color: #f5f5f5; text-shadow: 0 0 20px #f5f5f5;">TÉRMINOS Y CONDICIONES</span>
+          </div>
+          <p class="lead fw-light" style="color: #e2e8f0; font-style: italic; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Aceptas nuestros términos y condiciones</p>
+          <hr style="border: 1px solid rgba(245,245,245,0.3); width: 50%; margin: 1rem auto;">
         </div>
-        <div class="mb-3 position-relative">
-            <label for="email" class="form-label">Correo electrónico</label>
-            <span style="position:absolute;left:10px;top:38px;font-size:1.2em;color:#f5f5f5;">📧</span>
-            <input type="email" class="form-control" id="email" name="email" required value="{{ request.form.email }}" style="padding-left:2em;">
+
+        <div class="terms-content">
+          <div class="term-item mb-4 p-4 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(245,245,245,0.08), rgba(245,245,245,0.03)); border-left: 5px solid #f5f5f5; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(245,245,245,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+            <div class="d-flex align-items-start">
+              <span class="me-3 fs-4">📦</span>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-3" style="color: #f5f5f5; margin-bottom: 0.5rem;">1. Aceptación de las condiciones de compra y entrega</h6>
+                <p class="mb-0" style="color: #e2e8f0; line-height: 1.6;">Por compras menores a $350.000 los gastos de envío y embalaje deberán ser asumidos por el cliente. (incluye el IVA y otros impuestos)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="term-item mb-4 p-4 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(245,245,245,0.08), rgba(245,245,245,0.03)); border-left: 5px solid #f5f5f5; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(245,245,245,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+            <div class="d-flex align-items-start">
+              <span class="me-3 fs-4">🔄</span>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-3" style="color: #f5f5f5; margin-bottom: 0.5rem;">2. Modificaciones y devoluciones</h6>
+                <p class="mb-0" style="color: #e2e8f0; line-height: 1.6;">Nos reservamos de realizar cualquier modificación o devolución una vez haya confirmado su pago.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="term-item mb-4 p-4 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(245,245,245,0.08), rgba(245,245,245,0.03)); border-left: 5px solid #f5f5f5; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(245,245,245,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+            <div class="d-flex align-items-start">
+              <span class="me-3 fs-4">✨</span>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-3" style="color: #f5f5f5; margin-bottom: 0.5rem;">3. Garantía de calidad</h6>
+                <p class="mb-0" style="color: #e2e8f0; line-height: 1.6;">SAMMS.FO garantiza la calidad de todos sus productos hasta después de ser entregados al comprador. Esta se da cuando el producto se despega o estorsa, más no por <strong style="color: #ffb300; text-shadow: 0 0 10px rgba(255,179,0,0.5);">MAL USO.</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="term-item mb-4 p-4 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(245,245,245,0.08), rgba(245,245,245,0.03)); border-left: 5px solid #f5f5f5; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(245,245,245,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+            <div class="d-flex align-items-start">
+              <span class="me-3 fs-4">⏰</span>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-3" style="color: #f5f5f5; margin-bottom: 0.5rem;">4. Plazos de entrega</h6>
+                <p class="mb-0" style="color: #e2e8f0; line-height: 1.6;">Los plazos de entrega indicados son estimados. De lo contrario la empresa de transporte será responsable.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="term-item mb-4 p-4 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(245,245,245,0.08), rgba(245,245,245,0.03)); border-left: 5px solid #f5f5f5; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(245,245,245,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+            <div class="d-flex align-items-start">
+              <span class="me-3 fs-4">📄</span>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-3" style="color: #f5f5f5; margin-bottom: 0.5rem;">5. Guía de envío</h6>
+                <p class="mb-0" style="color: #e2e8f0; line-height: 1.6;">Remitiremos la guía o soporte de envío en el momento que sea entregado por la transportadora.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="term-item mb-4 p-4 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(245,245,245,0.08), rgba(245,245,245,0.03)); border-left: 5px solid #f5f5f5; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(245,245,245,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+            <div class="d-flex align-items-start">
+              <span class="me-3 fs-4">💳</span>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-3" style="color: #f5f5f5; margin-bottom: 0.5rem;">6. Política de pagos</h6>
+                <p class="mb-0" style="color: #e2e8f0; line-height: 1.6;">Después de haber realizado el pago NO se hará devolución de dinero, ni cancelación de pedido.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="term-item mb-4 p-4 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(245,245,245,0.08), rgba(245,245,245,0.03)); border-left: 5px solid #f5f5f5; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(245,245,245,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+            <div class="d-flex align-items-start">
+              <span class="me-3 fs-4">🚚</span>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-3" style="color: #f5f5f5; margin-bottom: 0.5rem;">7. Responsabilidad de transporte</h6>
+                <p class="mb-0" style="color: #e2e8f0; line-height: 1.6;">Adicionalmente, no garantizamos indemnización ni reembolso ante la pérdida o incumplimiento de entrega por parte de las empresas de transporte.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="term-item mb-4 p-4 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(245,245,245,0.08), rgba(245,245,245,0.03)); border-left: 5px solid #f5f5f5; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; backdrop-filter: blur(10px);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(245,245,245,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+            <div class="d-flex align-items-start">
+              <span class="me-3 fs-4">🔒</span>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-3" style="color: #f5f5f5; margin-bottom: 0.5rem;">8. Protección de datos</h6>
+                <p class="mb-0" style="color: #e2e8f0; line-height: 1.6;">SAMMS.FO garantiza la protección y confidencialidad de datos personales o domiciliarios.</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="mb-3 position-relative">
-            <label for="passwordUser" class="form-label">Contraseña</label>
-            <span style="position:absolute;left:10px;top:38px;font-size:1.2em;color:#f5f5f5;">🔒</span>
-            <input type="password" class="form-control" id="passwordUser" name="passwordUser" required minlength="8" style="padding-left:2em;">
-            <span onclick="togglePassword('passwordUser')" style="position:absolute;right:10px;top:38px;cursor:pointer;font-size:1.2em;color:#fff;transition:transform 0.3s;" title="Mostrar/ocultar contraseña">👁️</span>
-            <div class="form-text" style="color:#fff !important;">Mínimo 8 caracteres, una mayúscula, una minúscula y un número.</div>
+
+        <div class="text-center mt-5 pt-4" style="border-top: 2px solid rgba(245,245,245,0.2);">
+          <div class="d-inline-block p-3 rounded-pill" style="background: rgba(245,245,245,0.1); border: 1px solid rgba(245,245,245,0.3);">
+            <h5 class="mb-0 fw-bold" style="color: #f5f5f5; text-shadow: 0 0 15px #f5f5f5;">SAMMS.FO</h5>
+          </div>
         </div>
-        <div class="mb-3 position-relative">
-            <label for="confirm_password" class="form-label">Confirmar contraseña</label>
-            <span style="position:absolute;left:10px;top:38px;font-size:1.2em;color:#f5f5f5;">🔒</span>
-            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required style="padding-left:2em;">
-            <span onclick="togglePassword('confirm_password')" style="position:absolute;right:10px;top:38px;cursor:pointer;font-size:1.2em;color:#fff;transition:transform 0.3s;" title="Mostrar/ocultar contraseña">👁️</span>
-        </div>
-        <div class="mb-3 position-relative">
-            <label for="birthdate" class="form-label">Fecha de nacimiento</label>
-            <span style="position:absolute;left:10px;top:38px;font-size:1.2em;color:#f5f5f5;">📅</span>
-            <input type="date" class="form-control" id="birthdate" name="birthdate" required value="{{ request.form.birthdate }}" style="padding-left:2em;">
-        </div>
-        <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
-            <label class="form-check-label" for="terms">Acepto los <a href="#" target="_blank">términos y condiciones</a></label>
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Registrarse</button>
-    </form>
-    <div class="login-link">
-        ¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión</a>
+      </div>
+      <div class="modal-footer justify-content-center" style="border-top: 2px solid rgba(245,245,245,0.3); background: rgba(245,245,245,0.1); border-radius: 0 0 17px 17px;">
+        <button type="button" class="btn px-5 py-2 fw-bold" data-bs-dismiss="modal" style="background: #f5f5f5; color: #1a1a1a; border: none; border-radius: 25px; box-shadow: 0 4px 15px rgba(245,245,245,0.4); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(245,245,245,0.6)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(245,245,245,0.4)'">Cerrar</button>
+      </div>
     </div>
+  </div>
 </div>
+
+<style>
+@keyframes modalGlow {
+  from { box-shadow: 0 20px 60px rgba(245,245,245,0.4), 0 0 100px rgba(245,245,245,0.2); }
+  to { box-shadow: 0 20px 60px rgba(245,245,245,0.6), 0 0 120px rgba(245,245,245,0.4); }
+}
+</style>
+
 </body>
 </html>

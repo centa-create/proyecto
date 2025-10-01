@@ -25,8 +25,8 @@
             {{ item.product.name }}
           </td>
           <td>{{ item.quantity }}</td>
-          <td>{{ (item.product.price * 4000)|int|string|replace(',', '.') }} COP</td>
-          <td>{{ (item.subtotal * 4000)|int|string|replace(',', '.') }} COP</td>
+          <td>{{ item.product.price | int }} COP</td>
+          <td>{{ item.subtotal | int }} COP</td>
           <td>
             <form method="post" action="{{ url_for('cart.remove_from_cart', item_id=item.id) }}" style="display:inline;">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -65,7 +65,7 @@
 </div>
 <style>
 .cart-empty-message {
-  background: rgba(35,39,47,0.98);
+  background: rgba(24,24,24,0.9);
   border-radius: 1.2rem;
   padding: 2rem 1rem 1.5rem 1rem;
   margin: 2rem auto 1rem auto;

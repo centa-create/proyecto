@@ -1,19 +1,254 @@
 {% extends 'base.html' %}
+{% block title %}Agregar Categoría | Panel Admin{% endblock %}
+{% block head %}
+<style>
+    .add-category-hero {
+        background: linear-gradient(135deg, rgba(24,24,24,0.9) 0%, rgba(42,42,42,0.9) 100%);
+        border-radius: 2rem;
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 16px 64px rgba(245,245,245,0.2);
+        border: 2px solid #fff;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+    .add-category-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 70%, rgba(245,245,245,0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 30%, rgba(245,245,245,0.1) 0%, transparent 50%);
+        animation: heroGlow 4s ease-in-out infinite alternate;
+    }
+    @keyframes heroGlow {
+        0% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    .add-category-title {
+        font-weight: 900;
+        font-size: 2.5rem;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+        background: linear-gradient(90deg, #fff 0%, #eaeaea 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 24px #fff, 0 4px 32px #fff8;
+    }
+    .add-category-subtitle {
+        color: #e2e8f0;
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        text-shadow: 0 0 12px #fff8;
+    }
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: linear-gradient(135deg, #181818 0%, #2a2a2a 100%);
+        border-radius: 1.5rem;
+        padding: 3rem;
+        box-shadow: 0 8px 32px rgba(245,245,245,0.1), 0 2px 16px rgba(0,0,0,0.3);
+        border: 2px solid #fff;
+        animation: fadeInUp 0.8s ease-out;
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .form-group {
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    .form-label {
+        font-weight: 700;
+        color: #fff;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        display: block;
+        text-shadow: 0 0 8px #fff8;
+    }
+    .form-control {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        border-radius: 0.8rem;
+        border: 2px solid rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.05);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #fff;
+        box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.1);
+    }
+    .form-control::placeholder {
+        color: rgba(255,255,255,0.6);
+    }
+    .form-text {
+        color: #e2e8f0;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        font-weight: 500;
+    }
+    .textarea-container {
+        position: relative;
+    }
+    .textarea-container::after {
+        content: attr(data-length);
+        position: absolute;
+        bottom: 0.5rem;
+        right: 0.8rem;
+        color: rgba(255,255,255,0.6);
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2.5rem;
+        flex-wrap: wrap;
+    }
+    .btn-submit {
+        background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+        color: #fff;
+        border: none;
+        font-weight: 800;
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+        border-radius: 2rem;
+        box-shadow: 0 8px 32px rgba(40,167,69,0.3);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        min-width: 160px;
+    }
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 48px rgba(40,167,69,0.4);
+        background: linear-gradient(90deg, #20c997 0%, #28a745 100%);
+    }
+    .btn-cancel {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        border: 2px solid rgba(255,255,255,0.3);
+        font-weight: 700;
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+        border-radius: 2rem;
+        box-shadow: 0 4px 16px rgba(255,255,255,0.1);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        min-width: 160px;
+        text-align: center;
+    }
+    .btn-cancel:hover {
+        background: rgba(255,255,255,0.2);
+        border-color: rgba(255,255,255,0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(255,255,255,0.2);
+        color: #fff;
+    }
+    .input-icon {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255,255,255,0.6);
+        font-size: 1.2rem;
+        pointer-events: none;
+    }
+    .form-group.has-icon .form-control {
+        padding-right: 3rem;
+    }
+    @media (max-width: 768px) {
+        .add-category-hero {
+            padding: 2rem 1rem;
+        }
+        .add-category-title {
+            font-size: 2rem;
+        }
+        .form-container {
+            padding: 2rem 1.5rem;
+        }
+        .form-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+        .btn-submit, .btn-cancel {
+            width: 100%;
+            min-width: auto;
+        }
+    }
+</style>
+{% endblock %}
 {% block content %}
-<div class="container mt-4">
-  <h2>Agregar Categoría</h2>
-  <form method="post">
-    {{ form.hidden_tag() }}
-    <div class="mb-3">
-      {{ form.name.label }}
-      {{ form.name(class_="form-control") }}
-    </div>
-    <div class="mb-3">
-      {{ form.description.label }}
-      {{ form.description(class_="form-control") }}
-    </div>
-    {{ form.submit(class_="btn btn-success") }}
-    <a href="{{ url_for('admin.categories') }}" class="btn btn-secondary">Cancelar</a>
-  </form>
+<div style="text-align: left; margin-bottom: 1rem;">
+    <a href="{{ url_for('admin.categories') }}" class="btn-cancel" style="font-size: 0.9rem; padding: 0.5rem 1rem; display: inline-flex; align-items: center; gap: 0.5rem; color: #fff;">
+        <span>⬅️</span> Regresar a Categorías
+    </a>
 </div>
+<div class="add-category-hero text-center">
+    <div class="add-category-title"><span>➕</span> Nueva Categoría</div>
+    <div class="add-category-subtitle">Crea una nueva categoría para organizar mejor tus productos</div>
+</div>
+
+<div class="form-container">
+    <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="form-group has-icon">
+            <label for="name" class="form-label">Nombre de la Categoría</label>
+            {{ form.name(class_="form-control", placeholder="Ej: Ropa Deportiva, Accesorios, Calzado", required=true, minlength="1", maxlength="50") }}
+            <span class="input-icon">🏷️</span>
+            <div class="form-text">El nombre debe ser único y descriptivo (máximo 50 caracteres)</div>
+            {% if form.name.errors %}
+            <div class="alert alert-danger">{{ form.name.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="description" class="form-label">Descripción (Opcional)</label>
+            <div class="textarea-container" data-length="0/255">
+                {{ form.description(class_="form-control", placeholder="Describe qué tipo de productos encontrarán los clientes en esta categoría...", rows="4", maxlength="255") }}
+            </div>
+            <div class="form-text">Ayuda a los clientes a entender qué productos encontrarán aquí</div>
+        </div>
+
+        <div class="form-actions">
+            {{ form.submit(class_="btn-submit") }}
+            <a href="{{ url_for('admin.categories') }}" class="btn-cancel">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+// Contador de caracteres para la descripción
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('textarea[name="description"]');
+    const container = document.querySelector('.textarea-container');
+
+    function updateCounter() {
+        const length = textarea.value.length;
+        container.setAttribute('data-length', length + '/255');
+
+        if (length > 240) {
+            container.setAttribute('data-length', length + '/255 ⚠️');
+        } else if (length > 200) {
+            container.setAttribute('data-length', length + '/255 ⚡');
+        }
+    }
+
+    textarea.addEventListener('input', updateCounter);
+    updateCounter(); // Inicializar
+});
+</script>
 {% endblock %}

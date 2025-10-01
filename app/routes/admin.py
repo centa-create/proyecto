@@ -24,7 +24,8 @@ from sqlalchemy import func
 from werkzeug.utils import secure_filename
 
 from app import db, mail
-from app.forms import CategoryForm, DiscountForm, ProductForm
+from app.extensions import csrf
+from app.forms import CategoryForm, DiscountForm, ProductForm, CouponForm
 from app.models.admin_notification import AdminNotification
 from app.models.audit_log import AuditLog
 from app.models.banner import Banner
@@ -37,6 +38,7 @@ from app.models.reviews import Review
 from app.models.store_config import StoreConfig
 from app.models.support_ticket import SupportTicket
 from app.models.users import UserRole, Users
+from app.models.wishlist import Wishlist
 
 def admin_required(view_func):
     """Decorador que verifica si el usuario actual es administrador."""
@@ -394,11 +396,19 @@ def coupons():
     coupons_list = Coupon.query.order_by(Coupon.created_at.desc()).all()
     products_list = Product.query.all()
     categories_list = Category.query.all()
+    form = CouponForm()
+    # Opciones dinámicas para selects
+    form.product_id.choices = [(0, 'Producto (opcional)')] + [(p.id, p.name) for p in products_list]
+    form.category_id.choices = (
+        [(0, 'Categoría (opcional)')] +
+        [(c.id, c.name) for c in categories_list]
+    )
     return render_template(
         'admin/coupons.html',
         coupons=coupons_list,
         products=products_list,
-        categories=categories_list
+        categories=categories_list,
+        form=form
     )
 
 
@@ -407,27 +417,30 @@ def coupons():
 @admin_required
 def add_coupon():
     """Agrega un nuevo cupón."""
-    code = request.form.get('code', '').strip().upper()
-    description = request.form.get('description', '').strip()
-    discount_percent = float(request.form.get('discount_percent', 0))
-    valid_from = request.form.get('valid_from')
-    valid_to = request.form.get('valid_to')
-    usage_limit = request.form.get('usage_limit') or None
-    product_id = request.form.get('product_id') or None
-    category_id = request.form.get('category_id') or None
-    coupon_obj = Coupon(
-        code=code,
-        description=description,
-        discount_percent=discount_percent,
-        valid_from=valid_from,
-        valid_to=valid_to,
-        usage_limit=int(usage_limit) if usage_limit else None,
-        product_id=int(product_id) if product_id else None,
-        category_id=int(category_id) if category_id else None
+    form = CouponForm()
+    products_list = Product.query.all()
+    categories_list = Category.query.all()
+    form.product_id.choices = [(0, 'Producto (opcional)')] + [(p.id, p.name) for p in products_list]
+    form.category_id.choices = (
+        [(0, 'Categoría (opcional)')] +
+        [(c.id, c.name) for c in categories_list]
     )
-    db.session.add(coupon_obj)
-    db.session.commit()
-    flash('Cupón creado.', 'success')
+    if form.validate_on_submit():
+        coupon_obj = Coupon(
+            code=form.code.data.strip().upper(),
+            description=form.description.data.strip(),
+            discount_percent=float(form.discount_percent.data),
+            valid_from=form.valid_from.data,
+            valid_to=form.valid_to.data,
+            usage_limit=form.usage_limit.data or None,
+            product_id=form.product_id.data if form.product_id.data else None,
+            category_id=form.category_id.data if form.category_id.data else None
+        )
+        db.session.add(coupon_obj)
+        db.session.commit()
+        flash('Cupón creado.', 'success')
+    else:
+        flash('Error en el formulario de cupón.', 'danger')
     return redirect(url_for('admin.coupons'))
 
 
@@ -679,14 +692,30 @@ def products():
     return render_template('admin/products.html', products=products_paginated)
 
 
-@admin_bp.route('/categories')
+@admin_bp.route('/categories', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def categories():
-    """Muestra la lista paginada de categorías."""
+    """Muestra la lista paginada de categorías y maneja la creación de nuevas."""
+    form = CategoryForm()
+    if form.validate_on_submit():
+        name = form.name.data.strip()
+        description = form.description.data.strip()
+        if Category.query.filter_by(name=name).first():
+            flash('El nombre de la categoría ya existe.', 'danger')
+        else:
+            category_obj = Category(name=name, description=description)
+            db.session.add(category_obj)
+            db.session.commit()
+            log_admin_action(
+                current_user.idUser, 'crear', 'categoria',
+                category_obj.id, f'Categoría: {name}'
+            )
+            flash('Categoría agregada correctamente.', 'success')
+        return redirect(url_for('admin.categories'))
     page = request.args.get('page', 1, type=int)
     categories_paginated = Category.query.paginate(page=page, per_page=20, error_out=False)
-    return render_template('admin/categories.html', categories=categories_paginated)
+    return render_template('admin/categories.html', categories=categories_paginated, form=form)
 
 @admin_bp.route('/products/add', methods=['GET', 'POST'])
 @login_required
@@ -746,11 +775,15 @@ def edit_product(product_id):
     product_obj = Product.query.get_or_404(product_id)
     if request.method == 'POST':
         try:
+            from decimal import Decimal
             product_obj.name = request.form.get('name', product_obj.name).strip()
             product_obj.description = request.form.get(
                 'description', product_obj.description
             ).strip()
-            product_obj.price = float(request.form.get('price') or product_obj.price)
+            # Mantener consistencia con add_product usando Decimal
+            price_str = request.form.get('price')
+            if price_str:
+                product_obj.price = Decimal(price_str)
             product_obj.stock = int(request.form.get('stock') or product_obj.stock)
             product_obj.size = request.form.get('size', product_obj.size).strip()
             product_obj.color = request.form.get('color', product_obj.color).strip()
@@ -794,7 +827,7 @@ def edit_product(product_id):
         categories=categories_list
     )
 
-@admin_bp.route('/products/delete/<int:product_id>', methods=['POST'])
+@admin_bp.route('/products/delete/<int:product_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def delete_product(product_id):
@@ -804,10 +837,17 @@ def delete_product(product_id):
         flash('Confirmación requerida para eliminar.', 'danger')
         return redirect(url_for('admin.products'))
     product_obj = Product.query.get_or_404(product_id)
+
+    # Eliminar order_details y wishlists relacionadas para evitar constraint violation
+    OrderDetail.query.filter_by(product_id=product_id).delete()
+    Wishlist.query.filter_by(product_id=product_id).delete()
+
     db.session.delete(product_obj)
     db.session.commit()
     flash('Producto eliminado.', 'info')
     return redirect(url_for('admin.products'))
+
+csrf.exempt(delete_product)
 
 
 @admin_bp.route('/categories/add', methods=['GET', 'POST'])
@@ -862,7 +902,7 @@ def edit_category(category_id):
     return render_template('admin/edit_category.html', category=category_obj)
 
 
-@admin_bp.route('/categories/delete/<int:category_id>', methods=['POST'])
+@admin_bp.route('/categories/delete/<int:category_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def delete_category(category_id):
@@ -873,12 +913,15 @@ def delete_category(category_id):
         return redirect(url_for('admin.categories'))
     category_obj = Category.query.get_or_404(category_id)
     if Product.query.filter_by(category_id=category_id).first():
+        pass
         flash('No se puede eliminar: hay productos asociados.', 'danger')
         return redirect(url_for('admin.categories'))
     db.session.delete(category_obj)
     db.session.commit()
     flash('Categoría eliminada.', 'info')
     return redirect(url_for('admin.categories'))
+
+csrf.exempt(delete_category)
 
 # --- INVENTARIO ---
 @admin_bp.route('/inventory', methods=['GET'])

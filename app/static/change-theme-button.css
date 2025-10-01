@@ -89,7 +89,7 @@
     content: '';
     height: 50%;
     aspect-ratio: 1;
-    background: #fff;
+    background: rgba(255,255,255,0.9);
     filter: blur(6px);
     position: absolute;
     z-index: -1;
@@ -353,7 +353,7 @@
     background: black;
   }
   .face-shadow::after {
-    background: white;
+    background: rgba(255,255,255,0.9);
   }
 
   .face-plate {

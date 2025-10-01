@@ -1,118 +1,267 @@
 {% extends 'base.html' %}
 {% block title %}Perfil | Tienda Virtual{% endblock %}
 {% block head %}
-<style>
-    .profile-container {
-        max-width: 480px;
-        margin: 40px auto;
-        background: rgba(35,39,47,0.98);
-        border-radius: 18px;
-        box-shadow: 0 0 32px #fff8, 0 8px 32px #000a;
-        padding: 2.5rem 2rem 2rem 2rem;
-        border: 2.5px solid #fff;
-    }
-    .profile-title {
-        font-weight: 900;
-        font-size: 2.1rem;
-        letter-spacing: 0.5px;
-        text-align: left;
-        margin-bottom: 2rem;
-        background: linear-gradient(90deg, #fff 0%, #eaeaea 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 16px #fff, 0 2px 24px #fff8;
-    }
-    .form-label {
-        color: #fff;
-        font-weight: 700;
-        margin-bottom: 0.3rem;
-        text-shadow: 0 0 8px #fff8;
-    }
-    .form-control {
-        border-radius: 8px;
-        border: 2px solid #fff;
-        font-size: 1rem;
-        padding: 0.7rem 1rem;
-        background: #23272f;
-        color: #fff;
-        box-shadow: 0 0 8px #fff8;
-    }
-    .form-control:focus {
-        border-color: #fff;
-        background: #181818;
-        color: #fff;
-        box-shadow: 0 0 16px #fff;
-    }
-    .btn-primary {
-        background: linear-gradient(90deg, #fff 0%, #eaeaea 100%);
-        color: #23272f;
-        border: 2px solid #fff;
-        font-weight: 800;
-        font-size: 1.1rem;
-        border-radius: 8px;
-        padding: 0.7rem 0;
-        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-        box-shadow: 0 0 12px #fff8;
-    }
-    .btn-primary:hover {
-        background: #23272f;
-        color: #fff;
-        box-shadow: 0 0 24px #fff, 0 0 16px #fff8;
-        border: 2px solid #fff;
-    }
-    .profile-pic {
-        width: 130px;
-        height: 130px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-bottom: 1.2rem;
-        border: 3px solid #fff;
-        box-shadow: 0 0 16px #fff8;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}?v={{ config.get('VERSION', '1.0') }}">
 {% endblock %}
 {% block content %}
-{# Solución temporal: oculta cualquier variable extraña que llegue al contexto #}
-{% if token is defined %}
-        border: 3px solid #f5f5f5 !important;
-{% endif %}
-<div class="profile-container">
+<div class="profile-page">
+  <div class="profile-container">
     <h2 class="profile-title">Editar Perfil</h2>
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">{{ message }}</div>
+          <div class="profile-alert profile-alert-{{ category }}">{{ message }}</div>
         {% endfor %}
-        border: 2px solid #f5f5f5 !important;
       {% endif %}
     {% endwith %}
     <form method="POST" enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <div class="mb-3 text-center">
-        <picture>
-          <source srcset="{{ url_for('static', filename='profile_pics/' + (current_user.profile_pic if current_user.profile_pic else 'default.png')|replace('.jpg','.webp')|replace('.png','.webp')) }}" type="image/webp">
+      <div class="profile-avatar-section">
+        <div class="profile-avatar-container">
           <img src="{{ url_for('static', filename='profile_pics/' + (current_user.profile_pic if current_user.profile_pic else 'default.png')) }}" class="profile-pic" alt="Foto de perfil" loading="lazy">
-        </picture>
-        <label for="profile_pic" class="form-label">Cambiar foto de perfil</label>
+          <label for="profile_pic" class="profile-avatar-upload" tabindex="0" role="button" aria-label="Cambiar foto de perfil">
+            <svg fill="currentColor" viewBox="0 0 16 16">
+              <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+              <path d="M4 1.5H3a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+              <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+            </svg>
+          </label>
+        </div>
+        <input type="file" id="profile_pic" name="profile_pic" accept="image/*" style="display: none;">
       </div>
+  
       <div class="profile-form-section">
-        <div class="mb-3">
-          <label for="nameUser" class="form-label">Nombre completo</label>
-          <input type="text" class="form-control" id="nameUser" name="nameUser" value="{{ current_user.nameUser }}">
-        border: 1.5px solid #f5f5f5 !important;
-        <div class="mb-3">
-          <label for="email" class="form-label">Correo electrónico</label>
-          <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}">
+        <div class="profile-form-group">
+          <label for="nameUser" class="profile-label">Nombre completo</label>
+          <input type="text" class="profile-input" id="nameUser" name="nameUser" value="{{ current_user.nameUser }}" placeholder="Ingresa tu nombre completo">
         </div>
-        <div class="mb-3">
-          <label for="passwordUser" class="form-label">Nueva contraseña</label>
-          <input type="password" class="form-control" id="passwordUser" name="passwordUser" placeholder="Dejar en blanco para no cambiar">
+  
+        <div class="profile-form-group">
+          <label for="email" class="profile-label">Correo electrónico</label>
+          <input type="email" class="profile-input" id="email" name="email" value="{{ current_user.email }}" placeholder="tu@email.com">
+        </div>
+  
+        <div class="profile-form-group">
+          <label for="passwordUser" class="profile-label">Nueva contraseña</label>
+          <input type="password" class="profile-input" id="passwordUser" name="passwordUser" placeholder="Dejar en blanco para no cambiar">
         </div>
       </div>
-      <button type="submit" class="btn btn-primary w-100">Guardar cambios</button>
-    </form>
-    <div class="mt-4 text-center">
-        <a href="{{ url_for('client.dashboard') }}" class="btn btn-outline-secondary">Volver al dashboard</a>
-    </div>
+    <button type="submit" class="profile-btn">Guardar cambios</button>
+  </form>
+
+  <div class="profile-actions">
+    <a href="{{ url_for('client.dashboard') }}" class="profile-btn-secondary">Volver al dashboard</a>
+  </div>
 </div>
+
+<script>
+// Funcionalidad avanzada del perfil
+document.addEventListener('DOMContentLoaded', function() {
+  // Manejo de subida de imagen de perfil
+  const avatarUpload = document.querySelector('.profile-avatar-upload');
+  const profilePicInput = document.getElementById('profile_pic');
+  const profilePic = document.querySelector('.profile-pic');
+
+  if (avatarUpload && profilePicInput) {
+    avatarUpload.addEventListener('click', function() {
+      profilePicInput.click();
+    });
+
+    avatarUpload.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        profilePicInput.click();
+      }
+    });
+
+    profilePicInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        // Validar tipo de archivo
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+          showProfileMessage('Por favor selecciona una imagen válida (JPG, PNG, WebP)', 'error');
+          return;
+        }
+
+        // Validar tamaño (5MB máximo)
+        if (file.size > 5 * 1024 * 1024) {
+          showProfileMessage('La imagen es demasiado grande. Máximo 5MB.', 'error');
+          return;
+        }
+
+        // Mostrar preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          profilePic.src = e.target.result;
+          showProfileMessage('Imagen seleccionada correctamente', 'success');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // Validación en tiempo real de campos
+  const inputs = document.querySelectorAll('.profile-input');
+  inputs.forEach(input => {
+    input.addEventListener('blur', function() {
+      validateField(this);
+    });
+
+    input.addEventListener('input', function() {
+      clearFieldError(this);
+    });
+  });
+
+  // Animación de entrada escalonada
+  const formGroups = document.querySelectorAll('.profile-form-group');
+  formGroups.forEach((group, index) => {
+    group.style.opacity = '0';
+    group.style.transform = 'translateY(20px)';
+    group.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+
+    setTimeout(() => {
+      group.style.opacity = '1';
+      group.style.transform = 'translateY(0)';
+    }, index * 100);
+  });
+
+  // Efectos de hover en la foto de perfil
+  if (profilePic) {
+    profilePic.addEventListener('mouseenter', function() {
+      this.style.transform = 'scale(1.05) rotate(2deg)';
+    });
+
+    profilePic.addEventListener('mouseleave', function() {
+      this.style.transform = 'scale(1) rotate(0deg)';
+    });
+  }
+
+  // Función para mostrar mensajes
+  function showProfileMessage(message, type) {
+    // Remover mensaje anterior si existe
+    const existingMessage = document.querySelector('.profile-message-temp');
+    if (existingMessage) {
+      existingMessage.remove();
+    }
+
+    // Crear nuevo mensaje
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `profile-alert profile-alert-${type} profile-message-temp`;
+    messageDiv.innerHTML = `<span>${message}</span>`;
+
+    // Insertar después del título
+    const title = document.querySelector('.profile-title');
+    if (title) {
+      title.insertAdjacentElement('afterend', messageDiv);
+    }
+
+    // Auto-remover después de 5 segundos
+    setTimeout(() => {
+      if (messageDiv.parentNode) {
+        messageDiv.remove();
+      }
+    }, 5000);
+  }
+
+  // Función para validar campos
+  function validateField(field) {
+    const value = field.value.trim();
+    let isValid = true;
+    let message = '';
+
+    switch (field.id) {
+      case 'nameUser':
+        if (value.length < 2) {
+          isValid = false;
+          message = 'El nombre debe tener al menos 2 caracteres';
+        }
+        break;
+      case 'email':
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) {
+          isValid = false;
+          message = 'Ingresa un correo electrónico válido';
+        }
+        break;
+      case 'passwordUser':
+        if (value && value.length < 6) {
+          isValid = false;
+          message = 'La contraseña debe tener al menos 6 caracteres';
+        }
+        break;
+    }
+
+    if (!isValid) {
+      field.style.borderColor = 'var(--profile-error)';
+      field.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+      showProfileMessage(message, 'error');
+    } else {
+      field.style.borderColor = 'var(--profile-success)';
+      field.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+    }
+
+    return isValid;
+  }
+
+  // Función para limpiar errores de campo
+  function clearFieldError(field) {
+    field.style.borderColor = 'var(--profile-border)';
+    field.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
+  }
+
+  // Efectos de foco mejorados
+  inputs.forEach(input => {
+    input.addEventListener('focus', function() {
+      this.parentElement.style.transform = 'translateY(-2px)';
+    });
+
+    input.addEventListener('blur', function() {
+      this.parentElement.style.transform = 'translateY(0)';
+    });
+  });
+
+  // Prevención de envío múltiple del formulario
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      const submitBtn = form.querySelector('.profile-btn');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Guardando...';
+      }
+    });
+  }
+
+  // Animación de éxito al cargar la página
+  setTimeout(() => {
+    document.querySelector('.profile-container').style.transform = 'scale(1)';
+    document.querySelector('.profile-container').style.opacity = '1';
+  }, 100);
+});
+</script>
+
+<style>
+/* Estilos adicionales para animaciones */
+.profile-container {
+  transform: scale(0.98);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+}
+
+.profile-message-temp {
+  animation: slideInFromTop 0.5s ease-out;
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
 {% endblock %}

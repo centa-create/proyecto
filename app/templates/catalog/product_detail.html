@@ -1,144 +1,854 @@
 {% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/product-details.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reviews.css') }}">
+{% endblock %}
+
 {% block title %}{{ product.name }} | Tienda Virtual{% endblock %}
-{% block head %}
-<style>
-    .product-detail-container {
-        max-width: 950px;
-        margin: 40px auto;
-        background: #181818;
-        border-radius: 1.5rem;
-        box-shadow: 0 8px 32px 0 #000a;
-        padding: 2.5rem 2rem 2rem 2rem;
-    }
-    .product-detail-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 2.5rem;
-        align-items: flex-start;
-    }
-    .product-detail-img {
-        flex: 1 1 320px;
-        max-width: 400px;
-        border-radius: 1.2rem;
-        box-shadow: 0 2px 12px #0008;
-        background: #222;
-        object-fit: cover;
-        width: 100%;
-        height: 320px;
-        border-bottom: 2px solid #fff200;
-    }
-    .product-detail-info {
-        flex: 2 1 320px;
-    }
-    .product-detail-title {
-        font-size: 2.1rem;
-        font-weight: 900;
-        color: #fff200;
-        margin-bottom: 0.7rem;
-        letter-spacing: 0.04em;
-        text-shadow: 0 2px 12px #000a;
-    }
-    .product-detail-desc {
-        color: #f5f5f5;
-        font-size: 1.13rem;
-        margin-bottom: 1.2rem;
-        font-weight: 600;
-    }
-    .product-detail-list {
-        list-style: none;
-        padding: 0;
-        margin-bottom: 1.5rem;
-    }
-    .product-detail-list li {
-        background: #222;
-        border-radius: 0.7rem;
-        margin-bottom: 0.7rem;
-        padding: 0.8rem 1.2rem;
-        font-size: 1.08rem;
-        color: #fff;
-        font-weight: 700;
-        border-left: 4px solid #fff200;
-    }
-    .btn-success {
-        border-radius: 8px;
-        font-weight: 800;
-        font-size: 1.08rem;
-        padding: 0.7rem 0;
-        margin-bottom: 0.5rem;
-        background: #fff;
-        color: #111;
-        border: 2px solid #fff200;
-        transition: background 0.18s, color 0.18s, box-shadow 0.18s;
-    }
-    .btn-success:hover {
-        background: #fff200;
-        color: #111;
-        box-shadow: 0 0 12px #fff20099;
-    }
-    .favorite-btn {
-        transition: color 0.18s, text-shadow 0.18s;
-    }
-    .favorite-btn:hover {
-        color: #fff200 !important;
-        text-shadow: 0 0 8px #fff20099;
-    }
-    @media (max-width: 900px) {
-        .product-detail-row {
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        .product-detail-img {
-            max-width: 100%;
-            height: 220px;
-        }
-    }
-    @media (max-width: 768px) {
-        .product-detail-container {
-            padding: 1rem;
-        }
-    }
-</style>
-{% endblock %}
+
+<!-- Skip link para accesibilidad -->
+<a href="#main-content" class="skip-link" style="position: absolute; top: -40px; left: 6px; background: var(--product-primary); color: white; padding: 8px; text-decoration: none; border-radius: 8px; z-index: 1000;">Saltar al contenido principal</a>
+
 {% block content %}
-<div class="product-detail-container">
-    <div class="product-detail-row">
-      <div>
-        <picture>
-          <source srcset="{{ url_for('static', filename='product_images/' ~ product.image|replace('.jpg','.webp')|replace('.png','.webp')) }}" type="image/webp">
-          <img src="{{ url_for('static', filename='product_images/' ~ product.image) }}" class="product-detail-img" alt="{{ product.name }}" loading="lazy">
-        </picture>
-      </div>
-      <div class="product-detail-info">
-        <div class="d-flex align-items-center mb-2">
-          <div class="product-detail-title mb-0">{{ product.name }}</div>
-          <form method="post" action="{% if product.id in favoritos %}{{ url_for('wishlist.remove_from_wishlist', product_id=product.id) }}{% else %}{{ url_for('wishlist.add_to_wishlist', product_id=product.id) }}{% endif %}" class="ms-3">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="favorite-btn" title="Agregar a Favoritos" style="background: none; border: none; font-size: 2rem; color: {% if product.id in favoritos %}#e74c3c{% else %}#bbb{% endif %}; cursor: pointer;">
-              {% if product.id in favoritos %}&#10084;{% else %}&#9825;{% endif %}
-            </button>
-          </form>
-        </div>
-        <div class="product-detail-desc">{{ product.description }}</div>
-        <ul class="product-detail-list">
-          <li><b>Precio:</b> {{ (product.price * 4000)|int | string | replace(',', '.') }} COP</li>
-          <li><b>Talla:</b> {{ product.size }}</li>
-          <li><b>Color:</b> {{ product.color }}</li>
-          <li><b>Stock:</b> {{ product.stock }}</li>
-        </ul>
-    <!-- Eliminado formulario innecesario -->
-        <form method="post" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div class="mb-3">
-                <label for="cantidad" class="form-label">Cantidad:</label>
-                <input type="number" min="1" max="{{ product.stock }}" value="1" name="cantidad" id="cantidad" class="form-control" style="max-width:120px;display:inline-block;">
+<main class="product-detail-container loading-state" id="main-content">
+  <!-- Breadcrumb de navegación -->
+  <nav class="product-breadcrumb" aria-label="Navegación de migas de pan">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('client.feed') }}">Inicio</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('catalog.catalog') }}">Productos</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+    </ol>
+  </nav>
+
+  <!-- Layout principal del producto en formato card -->
+  <div class="product-main-card">
+    <div class="product-card-content">
+      <!-- Galería de imágenes -->
+      <section class="product-gallery-section" aria-labelledby="gallery-title">
+        <div class="gallery-card">
+          <h2 id="gallery-title" class="sr-only">Galería de imágenes del producto</h2>
+
+          <!-- Imagen principal -->
+          <div class="product-gallery-main">
+            {% if product.image %}
+            <picture>
+              <source
+                srcset="{{ url_for('static', filename='product_images/' ~ product.image|replace('.jpg','.webp')|replace('.png','.webp')) }}"
+                type="image/webp">
+              <img
+                src="{{ url_for('static', filename='product_images/' ~ product.image) }}"
+                alt="Imagen principal de {{ product.name }}"
+                loading="lazy">
+            </picture>
+            {% else %}
+            <div class="product-image-placeholder">
+              <svg width="200" height="200" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
+                <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2.002 3h10a2 2 0 0 1 2 2v8a2 2 0 0 1-.002 0zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
+              </svg>
+              <p>Sin imagen disponible</p>
             </div>
-            <button class="btn btn-success w-100" type="submit">Agregar al carrito</button>
-        </form>
+            {% endif %}
+          </div>
+
+          <!-- Miniaturas -->
+          <div class="product-gallery-thumbnails">
+            <div class="thumbnail-item active" data-image="{{ url_for('static', filename='product_images/' ~ product.image) }}">
+              <img
+                src="{{ url_for('static', filename='product_images/' ~ product.image) }}"
+                alt="Miniatura 1 de {{ product.name }}"
+                loading="lazy">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Información del producto -->
+      <section class="product-info-section" aria-labelledby="product-title">
+        <div class="info-card">
+          <!-- Cabecera del producto -->
+          <header class="product-header">
+            <div class="title-section">
+              <h1 class="product-title" id="product-title">{{ product.name }}</h1>
+              <div class="product-subtitle">Producto de calidad premium</div>
+            </div>
+
+            <!-- Botón de favoritos -->
+            <form method="post" action="{% if product.id in favoritos %}{{ url_for('wishlist.remove_from_wishlist', product_id=product.id) }}{% else %}{{ url_for('wishlist.add_to_wishlist', product_id=product.id) }}{% endif %}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button
+                type="submit"
+                class="product-favorite-btn {{ 'active' if product.id in favoritos else '' }}"
+                title="{% if product.id in favoritos %}Quitar de favoritos{% else %}Agregar a favoritos{% endif %}"
+                aria-label="{% if product.id in favoritos %}Quitar {{ product.name }} de favoritos{% else %}Agregar {{ product.name }} a favoritos{% endif %}">
+                <span aria-hidden="true">
+                  {% if product.id in favoritos %}❤️{% else %}🤍{% endif %}
+                </span>
+              </button>
+            </form>
+          </header>
+
+          <!-- Separador visual -->
+          <div class="card-divider"></div>
+
+          <!-- Precio y disponibilidad -->
+          <div class="price-status-section">
+            <div class="price-display">
+              <div class="product-price" aria-label="Precio: {{ product.price | int }} pesos colombianos">
+                ${{ product.price | int }} COP
+              </div>
+              <div class="price-badge">Precio final</div>
+            </div>
+
+            <!-- Resumen de calificaciones -->
+            {% if reviews %}
+            <div class="rating-summary">
+              <div class="rating-summary-stars">
+                {% set avg_rating = reviews | map(attribute='rating') | list | average | round(1) %}
+                {% for i in range(5) %}
+                  <span class="star {{ 'filled' if i < avg_rating else '' }}">★</span>
+                {% endfor %}
+              </div>
+              <div class="rating-summary-text">
+                <span class="rating-score">{{ avg_rating }}</span>
+                <span class="rating-count">({{ reviews | length }} reseñas)</span>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+            <!-- Indicador de stock -->
+            <div class="stock-indicator">
+              <div class="product-stock-status {{ 'in-stock' if product.stock > 10 else 'low-stock' if product.stock > 0 else 'out-of-stock' }}">
+                {% if product.stock > 10 %}
+                  <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 0 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                  </svg>
+                  <span>En stock</span>
+                {% elif product.stock > 0 %}
+                  <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M7 11h2v2H7v-2zm0-8h2v6H7V3z"/>
+                  </svg>
+                  <span>¡Últimas {{ product.stock }} unidades!</span>
+                {% else %}
+                  <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                  </svg>
+                  <span>Agotado</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Separador visual -->
+          <div class="card-divider"></div>
+
+          <!-- Especificaciones del producto -->
+          <div class="specs-section">
+            <h3 class="specs-title">Especificaciones</h3>
+            <div class="product-specs">
+              <div class="spec-item" data-spec="talla">
+                <div class="spec-icon">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 1a2 2 0 0 0-2 2v2H5V3a3 3 0 1 1 6 0v2h-1V3a2 2 0 0 0-2-2z"/>
+                    <path d="M3 5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v2h1v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5h1z"/>
+                  </svg>
+                </div>
+                <div class="spec-content">
+                  <div class="spec-label">Talla</div>
+                  <div class="spec-value">{{ product.size }}</div>
+                </div>
+              </div>
+              <div class="spec-item" data-spec="color">
+                <div class="spec-icon">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM5.5 5.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5v-4z"/>
+                  </svg>
+                </div>
+                <div class="spec-content">
+                  <div class="spec-label">Color</div>
+                  <div class="spec-value">{{ product.color }}</div>
+                </div>
+              </div>
+              <div class="spec-item" data-spec="stock">
+                <div class="spec-icon">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l.5 2H5V5H3.14zM6 5v2h2V5H6zm3 0v2h2V5H9zm3 0v2h1.36l.5-2H12zm1.11 3H12v2h.61l.5-2zM11 8H9v2h2V8zm-2 3v-2H6v2h3zm-4 0v-2H3.89l.5 2H5zm.61-4H3v2h1.61l.5-2z"/>
+                  </svg>
+                </div>
+                <div class="spec-content">
+                  <div class="spec-label">Stock disponible</div>
+                  <div class="spec-value">{{ product.stock }} unidades</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Separador visual -->
+          <div class="card-divider"></div>
+
+          <!-- Formulario de compra -->
+          <div class="purchase-section">
+            <form class="product-purchase-form" method="post" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}" novalidate>
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+              <!-- Selector de cantidad -->
+              <div class="form-group">
+                <label for="cantidad" class="form-label">Cantidad</label>
+                <div class="quantity-selector">
+                  <button type="button" class="quantity-btn" id="decrease-qty" aria-label="Disminuir cantidad">−</button>
+                  <input
+                    type="number"
+                    id="cantidad"
+                    name="cantidad"
+                    class="quantity-input"
+                    value="1"
+                    min="1"
+                    max="{{ product.stock }}"
+                    aria-describedby="quantity-help">
+                  <button type="button" class="quantity-btn" id="increase-qty" aria-label="Aumentar cantidad">+</button>
+                </div>
+                <div id="quantity-help" class="form-help">
+                  Stock disponible: {{ product.stock }} unidades
+                </div>
+              </div>
+
+              <!-- Botones de acción -->
+              <div class="product-actions">
+                <button
+                  type="submit"
+                  class="btn-primary"
+                  {% if product.stock == 0 %}disabled{% endif %}
+                  aria-describedby="add-to-cart-help">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l.5 2H5V5H3.14zM6 5v2h2V5H6zm3 0v2h2V5H9zm3 0v2h1.36l.5-2H12zm1.11 3H12v2h.61l.5-2zM11 8H9v2h2V8zm-2 3v-2H6v2h3zm-4 0v-2H3.89l.5 2H5zm.61-4H3v2h1.61l.5-2z"/>
+                  </svg>
+                  {% if product.stock == 0 %}Agotado{% else %}Agregar al carrito{% endif %}
+                </button>
+
+                <a href="{{ url_for('cart.view_cart') }}" class="btn-secondary">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l.5 2H5V5H3.14zM6 5v2h2V5H6zm3 0v2h2V5H9zm3 0v2h1.36l.5-2H12zm1.11 3H12v2h.61l.5-2zM11 8H9v2h2V8zm-2 3v-2H6v2h3zm-4 0v-2H3.89l.5 2H5zm.61-4H3v2h1.61l.5-2z"/>
+                  </svg>
+                  Ver carrito
+                </a>
+              </div>
+
+              <div id="add-to-cart-help" class="sr-only">
+                Al hacer clic en "Agregar al carrito", este producto se añadirá a tu carrito de compras
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Sistema de pestañas en formato card -->
+  <div class="tabs-card-container">
+    <section class="product-tabs" aria-labelledby="tabs-title">
+      <div class="tabs-card">
+        <h2 id="tabs-title" class="sr-only">Información adicional del producto</h2>
+
+        <!-- Navegación de pestañas -->
+        <div class="tabs-nav" role="tablist" aria-label="Información del producto">
+          <button
+            class="tab-btn active"
+            role="tab"
+            aria-selected="true"
+            aria-controls="description-panel"
+            id="description-tab"
+            data-tab="description">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+              <path d="M6.25 6.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5z"/>
+              <path d="M6.25 8.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5z"/>
+              <path d="M6.25 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5z"/>
+            </svg>
+            Descripción
+          </button>
+          <button
+            class="tab-btn"
+            role="tab"
+            aria-selected="false"
+            aria-controls="specs-panel"
+            id="specs-tab"
+            data-tab="specs">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+              <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319z"/>
+            </svg>
+            Especificaciones
+          </button>
+          <button
+            class="tab-btn"
+            role="tab"
+            aria-selected="false"
+            aria-controls="shipping-panel"
+            id="shipping-tab"
+            data-tab="shipping">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+            </svg>
+            Envío
+          </button>
+        </div>
+
+        <!-- Contenido de las pestañas -->
+        <div class="tab-content">
+          <!-- Pestaña de descripción -->
+          <div
+            class="tab-pane active"
+            role="tabpanel"
+            aria-labelledby="description-tab"
+            id="description-panel">
+            <div class="tab-content-card">
+              <div class="product-description">
+                <h3>Descripción del producto</h3>
+                {% if product.description %}
+                <p>{{ product.description }}</p>
+                {% else %}
+                <p class="no-description">No hay descripción disponible para este producto.</p>
+                {% endif %}
+
+                <h3>Características destacadas</h3>
+                <div class="features-grid">
+                  <div class="feature-item">
+                    <div class="feature-icon">✨</div>
+                    <div class="feature-text">Material de alta calidad</div>
+                  </div>
+                  <div class="feature-item">
+                    <div class="feature-icon">🎨</div>
+                    <div class="feature-text">Diseño moderno y elegante</div>
+                  </div>
+                  <div class="feature-item">
+                    <div class="feature-icon">📏</div>
+                    <div class="feature-text">Disponible en talla {{ product.size }}</div>
+                  </div>
+                  <div class="feature-item">
+                    <div class="feature-icon">🌈</div>
+                    <div class="feature-text">Color {{ product.color }} vibrante</div>
+                  </div>
+                  <div class="feature-item">
+                    <div class="feature-icon">⭐</div>
+                    <div class="feature-text">Perfecto para uso diario</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pestaña de especificaciones -->
+          <div
+            class="tab-pane"
+            role="tabpanel"
+            aria-labelledby="specs-tab"
+            id="specs-panel">
+            <div class="tab-content-card">
+              <div class="product-description">
+                <h3>Especificaciones técnicas</h3>
+                <div class="product-specs">
+                  <div class="spec-item">
+                    <div class="spec-icon">
+                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                        <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319z"/>
+                      </svg>
+                    </div>
+                    <div class="spec-content">
+                      <div class="spec-label">Código de producto</div>
+                      <div class="spec-value">#{{ product.id }}</div>
+                    </div>
+                  </div>
+                  <div class="spec-item">
+                    <div class="spec-icon">
+                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.467-.994-3.806-1.127-1.446-.195-2.993.18-3.806 1.111V2.828zm7.312.893c1.33-.134 2.458.063 3.112.752V12.746c-.935-.53-2.467-.994-3.806-1.127-1.446-.195-2.993.18-3.806 1.111V3.721zm-8.807 7.806c.156-.56.698-1.118 1.863-1.118 1.09 0 2.093.525 2.868 1.118.75.578 1.768 1.118 2.868 1.118 1.09 0 2.093-.525 2.868-1.118.75-.578 1.768-1.118 2.868-1.118 1.165 0 1.707.558 1.863 1.118V13.5c0 .818-.393 1.544-1.04 2.072-.673.573-1.514.927-2.44 1.05-.94.127-1.856.195-2.732.195-.88 0-1.796-.068-2.732-.195-.95-.127-1.791-.477-2.464-1.05C2.393 15.044 2 14.318 2 13.5V11.527z"/>
+                      </svg>
+                    </div>
+                    <div class="spec-content">
+                      <div class="spec-label">Categoría</div>
+                      <div class="spec-value">{{ product.category_id }}</div>
+                    </div>
+                  </div>
+                  <div class="spec-item">
+                    <div class="spec-icon">
+                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 1a2 2 0 0 0-2 2v2H5V3a3 3 0 1 1 6 0v2h-1V3a2 2 0 0 0-2-2z"/>
+                        <path d="M3 5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v2h1v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5h1z"/>
+                      </svg>
+                    </div>
+                    <div class="spec-content">
+                      <div class="spec-label">Talla disponible</div>
+                      <div class="spec-value">{{ product.size }}</div>
+                    </div>
+                  </div>
+                  <div class="spec-item">
+                    <div class="spec-icon">
+                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zM5.5 5.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5H6a.5.5 0 0 1-.5-.5v-4z"/>
+                      </svg>
+                    </div>
+                    <div class="spec-content">
+                      <div class="spec-label">Color</div>
+                      <div class="spec-value">{{ product.color }}</div>
+                    </div>
+                  </div>
+                  <div class="spec-item">
+                    <div class="spec-icon">
+                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l.5 2H5V5H3.14zM6 5v2h2V5H6zm3 0v2h2V5H9zm3 0v2h1.36l.5-2H12zm1.11 3H12v2h.61l.5-2zM11 8H9v2h2V8zm-2 3v-2H6v2h3zm-4 0v-2H3.89l.5 2H5zm.61-4H3v2h1.61l.5-2z"/>
+                      </svg>
+                    </div>
+                    <div class="spec-content">
+                      <div class="spec-label">Stock actual</div>
+                      <div class="spec-value">{{ product.stock }} unidades</div>
+                    </div>
+                  </div>
+                  <div class="spec-item">
+                    <div class="spec-icon">
+                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                      </svg>
+                    </div>
+                    <div class="spec-content">
+                      <div class="spec-label">Fecha de creación</div>
+                      <div class="spec-value">{{ product.created_at.strftime('%d/%m/%Y') }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pestaña de envío -->
+          <div
+            class="tab-pane"
+            role="tabpanel"
+            aria-labelledby="shipping-tab"
+            id="shipping-panel">
+            <div class="tab-content-card">
+              <div class="product-description">
+                <h3>Información de envío</h3>
+                <div class="product-additional-info">
+                  <div class="info-card">
+                    <div class="info-card-title">
+                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                      </svg>
+                      Envío estándar
+                    </div>
+                    <div class="info-card-content">
+                      <p>Entrega en 3-5 días hábiles</p>
+                      <p>Costo: $10.000 COP (gratis en compras superiores a $200.000 COP)</p>
+                    </div>
+                  </div>
+
+                  <div class="info-card">
+                    <div class="info-card-title">
+                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                      </svg>
+                      Envío express
+                    </div>
+                    <div class="info-card-content">
+                      <p>Entrega en 1-2 días hábiles</p>
+                      <p>Costo: $25.000 COP</p>
+                    </div>
+                  </div>
+
+                  <div class="info-card">
+                    <div class="info-card-title">
+                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M8 1a2 2 0 0 0-2 2v2H5V3a3 3 0 1 1 6 0v2h-1V3a2 2 0 0 0-2-2z"/>
+                        <path d="M5 5H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h10a1 1 0 0 1 1-1V6a1 1 0 0 1-1-1H9v1h2v8H5V6h2V5z"/>
+                      </svg>
+                      Devoluciones
+                    </div>
+                    <div class="info-card-content">
+                      <p>30 días para devoluciones</p>
+                      <p>Producto debe estar en perfectas condiciones</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="mt-5">
-      {% include 'reviews/product_reviews.html' %}
-    </div>
-</div>
+    </section>
+  </div>
+
+  <!-- Sección de reseñas -->
+  <section class="product-reviews-section" aria-labelledby="reviews-title">
+    <h2 id="reviews-title" class="sr-only">Reseñas del producto</h2>
+    {% include 'reviews/product_reviews.html' %}
+  </section>
+</main>
+
+<!-- Notificaciones -->
+<div id="notification" class="notification" role="alert" aria-live="assertive"></div>
+
+<!-- JavaScript para funcionalidad interactiva avanzada -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Funcionalidad del selector de cantidad con animaciones
+  const quantityInput = document.getElementById('cantidad');
+  const decreaseBtn = document.getElementById('decrease-qty');
+  const increaseBtn = document.getElementById('increase-qty');
+  const maxStock = parseInt(quantityInput.max);
+
+  function updateQuantityButtons() {
+    const currentValue = parseInt(quantityInput.value);
+    decreaseBtn.disabled = currentValue <= 1;
+    increaseBtn.disabled = currentValue >= maxStock;
+
+    // Animación de feedback
+    if (decreaseBtn.disabled) {
+      decreaseBtn.style.opacity = '0.3';
+    } else {
+      decreaseBtn.style.opacity = '1';
+    }
+
+    if (increaseBtn.disabled) {
+      increaseBtn.style.opacity = '0.3';
+    } else {
+      increaseBtn.style.opacity = '1';
+    }
+  }
+
+  decreaseBtn.addEventListener('click', function() {
+    const currentValue = parseInt(quantityInput.value);
+    if (currentValue > 1) {
+      quantityInput.value = currentValue - 1;
+      updateQuantityButtons();
+      animateQuantityChange();
+    }
+  });
+
+  increaseBtn.addEventListener('click', function() {
+    const currentValue = parseInt(quantityInput.value);
+    if (currentValue < maxStock) {
+      quantityInput.value = currentValue + 1;
+      updateQuantityButtons();
+      animateQuantityChange();
+    }
+  });
+
+  function animateQuantityChange() {
+    quantityInput.style.transform = 'scale(1.1)';
+    setTimeout(() => {
+      quantityInput.style.transform = 'scale(1)';
+    }, 150);
+  }
+
+  quantityInput.addEventListener('input', updateQuantityButtons);
+  quantityInput.addEventListener('change', function() {
+    let value = parseInt(this.value);
+    if (isNaN(value) || value < 1) value = 1;
+    if (value > maxStock) value = maxStock;
+    this.value = value;
+    updateQuantityButtons();
+  });
+
+  updateQuantityButtons();
+
+  // Funcionalidad de pestañas con animaciones
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabPanes = document.querySelectorAll('.tab-pane');
+
+  tabButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const targetTab = this.dataset.tab;
+
+      // Actualizar botones de pestañas con animación
+      tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
+      });
+      this.classList.add('active');
+      this.setAttribute('aria-selected', 'true');
+
+      // Mostrar panel correspondiente con animación
+      tabPanes.forEach(pane => {
+        pane.classList.remove('active');
+      });
+      const targetPane = document.getElementById(targetTab + '-panel');
+      targetPane.classList.add('active');
+
+      // Animación de entrada
+      targetPane.style.animation = 'none';
+      setTimeout(() => {
+        targetPane.style.animation = 'fadeIn 0.3s ease-in-out';
+      }, 10);
+    });
+  });
+
+  // Funcionalidad de galería de imágenes con efectos avanzados
+  const thumbnails = document.querySelectorAll('.thumbnail-item');
+  const mainImage = document.querySelector('.product-gallery-main img');
+  const mainImageContainer = document.querySelector('.product-gallery-main');
+
+  thumbnails.forEach(thumbnail => {
+    thumbnail.addEventListener('click', function() {
+      const imageSrc = this.dataset.image;
+
+      // Efecto de transición suave
+      mainImageContainer.style.opacity = '0.7';
+      mainImageContainer.style.transform = 'scale(0.95)';
+
+      setTimeout(() => {
+        // Actualizar imagen principal
+        mainImage.src = imageSrc;
+
+        // Resetear transformación
+        mainImageContainer.style.opacity = '1';
+        mainImageContainer.style.transform = 'scale(1)';
+      }, 150);
+
+      // Actualizar miniaturas activas con animación
+      thumbnails.forEach(thumb => {
+        thumb.classList.remove('active');
+        thumb.style.transform = 'scale(1)';
+      });
+      this.classList.add('active');
+      this.style.transform = 'scale(1.05)';
+    });
+  });
+
+  // Funcionalidad del formulario con efectos avanzados
+  const form = document.querySelector('.product-purchase-form');
+  const submitBtn = form.querySelector('.btn-primary');
+  const notification = document.getElementById('notification');
+
+  form.addEventListener('submit', function(e) {
+    const originalText = submitBtn.innerHTML;
+
+    // Mostrar estado de carga
+    submitBtn.innerHTML = '<div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Procesando...';
+    submitBtn.disabled = true;
+    submitBtn.classList.add('success-animation');
+
+    // Simular procesamiento (en producción esto sería automático)
+    setTimeout(() => {
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('success-animation');
+
+      // Mostrar notificación con animación
+      showNotification('Producto agregado al carrito exitosamente', 'success');
+    }, 1500);
+  });
+
+  function showNotification(message, type) {
+    notification.textContent = message;
+    notification.className = `notification ${type}`;
+
+    // Forzar reflow para reiniciar animación
+    notification.offsetHeight;
+
+    notification.classList.add('show');
+
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, 4000);
+  }
+
+  // Funcionalidad de favoritos con efectos avanzados
+  const favoriteBtn = document.querySelector('.product-favorite-btn');
+  favoriteBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    const isActive = this.classList.contains('active');
+    const form = this.closest('form');
+
+    // Efectos visuales avanzados
+    this.style.transform = 'scale(0.8) rotate(-10deg)';
+    setTimeout(() => {
+      this.style.transform = 'scale(1.2) rotate(10deg)';
+      setTimeout(() => {
+        this.style.transform = 'scale(1) rotate(0deg)';
+      }, 150);
+    }, 100);
+
+    // Cambiar apariencia
+    this.classList.toggle('active');
+
+    // Enviar formulario
+    form.submit();
+  });
+
+  // Animaciones de scroll con Intersection Observer
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+
+  // Observar elementos para animaciones de scroll
+  document.querySelectorAll('.spec-item, .info-card').forEach(item => {
+    item.style.opacity = '0';
+    item.style.transform = 'translateY(30px)';
+    item.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(item);
+  });
+
+  // Efectos de parallax sutiles
+  let lastScrollY = window.scrollY;
+
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    const scrollDelta = currentScrollY - lastScrollY;
+
+    // Efecto parallax en la galería
+    const gallery = document.querySelector('.product-gallery');
+    if (gallery) {
+      const translateY = Math.min(scrollDelta * 0.1, 20);
+      gallery.style.transform = `translateZ(20px) translateY(${translateY}px)`;
+    }
+
+    // Efecto parallax en la información
+    const info = document.querySelector('.product-info');
+    if (info) {
+      const translateY = Math.min(scrollDelta * 0.05, 10);
+      info.style.transform = `translateZ(10px) translateY(${translateY}px)`;
+    }
+
+    lastScrollY = currentScrollY;
+  });
+
+  // Efectos de hover avanzados para especificaciones
+  document.querySelectorAll('.spec-item').forEach(item => {
+    item.addEventListener('mouseenter', function() {
+      this.style.transform = 'translateY(-8px) scale(1.02)';
+      this.style.boxShadow = 'var(--product-shadow-xl)';
+    });
+
+    item.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0) scale(1)';
+      this.style.boxShadow = 'var(--product-shadow)';
+    });
+  });
+
+  // Optimización de performance: throttle de scroll
+  let scrollTimeout;
+  const throttledScroll = () => {
+    if (!scrollTimeout) {
+      scrollTimeout = setTimeout(() => {
+        // Lógica de scroll aquí si es necesaria
+        scrollTimeout = null;
+      }, 16); // ~60fps
+    }
+  };
+
+  // Prevenir animaciones si el usuario prefiere movimiento reducido
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion) {
+    document.documentElement.style.setProperty('--product-transition', 'none');
+    document.documentElement.style.setProperty('--product-transition-fast', 'none');
+    document.documentElement.style.setProperty('--product-transition-slow', 'none');
+  }
+
+  // Lazy loading mejorado para imágenes
+  const images = document.querySelectorAll('img[loading="lazy"]');
+  const imageObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        img.classList.add('fade-in');
+        imageObserver.unobserve(img);
+      }
+    });
+  });
+
+  images.forEach(img => imageObserver.observe(img));
+
+  // Efectos de sonido (opcional - solo si está disponible)
+  const playSound = (frequency, duration) => {
+    if ('AudioContext' in window || 'webkitAudioContext' in window) {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + duration);
+      } catch (e) {
+        // Silenciar errores de audio
+      }
+    }
+  };
+
+  // Agregar sonidos sutiles a interacciones importantes
+  favoriteBtn.addEventListener('click', () => playSound(800, 0.1));
+  submitBtn.addEventListener('click', () => playSound(600, 0.15));
+
+  // Keyboard navigation enhancements
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      // Cerrar cualquier modal o overlay activo
+      const activeModal = document.querySelector('.modal.show');
+      if (activeModal) {
+        activeModal.style.display = 'none';
+      }
+    }
+  });
+
+  // Touch gestures para móviles
+  let touchStartY = 0;
+  let touchEndY = 0;
+
+  document.addEventListener('touchstart', (e) => {
+    touchStartY = e.changedTouches[0].screenY;
+  });
+
+  document.addEventListener('touchend', (e) => {
+    touchEndY = e.changedTouches[0].screenY;
+    const diff = touchStartY - touchEndY;
+
+    // Swipe up para scroll suave
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        // Scroll hacia abajo
+        window.scrollBy({ top: 100, behavior: 'smooth' });
+      } else {
+        // Scroll hacia arriba
+        window.scrollBy({ top: -100, behavior: 'smooth' });
+      }
+    }
+  });
+
+  // Remover estado de carga cuando la página esté completamente cargada
+  window.addEventListener('load', function() {
+    document.querySelector('.product-detail-container').classList.remove('loading-state');
+  });
+});
+</script>
+
 {% endblock %}
-py -c "from app import app, db; exec('with app.app_context():\n db.create_all()')"

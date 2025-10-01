@@ -1,35 +1,50 @@
 """
 Módulo principal de la aplicación Flask.
 
-Este módulo configura y crea la aplicación Flask con todas sus extensiones,
-blueprints y configuraciones necesarias para el funcionamiento del e-commerce.
+Este módulo configura y crea la aplicación Flask con todas sus
+extensiones, blueprints y configuraciones necesarias.
 """
 
 import os
-from flask import Flask, redirect, render_template, url_for
+from datetime import datetime
 
-# Imports de rutas, base de datos y extensiones
+from flask import Flask, redirect, render_template, url_for
+from flask_login import current_user
+
 from app.db import db
-from app.extensions import socketio, login_manager, mail, csrf, cache, limiter
-from app.routes.social import social_bp, google_bp, facebook_bp
-from app.routes import auth
-from app.routes import register
-from app.routes import client
-from app.routes import notif
-from app.routes.catalog import catalog_bp
+from app.extensions import cache, csrf, limiter, login_manager, mail, socketio
+from app.models.users import Users
+from app.routes import auth, client, notif, register
+from app.routes.admin import admin_bp
 from app.routes.cart import cart_bp
 from app.routes.cart_api import cart_api_bp, webhook_bp
-from app.routes.admin import admin_bp
-from app.routes.wishlist import wishlist_bp
-from app.routes.reviews import reviews_bp
+from app.routes.catalog import catalog_bp
+from app.routes.health import health_bp
 from app.routes.orders import orders_bp
 from app.routes.reset import reset_bp
+from app.routes.reviews import reviews_bp
+from app.routes.social import facebook_bp, google_bp, social_bp
+from app.routes.wishlist import wishlist_bp
+from config.logging import setup_logging
 
 
 def create_app():
+
     """Crea y configura la aplicación Flask con todas sus extensiones."""
     app = Flask(__name__)
+
+    # Hacer now disponible en todos los templates
+    app.jinja_env.globals['now'] = datetime.now
+
+    # Hacer current_user disponible en todos los templates
+    @app.context_processor
+    def inject_user():
+        return dict(current_user=current_user)
+
     app.config.from_object('config.Config')
+
+    # Configurar logging
+    setup_logging(app)
 
     # Registrar blueprints sociales
     app.register_blueprint(google_bp, url_prefix="/login")
@@ -50,11 +65,10 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         """Carga un usuario por su ID para Flask-Login."""
-        from app.models.users import Users
         return Users.query.get(int(user_id))
+    app.register_blueprint(client.client_bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(register.bp)
-    app.register_blueprint(client.client_bp)
     app.register_blueprint(notif.notif_bp)
     app.register_blueprint(catalog_bp)
     app.register_blueprint(cart_bp)
@@ -65,11 +79,8 @@ def create_app():
     app.register_blueprint(reviews_bp)
     app.register_blueprint(orders_bp)
     app.register_blueprint(reset_bp)
+    app.register_blueprint(health_bp)
 
-    @app.route('/')
-    def index():
-        # Ahora el blueprint client_bp maneja '/'
-        return redirect(url_for('client.feed'))
 
     # Manejo de errores personalizados
     @app.errorhandler(404)
@@ -83,4 +94,3 @@ def create_app():
         return render_template('errors/500.html'), 500
 
     return app
- 

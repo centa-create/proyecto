@@ -11,10 +11,26 @@ werkzeug
 sqlalchemy
 bcrypt
 python-dotenv
-stripe
+requests
+# stripe  # Comentado, reemplazado por PayU
 email-validator
 pillow
 pytest
+pytest-cov
+pytest-mock
+factory-boy
+
+# Development dependencies
+black
+isort
+flake8
+bandit
+safety
+
+# Production dependencies
+gunicorn
+psycopg2-binary
+psutil
 # Requisitos para registro y login seguro
 Flask-WTF
 Flask-Mail
@@ -38,3 +54,4 @@ Flask-SocketIO
 stripe
 python-dotenv
 Flask-Caching
+twilio

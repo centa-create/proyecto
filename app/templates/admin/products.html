@@ -32,7 +32,11 @@
         </td>
         <td>
           <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-primary btn-sm">Editar</a>
-          <a href="{{ url_for('admin.delete_product', product_id=product.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este producto?');">Eliminar</a>
+          <form action="{{ url_for('admin.delete_product', product_id=product.id) }}" method="post" style="display:inline;">
+            {{ csrf_token() }}
+            <input type="hidden" name="confirm_delete" value="yes">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este producto?');">Eliminar</button>
+          </form>
           <a href="{{ url_for('admin.add_promo', product_id=product.id) }}" class="btn btn-warning btn-sm">Promoción</a>
           <a href="{{ url_for('admin.add_discount', product_id=product.id) }}" class="btn btn-info btn-sm">Descuento</a>
         </td>

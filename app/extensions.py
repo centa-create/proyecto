@@ -1,15 +1,8 @@
 """
-Módulo de extensiones Flask.
+Módulo de extensiones de Flask.
 
-Este módulo contiene todas las instancias de extensiones de Flask
-para evitar importaciones circulares.
-"""
-
-"""
-Módulo de extensiones Flask.
-
-Este módulo contiene todas las instancias de extensiones de Flask
-para evitar importaciones circulares.
+Este módulo configura todas las extensiones utilizadas por la aplicación Flask,
+incluyendo caching, rate limiting, autenticación, correo, CSRF y WebSocket.
 """
 
 from flask_caching import Cache
@@ -26,4 +19,4 @@ login_manager = LoginManager()
 mail = Mail()
 csrf = CSRFProtect()
 cache = Cache()
-limiter = Limiter(key_func=get_remote_address, default_limits=["10 per minute"])
+limiter = Limiter(key_func=get_remote_address, default_limits=["1000 per minute"])

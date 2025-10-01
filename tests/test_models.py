@@ -42,7 +42,7 @@ class TestUsersModel:
             user = Users(
                 nameUser='Test User',
                 email='test@example.com',
-                passwordUser='hashedpassword',
+                password_user='hashedpassword',
                 birthdate=datetime.date(1990, 1, 1)
             )
             db.session.add(user)
@@ -59,7 +59,7 @@ class TestUsersModel:
             user = Users(
                 nameUser='Test User',
                 email='test@example.com',
-                passwordUser='plainpassword',
+                password_user='plainpassword',
                 birthdate=datetime.date(1990, 1, 1)
             )
             user.set_password('plainpassword')
@@ -72,7 +72,7 @@ class TestUsersModel:
             user = Users(
                 nameUser='Active User',
                 email='active@example.com',
-                passwordUser='password',
+                password_user='password',
                 birthdate='1990-01-01',
                 is_active_db=True,
                 is_blocked=False
@@ -144,7 +144,7 @@ class TestOrdersModel:
             user = Users(
                 nameUser='Order User',
                 email='order@example.com',
-                passwordUser='password',
+                password_user='password',
                 birthdate=datetime.date(1990, 1, 1)
             )
             db.session.add(user)
@@ -168,7 +168,7 @@ class TestOrdersModel:
             user = Users(
                 nameUser='Detail User',
                 email='detail@example.com',
-                passwordUser='password',
+                password_user='password',
                 birthdate=datetime.date(1990, 1, 1)
             )
             category = Category(name='Test Category', description='Test')

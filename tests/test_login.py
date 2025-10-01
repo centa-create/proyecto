@@ -2,7 +2,7 @@ def test_login_success(client, user):
     # Enviar una solicitud POST con las credenciales correctas
     response = client.post('/', data={
         'nameUser': user.nameUser,
-        'passwordUser': user.passwordUser
+        'passwordUser': user.password_user
     }, follow_redirects=True)
     
     # Verificar que el login fue exitoso y que el usuario fue redirigido al dashboard

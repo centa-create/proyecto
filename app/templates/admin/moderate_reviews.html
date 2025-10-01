@@ -1,48 +1,212 @@
 {% extends 'admin/dashboard.html' %}
 {% block title %}Moderar Reseñas{% endblock %}
+
+<!-- Enlace CSS para reseñas -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reviews.css') }}">
+
 {% block content %}
-<div class="container mt-4">
-  <h2 class="mb-4">Moderación de Reseñas</h2>
+<div class="reviews-container">
+  <!-- Cabecera -->
+  <header class="reviews-header">
+    <h1 class="reviews-title">Moderación de Reseñas</h1>
+    <p class="reviews-subtitle">Gestiona las reseñas de productos</p>
+  </header>
+
   {% if reviews %}
-    <table class="table table-bordered table-hover">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Producto</th>
-          <th>Usuario</th>
-          <th>Calificación</th>
-          <th>Comentario</th>
-          <th>Fecha</th>
-          <th>Aprobada</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for r in reviews %}
-        <tr>
-          <td>{{ r.id }}</td>
-          <td>{{ r.product_id }}</td>
-          <td>{{ r.user_id }}</td>
-          <td>{{ r.rating }}</td>
-          <td>{{ r.comment }}</td>
-          <td>{{ r.created_at.strftime('%Y-%m-%d') }}</td>
-          <td>{% if r.aprobada %}<span class="badge bg-success">Sí</span>{% else %}<span class="badge bg-warning">No</span>{% endif %}</td>
-          <td>
-            {% if not r.aprobada %}
-            <form method="post" action="{{ url_for('admin.approve_review', review_id=r.id) }}" style="display:inline-block;">
-              <button class="btn btn-success btn-sm">Aprobar</button>
-            </form>
-            {% endif %}
-            <form method="post" action="{{ url_for('admin.reject_review', review_id=r.id) }}" style="display:inline-block;">
-              <button class="btn btn-danger btn-sm">Eliminar</button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <!-- Estadísticas rápidas -->
+    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+      <div class="stat-card" style="background: var(--review-background); padding: 1rem; border-radius: var(--review-radius); box-shadow: var(--review-shadow); text-align: center;">
+        <div style="font-size: 2rem; font-weight: bold; color: var(--review-primary);">{{ reviews|length }}</div>
+        <div style="color: var(--review-text-secondary);">Total de reseñas</div>
+      </div>
+      <div class="stat-card" style="background: var(--review-background); padding: 1rem; border-radius: var(--review-radius); box-shadow: var(--review-shadow); text-align: center;">
+        <div style="font-size: 2rem; font-weight: bold; color: var(--review-success);">{{ reviews|selectattr('aprobada')|list|length }}</div>
+        <div style="color: var(--review-text-secondary);">Aprobadas</div>
+      </div>
+      <div class="stat-card" style="background: var(--review-background); padding: 1rem; border-radius: var(--review-radius); box-shadow: var(--review-shadow); text-align: center;">
+        <div style="font-size: 2rem; font-weight: bold; color: var(--review-warning);">{{ reviews|rejectattr('aprobada')|list|length }}</div>
+        <div style="color: var(--review-text-secondary);">Pendientes</div>
+      </div>
+    </div>
+
+    <!-- Lista de reseñas para moderar -->
+    <div class="reviews-list" role="region" aria-label="Lista de reseñas para moderar">
+      {% for r in reviews %}
+      <article class="review-card {{ 'pending-review' if not r.aprobada else 'approved-review' }}"
+               style="{% if not r.aprobada %}border-left: 4px solid var(--review-warning);{% endif %}">
+
+        <!-- Cabecera de la reseña -->
+        <header class="review-header">
+          <div class="review-author">
+            <div class="review-avatar" style="background: {% if r.aprobada %}linear-gradient(135deg, var(--review-success), var(--review-primary)){% else %}linear-gradient(135deg, var(--review-warning), var(--review-error)){% endif %};" aria-hidden="true">
+              {{ r.user_id[0]|upper if r.user_id else '?' }}
+            </div>
+            <div class="review-author-info">
+              <h4>ID Usuario: {{ r.user_id }}</h4>
+              <div style="font-size: 0.875rem; color: var(--review-text-secondary);">
+                ID Producto: {{ r.product_id }} •
+                <time datetime="{{ r.created_at.isoformat() }}">{{ r.created_at.strftime('%d/%m/%Y %H:%M') }}</time>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estado y calificación -->
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+            <div class="review-rating">
+              <div class="stars-container" aria-label="Calificación: {{ r.rating }} de 5 estrellas">
+                {% for i in range(5) %}
+                  <span class="star {{ 'filled' if i < r.rating else '' }}" aria-hidden="true">★</span>
+                {% endfor %}
+              </div>
+              <span class="review-rating-score">{{ r.rating }}/5</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              {% if r.aprobada %}
+                <span class="status-badge" style="background: var(--review-success); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">APROBADA</span>
+              {% else %}
+                <span class="status-badge" style="background: var(--review-warning); color: var(--review-text-primary); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">PENDIENTE</span>
+              {% endif %}
+            </div>
+          </div>
+        </header>
+
+        <!-- Contenido de la reseña -->
+        <div class="review-content">
+          <p class="review-text">{{ r.comment }}</p>
+        </div>
+
+        <!-- Imagen si existe -->
+        {% if r.image_path %}
+        <div class="review-image">
+          <img src="{{ url_for('static', filename=r.image_path) }}" alt="Imagen de reseña" loading="lazy" style="max-width: 200px;">
+        </div>
+        {% endif %}
+
+        <!-- Acciones de moderación -->
+        <div class="review-actions">
+          {% if not r.aprobada %}
+          <form method="post" action="{{ url_for('admin.approve_review', review_id=r.id) }}" style="display: inline;">
+            <button type="submit" class="review-action-btn" style="background: var(--review-success); color: white; border: 1px solid var(--review-success);">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+              </svg>
+              Aprobar
+            </button>
+          </form>
+          {% endif %}
+
+          <form method="post" action="{{ url_for('admin.reject_review', review_id=r.id) }}" style="display: inline;">
+            <button type="submit" class="review-action-btn" style="background: var(--review-error); color: white; border: 1px solid var(--review-error);"
+                    onclick="return confirm('¿Estás seguro de que quieres eliminar esta reseña?')">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+              </svg>
+              Eliminar
+            </button>
+          </form>
+
+          <button class="review-action-btn" onclick="showReviewDetails({{ r.id }})">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+              <path d="M6.25 6.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5z"/>
+              <path d="M6.25 8.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5z"/>
+              <path d="M6.25 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5z"/>
+            </svg>
+            Detalles
+          </button>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
   {% else %}
-    <div class="alert alert-info">No hay reseñas para moderar.</div>
+    <!-- Estado vacío -->
+    <div class="reviews-empty" role="status" aria-live="polite">
+      <div class="reviews-empty-icon" aria-hidden="true">✅</div>
+      <h3 class="reviews-empty-title">Todas las reseñas moderadas</h3>
+      <p class="reviews-empty-text">No hay reseñas pendientes de moderación en este momento.</p>
+    </div>
   {% endif %}
 </div>
+
+<!-- Modal para detalles de reseña (puedes implementar esto después) -->
+<div id="reviewModal" class="modal" style="display: none;">
+  <div class="modal-content" style="background: var(--review-background); margin: 15% auto; padding: 20px; border-radius: var(--review-radius); max-width: 600px; width: 90%;">
+    <span class="close" onclick="closeReviewModal()" style="float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+    <div id="reviewDetails"></div>
+  </div>
+</div>
+
+<script>
+function showReviewDetails(reviewId) {
+  // Implementar lógica para mostrar detalles completos de la reseña
+  alert('Funcionalidad de detalles próximamente disponible. ID de reseña: ' + reviewId);
+}
+
+function closeReviewModal() {
+  document.getElementById('reviewModal').style.display = 'none';
+}
+</script>
+
+<style>
+/* Estilos específicos para la moderación */
+.pending-review {
+  border-left: 4px solid var(--review-warning) !important;
+}
+
+.approved-review {
+  border-left: 4px solid var(--review-success) !important;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--review-background);
+  padding: 1.5rem;
+  border-radius: var(--review-radius);
+  box-shadow: var(--review-shadow);
+  text-align: center;
+  transition: var(--review-transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--review-shadow-hover);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background: var(--review-background);
+  margin: 15% auto;
+  padding: 20px;
+  border-radius: var(--review-radius);
+  max-width: 600px;
+  width: 90%;
+}
+</style>
+
 {% endblock %}

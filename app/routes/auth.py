@@ -9,19 +9,19 @@ from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from app.forms import LoginForm
+from app.models.users import UserRole, Users
 
 bp = Blueprint('auth', __name__)
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     """Maneja el inicio de sesión de usuarios."""
-    from app.models.users import UserRole, Users
-
     if current_user.is_authenticated:
         # Si ya está autenticado, redirigir según rol
         if current_user.role == UserRole.ADMIN:
             return redirect(url_for('admin.dashboard'))
-        return redirect(url_for('client.feed'))
+        return redirect(url_for('client.feed'))  # Se mantiene para consistencia,
+        # pero la navbar ya apunta a '/'
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -40,7 +40,8 @@ def login():
             # Redirigir según rol
             if user.role == UserRole.ADMIN:
                 return redirect(url_for('admin.dashboard'))
-            return redirect(url_for('client.feed'))
+            return redirect(url_for('client.feed'))  # Se mantiene para consistencia,
+            # pero la navbar ya apunta a '/'
         else:
             flash('Credenciales inválidas. Intenta de nuevo.', 'danger')
 
@@ -50,8 +51,6 @@ def login():
 @login_required
 def dashboard():
     """Redirige al dashboard apropiado según el rol del usuario."""
-    from app.models.users import UserRole
-
     user = current_user
     role = getattr(user, 'role', None)
     if role is not None:

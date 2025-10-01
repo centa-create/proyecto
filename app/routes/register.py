@@ -24,7 +24,8 @@ def register():
     if request.method == 'POST':
         nameUser = request.form.get('nameUser', '').strip()
         email = request.form.get('email', '').strip().lower()
-        password = request.form.get('password_user', '')
+        phone = request.form.get('phone', '').strip()
+        password = request.form.get('passwordUser', '')
         confirm_password = request.form.get('confirm_password', '')
         birthdate_str = request.form.get('birthdate', '')
         terms = request.form.get('terms')
@@ -41,6 +42,9 @@ def register():
             return render_template('register.html')
         if Users.query.filter_by(email=email).first():
             flash('El correo ya está registrado.', 'danger')
+            return render_template('register.html')
+        if phone and Users.query.filter_by(phone=phone).first():
+            flash('El número de teléfono ya está registrado.', 'danger')
             return render_template('register.html')
         if len(password) < 8 or not re.search(r'[A-Z]', password) or not re.search(r'[a-z]', password) or not re.search(r'\d', password):
             flash('La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.', 'danger')
@@ -73,6 +77,7 @@ def register():
         user = Users(
             nameUser=nameUser,
             email=email,
+            phone=phone if phone else None,
             password_user=hashed,
             birthdate=birthdate,
             is_active_db=True,  # Activar usuario por defecto para pruebas

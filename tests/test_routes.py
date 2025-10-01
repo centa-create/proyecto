@@ -39,7 +39,7 @@ def admin_user_fixture(app_fixture):
         admin = Users(
             nameUser='Admin User',
             email='admin@example.com',
-            passwordUser='adminpass',
+            password_user='adminpass',
             birthdate=date(1980, 1, 1),
             role=UserRole.ADMIN,
             is_active_db=True
@@ -57,7 +57,7 @@ def regular_user_fixture(app_fixture):
         user = Users(
             nameUser='Regular User',
             email='user@example.com',
-            passwordUser='userpass',
+            password_user='userpass',
             birthdate=date(1990, 1, 1),
             role=UserRole.USER,
             is_active_db=True
@@ -81,7 +81,7 @@ class TestAuthRoutes:
         """Test de login exitoso."""
         response = client.post('/login', data={
             'email': 'user@example.com',
-            'passwordUser': 'userpass'
+            'password_user': 'userpass'
         }, follow_redirects=True)
         assert response.status_code == 200
         # Debería redirigir al feed
@@ -103,7 +103,7 @@ class TestAuthRoutes:
         with client:
             client.post('/login', data={
                 'email': 'user@example.com',
-                'passwordUser': 'userpass'
+                'password_user': 'userpass'
             })
             # Luego logout
             response = client.get('/logout', follow_redirects=True)
@@ -127,7 +127,7 @@ class TestAdminRoutes:
         with client:
             client.post('/login', data={
                 'email': 'user@example.com',
-                'passwordUser': 'userpass'
+                'password_user': 'userpass'
             })
             response = client.get('/admin/dashboard', follow_redirects=True)
             assert response.status_code == 200
@@ -143,7 +143,7 @@ class TestAdminRoutes:
         with client:
             client.post('/login', data={
                 'email': 'admin@example.com',
-                'passwordUser': 'adminpass'
+                'password_user': 'adminpass'
             })
             response = client.get('/admin/dashboard', follow_redirects=True)
             assert response.status_code == 200
@@ -158,7 +158,7 @@ class TestAdminRoutes:
         with client:
             client.post('/login', data={
                 'email': 'admin@example.com',
-                'passwordUser': 'adminpass'
+                'password_user': 'adminpass'
             })
             response = client.get('/admin/products')
             assert response.status_code == 200
@@ -169,7 +169,7 @@ class TestAdminRoutes:
         with client:
             client.post('/login', data={
                 'email': 'admin@example.com',
-                'passwordUser': 'adminpass'
+                'password_user': 'adminpass'
             })
             response = client.get('/admin/dashboard')  # Dashboard muestra usuarios
             assert response.status_code == 200
@@ -205,7 +205,7 @@ class TestClientRoutes:
         with client:
             client.post('/login', data={
                 'email': 'user@example.com',
-                'passwordUser': 'userpass'
+                'password_user': 'userpass'
             })
             response = client.get('/profile')
             assert response.status_code == 200

@@ -1,130 +1,255 @@
-<!-- Reseñas de producto: solo fragmento, no usar extends ni blocks -->
-<div class="container mb-4">
-  <h3 class="mb-4 text-center">Reseñas de este producto</h3>
+<!-- Enlace de accesibilidad para saltar al contenido principal -->
+<a href="#main-content" class="skip-link">Saltar a reseñas</a>
+
+
+<div class="reviews-container" id="main-content">
+  <!-- Cabecera de reseñas -->
+  <header class="reviews-header">
+    <h1 class="reviews-title">Reseñas del Producto</h1>
+    <p class="reviews-subtitle">Opiniones de nuestros clientes</p>
+  </header>
+
   {% if reviews %}
-    <ul class="list-group mb-4">
+    <div class="reviews-list" role="region" aria-label="Lista de reseñas">
       {% for review in reviews %}
-      <li class="list-group-item">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <b>{{ review.user_name }}</b>
-            <span class="badge badge-glow-white ms-2">
-              {% for i in range(review.rating) %}★{% endfor %}
-              {% for i in range(5 - review.rating) %}<span class="text-secondary">★</span>{% endfor %}
-            </span>
-            <span class="text-muted small ms-2">{{ review.date.strftime('%d/%m/%Y') }}</span>
+      <article class="review-card" itemscope itemtype="https://schema.org/Review">
+        <!-- Cabecera de la reseña -->
+        <header class="review-header">
+          <div class="review-author">
+            <div class="review-avatar" aria-hidden="true">
+              {{ review.user_name[0]|upper }}
+            </div>
+            <div class="review-author-info">
+              <h4 itemprop="author" itemscope itemtype="https://schema.org/Person">
+                <span itemprop="name">{{ review.user_name }}</span>
+              </h4>
+              <time class="review-date" datetime="{{ review.date.isoformat() }}" itemprop="datePublished">
+                {{ review.date.strftime('%d/%m/%Y') }}
+              </time>
+            </div>
           </div>
+
+          <!-- Sistema de calificación -->
+          <div class="review-rating" itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">
+            <div class="stars-container" aria-label="Calificación: {{ review.rating }} de 5 estrellas">
+              {% for i in range(5) %}
+                <span class="star {{ 'filled' if i < review.rating else '' }}" aria-hidden="true">★</span>
+              {% endfor %}
+            </div>
+            <span class="review-rating-score" aria-label="{{ review.rating }} estrellas">
+              {{ review.rating }}/5
+            </span>
+            <meta itemprop="ratingValue" content="{{ review.rating }}">
+            <meta itemprop="bestRating" content="5">
+          </div>
+        </header>
+
+        <!-- Contenido de la reseña -->
+        <div class="review-content">
+          <p class="review-text" itemprop="reviewBody">{{ review.comment }}</p>
         </div>
-        <div class="mt-2">{{ review.comment }}</div>
+
+        <!-- Imagen de reseña (si existe) -->
         {% if review.image_path %}
-        <div class="mt-2">
+        <div class="review-image">
           <picture>
-            <source srcset="{{ url_for('static', filename=review.image_path|replace('.jpg','.webp')|replace('.png','.webp')) }}" type="image/webp">
-            <img src="{{ url_for('static', filename=review.image_path) }}" alt="Imagen de reseña" loading="lazy" style="max-width:180px;max-height:180px;border-radius:12px;box-shadow:0 0 12px #fff8;">
+            <source
+              srcset="{{ url_for('static', filename=review.image_path|replace('.jpg','.webp')|replace('.png','.webp')) }}"
+              type="image/webp">
+            <img
+              src="{{ url_for('static', filename=review.image_path) }}"
+              alt="Imagen adjunta a la reseña de {{ review.user_name }}"
+              loading="lazy"
+              itemprop="image">
           </picture>
         </div>
         {% endif %}
-      </li>
+
+        <!-- Acciones de la reseña -->
+        <div class="review-actions">
+          <button class="review-action-btn like" aria-label="Me gusta esta reseña">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+            </svg>
+            Útil
+          </button>
+          <button class="review-action-btn reply" aria-label="Responder a esta reseña">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M6.598 5.013a.144.144 0 0 1 .202.134L6.576 6.01a.144.144 0 0 1-.202.134L3.176 4.51a.144.144 0 0 1 0-.268l3.422-1.634a.144.144 0 0 1 .202.134L6.598 5.013zM2 1h7.09a.145.145 0 0 1 .145.145v7.71a.145.145 0 0 1-.145.145H2a.145.145 0 0 1-.145-.145V1.145A.145.145 0 0 1 2 1z"/>
+            </svg>
+            Responder
+          </button>
+        </div>
+      </article>
       {% endfor %}
-    </ul>
+    </div>
   {% else %}
-    <div class="alert alert-info text-center">Aún no hay reseñas para este producto.</div>
+    <!-- Estado vacío -->
+    <div class="reviews-empty" role="status" aria-live="polite">
+      <div class="reviews-empty-icon" aria-hidden="true">📝</div>
+      <h3 class="reviews-empty-title">Aún no hay reseñas</h3>
+      <p class="reviews-empty-text">Sé el primero en compartir tu opinión sobre este producto.</p>
+    </div>
   {% endif %}
   {% if current_user.is_authenticated %}
-  <div class="card mt-4">
-    <div class="card-body">
-      <h5 class="card-title">Deja tu reseña</h5>
-  <form method="post" action="{{ url_for('reviews.add_review', product_id=product.id) }}" enctype="multipart/form-data">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <div class="mb-2">
-          <label for="rating" class="form-label">Calificación:</label>
-          <select name="rating" id="rating" class="form-select w-auto d-inline-block">
-            <option value="5">5 ★</option>
-            <option value="4">4 ★</option>
-            <option value="3">3 ★</option>
-            <option value="2">2 ★</option>
-            <option value="1">1 ★</option>
-          </select>
+  <!-- Formulario de nueva reseña -->
+  <section class="review-form-card" aria-labelledby="review-form-title">
+    <h2 id="review-form-title" class="review-form-title">Comparte tu opinión</h2>
+
+    <form
+      method="post"
+      action="{{ url_for('reviews.add_review', product_id=product.id) }}"
+      enctype="multipart/form-data"
+      aria-label="Formulario para agregar reseña"
+      novalidate
+    >
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <!-- Sistema de calificación interactivo -->
+      <div class="form-group">
+        <label for="rating" class="form-label">¿Qué calificación le das?</label>
+        <div class="rating-input-container" role="group" aria-label="Seleccionar calificación">
+          <input type="hidden" name="rating" id="rating" value="5" class="rating-input-hidden">
+          {% for i in range(5, 0, -1) %}
+          <button
+            type="button"
+            class="rating-input-star {{ 'active' if i == 5 else '' }}"
+            data-rating="{{ i }}"
+            aria-label="{{ i }} estrella{{ 's' if i > 1 else '' }}"
+            title="{{ i }} estrella{{ 's' if i > 1 else '' }}"
+          >
+            ★
+          </button>
+          {% endfor %}
         </div>
-        <div class="mb-2">
-          <label for="comment" class="form-label">Comentario:</label>
-          <textarea name="comment" id="comment" class="form-control" rows="2" required></textarea>
+        <div class="rating-display" aria-live="polite" id="rating-display">
+          5 estrellas seleccionadas
         </div>
-        <div class="mb-2">
-          <label for="image" class="form-label">Imagen (opcional):</label>
-          <input type="file" name="image" id="image" class="form-control" accept="image/*">
+      </div>
+
+      <!-- Campo de comentario -->
+      <div class="form-group">
+        <label for="comment" class="form-label">Tu comentario</label>
+        <textarea
+          name="comment"
+          id="comment"
+          class="form-textarea"
+          rows="4"
+          placeholder="Comparte tu experiencia con este producto..."
+          required
+          aria-describedby="comment-help"
+          maxlength="1000"
+        ></textarea>
+        <div id="comment-help" class="form-help">
+          Máximo 1000 caracteres. Tu opinión es muy valiosa para otros compradores.
         </div>
-        <button type="submit" class="btn btn-primary">Enviar reseña</button>
-      </form>
-    </div>
-  </div>
+      </div>
+
+      <!-- Campo de imagen -->
+      <div class="form-group">
+        <label for="image" class="form-label">Agrega una foto (opcional)</label>
+        <input
+          type="file"
+          name="image"
+          id="image"
+          class="form-file-input"
+          accept="image/*"
+          aria-describedby="image-help"
+        >
+        <div id="image-help" class="form-help">
+          Formatos aceptados: JPG, PNG, WebP. Tamaño máximo: 5MB.
+        </div>
+      </div>
+
+      <!-- Botón de envío -->
+      <button type="submit" class="review-submit-btn" disabled>
+        <span class="btn-text">Publicar reseña</span>
+        <div class="review-loading" style="display: none;" aria-hidden="true"></div>
+      </button>
+    </form>
+
+    <!-- Mensajes de estado -->
+    <div id="review-message" class="review-message" style="display: none;" role="alert" aria-live="assertive"></div>
+  </section>
+
+  <!-- JavaScript para funcionalidad interactiva -->
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.rating-input-star');
+    const ratingInput = document.getElementById('rating');
+    const ratingDisplay = document.getElementById('rating-display');
+    const submitBtn = document.querySelector('.review-submit-btn');
+    const commentTextarea = document.getElementById('comment');
+    const form = document.querySelector('.review-form-card form');
+
+    // Funcionalidad de estrellas interactivas
+    stars.forEach((star, index) => {
+      star.addEventListener('click', function() {
+        const rating = this.dataset.rating;
+
+        // Actualizar estrellas visuales
+        stars.forEach((s, i) => {
+          s.classList.toggle('active', i >= 5 - rating);
+        });
+
+        // Actualizar input oculto
+        ratingInput.value = rating;
+
+        // Actualizar texto de accesibilidad
+        ratingDisplay.textContent = `${rating} estrella${rating > 1 ? 's' : ''} seleccionada${rating > 1 ? 's' : ''}`;
+
+        // Habilitar botón de envío
+        submitBtn.disabled = false;
+      });
+
+      star.addEventListener('mouseenter', function() {
+        const rating = this.dataset.rating;
+        stars.forEach((s, i) => {
+          s.classList.toggle('hover', i >= 5 - rating);
+        });
+      });
+
+      star.addEventListener('mouseleave', function() {
+        stars.forEach(s => s.classList.remove('hover'));
+      });
+    });
+
+    // Validación del formulario
+    commentTextarea.addEventListener('input', function() {
+      submitBtn.disabled = this.value.trim().length === 0;
+    });
+
+    // Manejo del envío del formulario
+    form.addEventListener('submit', function(e) {
+      const btnText = submitBtn.querySelector('.btn-text');
+      const loading = submitBtn.querySelector('.review-loading');
+
+      btnText.style.display = 'none';
+      loading.style.display = 'inline-block';
+      submitBtn.disabled = true;
+    });
+
+    // Inicializar estado del botón
+    submitBtn.disabled = commentTextarea.value.trim().length === 0;
+  });
+  </script>
+
   {% else %}
-    <div class="alert alert-warning text-center mt-4">Inicia sesión para dejar una reseña.</div>
+  <!-- Mensaje para usuarios no autenticados -->
+  <div class="reviews-empty" role="status">
+    <div class="reviews-empty-icon" aria-hidden="true">🔒</div>
+    <h3 class="reviews-empty-title">Inicia sesión para opinar</h3>
+    <p class="reviews-empty-text">
+      Para compartir tu reseña, necesitas tener una cuenta.
+      <a href="{{ url_for('auth.login') }}" style="color: var(--review-primary); text-decoration: none; font-weight: 600;">
+        Inicia sesión
+      </a>
+      o
+      <a href="{{ url_for('users.register') }}" style="color: var(--review-primary); text-decoration: none; font-weight: 600;">
+        regístrate
+      </a>.
+    </p>
+  </div>
   {% endif %}
 </div>
 <!-- Fin reseñas de producto -->
-<style>
-.container {
-  background: rgba(35,39,47,0.98);
-  border-radius: 1.2rem;
-  box-shadow: 0 0 32px #fff8, 0 8px 32px #000a;
-  padding: 2.5rem 2rem 2rem 2rem;
-  border: 2.5px solid #fff;
-}
-h3, .card-title {
-  font-weight: 900;
-  font-size: 2.1rem;
-  letter-spacing: 0.04em;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  background: linear-gradient(90deg, #fff 0%, #eaeaea 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 16px #fff, 0 2px 24px #fff8;
-}
-.list-group-item {
-  background: #23272f;
-  color: #fff;
-  border: 1.5px solid #fff;
-  border-radius: 0.8rem;
-  margin-bottom: 0.7rem;
-  box-shadow: 0 2px 8px #fff2;
-}
-.btn-primary {
-  background: linear-gradient(90deg, #fff 0%, #eaeaea 100%);
-  color: #23272f;
-  border: 2px solid #fff;
-  font-weight: 800;
-  font-size: 1.1rem;
-  border-radius: 8px;
-  padding: 0.7rem 0;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 0 12px #fff8;
-}
-.btn-primary:hover {
-  background: #23272f;
-  color: #fff;
-  box-shadow: 0 0 24px #fff, 0 0 16px #fff8;
-  border: 2px solid #fff;
-}
-.form-label, .form-select, .form-control {
-  color: #fff;
-  background: #23272f;
-  border: 2px solid #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 8px #fff8;
-}
-.form-control:focus, .form-select:focus {
-  border-color: #fff;
-  background: #181818;
-  color: #fff;
-  box-shadow: 0 0 16px #fff;
-}
-.alert-info, .alert-warning {
-  background: linear-gradient(90deg, #fff 0%, #eaeaea 100%);
-  color: #23272f;
-  border: 2px solid #fff;
-  font-weight: 700;
-  box-shadow: 0 0 12px #fff8;
-}
-</style>

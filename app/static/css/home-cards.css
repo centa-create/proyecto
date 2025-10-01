@@ -1,0 +1,818 @@
+/* Carrusel 3D Interactivo - Sistema de Diseño Avanzado */
+
+/* Variables CSS para el carrusel 3D */
+:root {
+  /* Colores principales */
+  --carousel-primary: #6366f1;
+  --carousel-secondary: #8b5cf6;
+  --carousel-accent: #f59e0b;
+  --carousel-success: #10b981;
+  --carousel-error: #ef4444;
+
+  /* Fondos y superficies */
+  --carousel-background: rgba(255,255,255,0.1);
+  --carousel-surface: rgba(248,250,252,0.1);
+  --carousel-glass-bg: rgba(255, 255, 255, 0.85);
+  --carousel-glass-border: rgba(255, 255, 255, 0.2);
+
+  /* Texto */
+  --carousel-text-primary: #1e293b;
+  --carousel-text-secondary: #64748b;
+  --carousel-text-muted: #94a3b8;
+
+  /* Bordes y sombras */
+  --carousel-border: #e2e8f0;
+  --carousel-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --carousel-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --carousel-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --carousel-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+
+  /* Radios y transiciones */
+  --carousel-radius: 16px;
+  --carousel-radius-sm: 8px;
+  --carousel-radius-lg: 24px;
+  --carousel-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --carousel-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --carousel-transition-slow: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* Efectos 3D */
+  --carousel-perspective: 1000px;
+  --carousel-rotate-y: 0deg;
+  --carousel-scale: 1;
+  --carousel-translate-z: 0px;
+
+  /* Dimensiones del carrusel */
+  --carousel-card-width: 280px;
+  --carousel-card-height: 380px;
+  --carousel-gap: 20px;
+  --carousel-visible-cards: 4;
+
+  /* Animaciones optimizadas */
+  --carousel-duration: 15s; /* Reducido para mejor performance */
+  --carousel-timing: linear;
+  --carousel-hover-scale: 1.05; /* Menos intenso */
+  --carousel-hover-rotate: 3deg; /* Menos intenso */
+}
+
+/* Contenedor principal del carrusel */
+.carousel-3d-container {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 2rem;
+  perspective: var(--carousel-perspective);
+  overflow: hidden;
+}
+
+.carousel-3d-wrapper {
+  position: relative;
+  width: 100%;
+  height: var(--carousel-card-height);
+  transform-style: preserve-3d;
+  animation: carouselRotate var(--carousel-duration) var(--carousel-timing) infinite;
+}
+
+.carousel-3d-wrapper:hover {
+  animation-play-state: paused;
+}
+
+/* Tarjetas del carrusel */
+.carousel-3d-card {
+  position: absolute;
+  width: var(--carousel-card-width);
+  height: var(--carousel-card-height);
+  background: var(--carousel-glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--carousel-radius);
+  border: 1px solid var(--carousel-glass-border);
+  box-shadow: var(--carousel-shadow-xl);
+  transition: var(--carousel-transition);
+  transform-style: preserve-3d;
+  cursor: pointer;
+  overflow: hidden;
+  top: 0;
+  left: 50%;
+  margin-left: calc(var(--carousel-card-width) / -2);
+  transform-origin: center center;
+}
+
+/* Posicionamiento de las tarjetas en el círculo */
+.carousel-3d-card:nth-child(1) {
+  transform: rotateY(0deg) translateZ(400px);
+}
+
+.carousel-3d-card:nth-child(2) {
+  transform: rotateY(90deg) translateZ(400px);
+}
+
+.carousel-3d-card:nth-child(3) {
+  transform: rotateY(180deg) translateZ(400px);
+}
+
+.carousel-3d-card:nth-child(4) {
+  transform: rotateY(270deg) translateZ(400px);
+}
+
+.carousel-3d-card:nth-child(5) {
+  transform: rotateY(0deg) translateZ(200px) scale(0.8);
+  opacity: 0.6;
+}
+
+.carousel-3d-card:nth-child(6) {
+  transform: rotateY(72deg) translateZ(200px) scale(0.8);
+  opacity: 0.6;
+}
+
+.carousel-3d-card:nth-child(7) {
+  transform: rotateY(144deg) translateZ(200px) scale(0.8);
+  opacity: 0.6;
+}
+
+.carousel-3d-card:nth-child(8) {
+  transform: rotateY(216deg) translateZ(200px) scale(0.8);
+  opacity: 0.6;
+}
+
+/* Efectos hover en las tarjetas */
+.carousel-3d-card:hover {
+  transform: scale(var(--carousel-hover-scale)) rotateY(var(--carousel-hover-rotate)) !important;
+  box-shadow: var(--carousel-shadow-xl), var(--carousel-glow);
+  z-index: 10;
+}
+
+/* Contenido de la tarjeta */
+.carousel-card-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: var(--carousel-transition);
+}
+
+.carousel-card-front,
+.carousel-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--carousel-radius);
+  overflow: hidden;
+}
+
+/* Frente de la tarjeta */
+.carousel-card-front {
+  background: linear-gradient(135deg, var(--carousel-primary), var(--carousel-secondary));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+  color: white;
+}
+
+.carousel-card-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.carousel-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--carousel-transition-fast);
+}
+
+.carousel-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.carousel-card-price {
+  font-size: 1.1rem;
+  font-weight: 600;
+  opacity: 0.9;
+  margin-bottom: 1rem;
+}
+
+.carousel-card-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Parte trasera de la tarjeta */
+.carousel-card-back {
+  background: var(--carousel-surface);
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  color: var(--carousel-text-primary);
+}
+
+.carousel-card-description {
+  flex: 1;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  color: var(--carousel-text-secondary);
+}
+
+.carousel-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.carousel-card-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.carousel-card-detail-label {
+  color: var(--carousel-text-muted);
+  font-weight: 500;
+}
+
+.carousel-card-detail-value {
+  color: var(--carousel-text-primary);
+  font-weight: 600;
+}
+
+.carousel-card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.carousel-btn {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--carousel-radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--carousel-transition-fast);
+  text-decoration: none;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.carousel-btn-primary {
+  background: var(--carousel-primary);
+  color: white;
+}
+
+.carousel-btn-primary:hover {
+  background: var(--carousel-secondary);
+  transform: translateY(-2px);
+  box-shadow: var(--carousel-shadow);
+}
+
+.carousel-btn-secondary {
+  background: var(--carousel-surface);
+  color: var(--carousel-text-primary);
+  border: 2px solid var(--carousel-border);
+}
+
+.carousel-btn-secondary:hover {
+  background: var(--carousel-primary);
+  color: white;
+  border-color: var(--carousel-primary);
+}
+
+/* Animación de rotación del carrusel */
+@keyframes carouselRotate {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+/* Efectos de rotación al hacer hover */
+.carousel-3d-card:hover .carousel-card-content {
+  transform: rotateY(180deg);
+}
+
+/* Indicadores de navegación */
+.carousel-indicators {
+  position: absolute;
+  bottom: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 20;
+}
+
+.carousel-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--carousel-border);
+  cursor: pointer;
+  transition: var(--carousel-transition-fast);
+  border: 2px solid transparent;
+}
+
+.carousel-indicator.active {
+  background: var(--carousel-primary);
+  transform: scale(1.2);
+}
+
+.carousel-indicator:hover {
+  background: var(--carousel-secondary);
+  border-color: var(--carousel-secondary);
+}
+
+/* Controles de navegación */
+.carousel-controls {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1rem;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.carousel-control {
+  width: 50px;
+  height: 50px;
+  background: var(--carousel-glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--carousel-glass-border);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--carousel-text-primary);
+  font-size: 1.5rem;
+  transition: var(--carousel-transition-fast);
+  pointer-events: all;
+  box-shadow: var(--carousel-shadow);
+}
+
+.carousel-control:hover {
+  background: var(--carousel-primary);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: var(--carousel-shadow-lg);
+}
+
+.carousel-control:active {
+  transform: scale(0.95);
+}
+
+/* Efectos de profundidad */
+.carousel-3d-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  :root {
+    --carousel-card-width: 240px;
+    --carousel-card-height: 340px;
+    --carousel-visible-cards: 3;
+  }
+
+  .carousel-3d-card:nth-child(1) { transform: rotateY(0deg) translateZ(350px); }
+  .carousel-3d-card:nth-child(2) { transform: rotateY(120deg) translateZ(350px); }
+  .carousel-3d-card:nth-child(3) { transform: rotateY(240deg) translateZ(350px); }
+  .carousel-3d-card:nth-child(4) { transform: rotateY(0deg) translateZ(150px) scale(0.7); }
+  .carousel-3d-card:nth-child(5) { transform: rotateY(120deg) translateZ(150px) scale(0.7); }
+  .carousel-3d-card:nth-child(6) { transform: rotateY(240deg) translateZ(150px) scale(0.7); }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --carousel-card-width: 200px;
+    --carousel-card-height: 300px;
+    --carousel-visible-cards: 2;
+  }
+
+  .carousel-3d-container {
+    padding: 1rem;
+    margin: 2rem auto;
+  }
+
+  .carousel-3d-card:nth-child(1) { transform: rotateY(0deg) translateZ(250px); }
+  .carousel-3d-card:nth-child(2) { transform: rotateY(180deg) translateZ(250px); }
+  .carousel-3d-card:nth-child(3) { transform: rotateY(0deg) translateZ(100px) scale(0.6); }
+  .carousel-3d-card:nth-child(4) { transform: rotateY(180deg) translateZ(100px) scale(0.6); }
+
+  .carousel-card-title {
+    font-size: 1.1rem;
+  }
+
+  .carousel-card-price {
+    font-size: 1rem;
+  }
+
+  .carousel-controls {
+    padding: 0 0.5rem;
+  }
+
+  .carousel-control {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --carousel-card-width: 160px;
+    --carousel-card-height: 240px;
+    --carousel-duration: 25s; /* Más lento en móviles para ahorrar batería */
+  }
+
+  .carousel-3d-container {
+    padding: 0.5rem;
+    margin: 1.5rem auto;
+  }
+
+  .carousel-3d-card:nth-child(1) { transform: rotateY(0deg) translateZ(180px); }
+  .carousel-3d-card:nth-child(2) { transform: rotateY(180deg) translateZ(180px); }
+
+  .carousel-card-front {
+    padding: 1rem;
+  }
+
+  .carousel-card-image {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 0.75rem;
+  }
+
+  .carousel-card-title {
+    font-size: 1rem;
+  }
+
+  .carousel-card-price {
+    font-size: 0.9rem;
+  }
+
+  .carousel-card-back {
+    padding: 1rem;
+  }
+
+  .carousel-card-description {
+    font-size: 0.8rem;
+  }
+
+  .carousel-btn {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --carousel-background: rgba(15, 23, 42, 0.9);
+    --carousel-surface: rgba(30, 41, 59, 0.9);
+    --carousel-text-primary: #f1f5f9;
+    --carousel-text-secondary: #cbd5e1;
+    --carousel-text-muted: #64748b;
+    --carousel-border: #334155;
+    --carousel-glass-bg: rgba(30, 41, 59, 0.85);
+    --carousel-glass-border: rgba(71, 85, 105, 0.3);
+  }
+
+  .carousel-card-front {
+    background: linear-gradient(135deg, var(--carousel-secondary), var(--carousel-primary));
+  }
+
+  .carousel-card-back {
+    background: var(--carousel-surface);
+    border: 1px solid var(--carousel-border);
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .carousel-3d-wrapper {
+    animation: none;
+  }
+
+  .carousel-3d-card,
+  .carousel-card-content,
+  .carousel-card-image img,
+  .carousel-btn,
+  .carousel-control {
+    transition: none;
+  }
+}
+
+/* Alto contraste */
+@media (prefers-contrast: high) {
+  .carousel-3d-card {
+    border: 2px solid var(--carousel-text-primary);
+  }
+
+  .carousel-btn-primary,
+  .carousel-btn-secondary {
+    border: 2px solid var(--carousel-text-primary);
+  }
+}
+
+/* Focus visible */
+.carousel-3d-card:focus-visible,
+.carousel-btn:focus-visible,
+.carousel-control:focus-visible {
+  outline: 3px solid var(--carousel-primary);
+  outline-offset: 3px;
+}
+
+/* Optimizaciones de performance mejoradas */
+.carousel-3d-card,
+.carousel-card-content,
+.carousel-card-image img,
+.carousel-btn,
+.carousel-control {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+
+/* Efectos de carga */
+.carousel-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.carousel-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--carousel-border);
+  border-top: 4px solid var(--carousel-primary);
+  border-radius: 50%;
+  animation: carouselSpin 1s linear infinite;
+}
+
+@keyframes carouselSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Estados de error */
+.carousel-error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: var(--carousel-error);
+  z-index: 10;
+}
+
+.carousel-error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.carousel-error-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.carousel-error-text {
+  font-size: 0.9rem;
+  color: var(--carousel-text-secondary);
+}
+
+/* Tooltips informativos */
+.carousel-tooltip {
+  position: absolute;
+  background: var(--carousel-surface);
+  color: var(--carousel-text-primary);
+  padding: 0.5rem 1rem;
+  border-radius: var(--carousel-radius-sm);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  z-index: 30;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--carousel-transition-fast);
+  box-shadow: var(--carousel-shadow);
+  border: 1px solid var(--carousel-border);
+}
+
+.carousel-tooltip.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Efectos de sonido (opcional) */
+.carousel-card[data-sound="hover"] {
+  transition: all 0.3s ease;
+}
+
+.carousel-card[data-sound="hover"]:hover {
+  /* Aquí se podría agregar funcionalidad de sonido */
+}
+
+/* Información adicional del carrusel */
+.carousel-info {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: var(--carousel-glass-bg);
+  backdrop-filter: blur(10px);
+  border-radius: var(--carousel-radius);
+  border: 1px solid var(--carousel-glass-border);
+}
+
+.carousel-info-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--carousel-text-secondary);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.carousel-info-icon {
+  font-size: 1.2rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Estados de carga y error */
+.carousel-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--carousel-glass-bg);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: var(--carousel-radius);
+}
+
+.carousel-error-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--carousel-error);
+}
+
+.carousel-error-state .error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.carousel-error-state .error-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.carousel-error-state .error-message {
+  font-size: 0.9rem;
+  color: var(--carousel-text-secondary);
+}
+
+/* Animaciones de entrada escalonadas */
+.carousel-3d-card:nth-child(1) { animation-delay: 0.1s; }
+.carousel-3d-card:nth-child(2) { animation-delay: 0.2s; }
+.carousel-3d-card:nth-child(3) { animation-delay: 0.3s; }
+.carousel-3d-card:nth-child(4) { animation-delay: 0.4s; }
+.carousel-3d-card:nth-child(5) { animation-delay: 0.5s; }
+.carousel-3d-card:nth-child(6) { animation-delay: 0.6s; }
+.carousel-3d-card:nth-child(7) { animation-delay: 0.7s; }
+.carousel-3d-card:nth-child(8) { animation-delay: 0.8s; }
+
+/* Efectos de profundidad mejorados */
+.carousel-3d-container {
+  transform-style: preserve-3d;
+}
+
+.carousel-3d-card {
+  transform-style: preserve-3d;
+}
+
+/* Soporte para Webkit (Safari) */
+@-webkit-keyframes carouselRotate {
+  from {
+    -webkit-transform: rotateY(0deg);
+  }
+  to {
+    -webkit-transform: rotateY(360deg);
+  }
+}
+
+.carousel-3d-wrapper {
+  -webkit-animation: carouselRotate var(--carousel-duration) var(--carousel-timing) infinite;
+}
+
+/* Prefers reduced motion para animaciones */
+@media (prefers-reduced-motion: reduce) {
+  .carousel-3d-wrapper {
+    animation: none;
+  }
+
+  .carousel-3d-card {
+    animation: none;
+  }
+
+  .carousel-card-front,
+  .carousel-card-back {
+    transition: none;
+  }
+}
+
+/* Soporte para navegadores antiguos */
+@supports not (backdrop-filter: blur(10px)) {
+  .carousel-3d-card {
+    background: var(--carousel-background);
+    border: 2px solid var(--carousel-border);
+  }
+
+  .carousel-card-front {
+    background: var(--carousel-primary);
+  }
+
+  .carousel-card-back {
+    background: var(--carousel-surface);
+  }
+
+  .carousel-controls .carousel-control {
+    background: var(--carousel-surface);
+    border: 2px solid var(--carousel-border);
+  }
+}
+
+/* Debug mode (descomentar para desarrollo) */
+/*
+.carousel-3d-card::after {
+  content: attr(data-product-id);
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 10px;
+  z-index: 100;
+}
+*/

@@ -1,0 +1,138 @@
+/* ✨ Animaciones Sutiles y Profesionales */
+
+/* Animación de entrada suave */
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animación de escala sutil para elementos interactivos */
+@keyframes scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.scale-in {
+    animation: scale-in 0.3s ease-out;
+}
+
+/* Microinteracciones y feedback visual */
+.btn, .btn-outline-primary, .btn-outline-info, .btn-outline-success, .btn-outline-warning, .btn-outline-secondary, .btn-outline-dark, .btn-primary {
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.12s !important;
+}
+
+.btn:active {
+    transform: scale(0.97);
+    box-shadow: 0 0 32px 8px var(--color-glow), 0 2px 8px #0005 !important;
+}
+
+.btn:focus {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px #fff8 !important;
+}
+
+input, select, textarea {
+    transition: border 0.18s, box-shadow 0.18s;
+    border-radius: 8px;
+    border: 2px solid var(--color-border);
+    background: var(--color-bg-light);
+    color: var(--color-text);
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #fff;
+    box-shadow: 0 0 8px #fff8;
+    outline: none;
+}
+
+/* Efecto ripple en botones */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    background: rgba(255,255,255,0.7);
+    pointer-events: none;
+    animation: ripple-effect 0.6s linear;
+    z-index: 10;
+}
+
+@keyframes ripple-effect {
+    to {
+        transform: scale(8);
+        opacity: 0;
+    }
+}
+
+/* Notificaciones push flotantes */
+.carousel-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    z-index: 10000;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    max-width: 300px;
+}
+
+.carousel-notification.show {
+    transform: translateX(0);
+}
+
+.carousel-notification-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.carousel-notification-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.carousel-notification-text {
+    font-weight: 500;
+    color: #1e293b;
+    line-height: 1.4;
+}
+
+.carousel-notification-success {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.carousel-notification-success .carousel-notification-icon {
+    color: #10b981;
+}
+
+.carousel-notification-error {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.carousel-notification-error .carousel-notification-icon {
+    color: #ef4444;
+}

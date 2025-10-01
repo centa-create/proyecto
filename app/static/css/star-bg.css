@@ -1,0 +1,346 @@
+/* 🎨 FONDO ESTRELLADO PREMIUM - INTEGRACIÓN PERFECTA */
+
+/* Variables CSS premium para el fondo estrellado */
+:root {
+  /* 🎨 Colores premium del sistema */
+  --star-primary: #6366f1;
+  --star-secondary: #8b5cf6;
+  --star-accent: #f59e0b;
+  --star-success: #10b981;
+  --star-error: #ef4444;
+  --star-tertiary: #06b6d4;
+  --star-quaternary: #ec4899;
+
+  /* ✨ Propiedades del fondo estrellado */
+  --star-bg-primary: #0f172a;
+  --star-bg-secondary: #1e293b;
+  --star-bg-accent: #334155;
+  --star-star-color: #ffffff;
+  --star-star-glow: rgba(255, 255, 255, 0.8);
+  --star-star-shadow: rgba(255, 255, 255, 0.6);
+
+  /* 📐 Dimensiones y animaciones */
+  --star-size-small: 2px;
+  --star-size-medium: 3px;
+  --star-size-large: 4px;
+  --star-count-light: 250;
+  --star-count-dark: 150;
+  --star-animation-duration: 3s;
+  --star-twinkle-duration: 2s;
+
+  /* 🌟 Efectos de profundidad */
+  --star-depth-1: 0.3;
+  --star-depth-2: 0.6;
+  --star-depth-3: 0.9;
+  --star-parallax-speed: 0.5;
+}
+
+/* 🎭 Contenedor principal del fondo estrellado */
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+}
+
+/* ✨ Estrellas individuales premium */
+.stars span {
+  position: absolute;
+  background: var(--star-star-color);
+  border-radius: 50%;
+  animation: twinkle var(--star-twinkle-duration) infinite ease-in-out;
+  box-shadow: 0 0 4px var(--star-star-shadow);
+}
+
+/* 🎬 Animaciones premium para las estrellas */
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1.0;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes twinkle-bright {
+  0%, 100% {
+    opacity: var(--star-depth-2);
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    opacity: var(--star-depth-3);
+    transform: scale(1.5);
+    filter: brightness(1.5);
+  }
+}
+
+@keyframes twinkle-slow {
+  0%, 100% {
+    opacity: var(--star-depth-1);
+    transform: scale(1) rotate(0deg);
+  }
+  33% {
+    opacity: var(--star-depth-2);
+    transform: scale(1.3) rotate(120deg);
+  }
+  66% {
+    opacity: var(--star-depth-3);
+    transform: scale(0.8) rotate(240deg);
+  }
+}
+
+/* 🌟 Variaciones de estrellas premium */
+.stars .star-small {
+  width: var(--star-size-small);
+  height: var(--star-size-small);
+  animation: twinkle var(--star-twinkle-duration) infinite ease-in-out;
+}
+
+.stars .star-medium {
+  width: var(--star-size-medium);
+  height: var(--star-size-medium);
+  animation: twinkle-bright calc(var(--star-twinkle-duration) * 1.5) infinite ease-in-out;
+  box-shadow: 0 0 8px var(--star-star-glow);
+}
+
+.stars .star-large {
+  width: var(--star-size-large);
+  height: var(--star-size-large);
+  animation: twinkle-slow calc(var(--star-twinkle-duration) * 2) infinite ease-in-out;
+  box-shadow: 0 0 12px var(--star-star-glow), 0 0 24px var(--star-star-shadow);
+  background: radial-gradient(circle, var(--star-star-color) 0%, var(--star-star-glow) 100%);
+}
+
+/* 🎨 Estrellas con colores premium */
+.stars .star-primary {
+  background: var(--star-primary);
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
+}
+
+.stars .star-secondary {
+  background: var(--star-secondary);
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+}
+
+.stars .star-accent {
+  background: var(--star-accent);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+.stars .star-tertiary {
+  background: var(--star-tertiary);
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
+}
+
+/* 🌌 Efectos de nebulosa premium */
+.stars::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: nebula-float 20s infinite ease-in-out;
+  filter: blur(40px);
+}
+
+.stars::after {
+  content: '';
+  position: absolute;
+  bottom: 30%;
+  right: 15%;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: nebula-float 25s infinite ease-in-out reverse;
+  filter: blur(35px);
+}
+
+@keyframes nebula-float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) scale(1);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-20px) translateX(15px) scale(1.1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-10px) translateX(-10px) scale(0.9);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translateY(15px) translateX(20px) scale(1.05);
+    opacity: 0.6;
+  }
+}
+
+/* 🌠 Efectos de meteoritos premium */
+.meteor {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: linear-gradient(45deg, transparent, var(--star-star-color), transparent);
+  border-radius: 50%;
+  animation: meteor-fall 8s infinite linear;
+  opacity: 0;
+}
+
+.meteor::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--star-star-color);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--star-star-glow);
+}
+
+@keyframes meteor-fall {
+  0% {
+    transform: translateY(-100vh) translateX(0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) translateX(200px);
+    opacity: 0;
+  }
+}
+
+/* 🌙 Modo oscuro premium para fondo estrellado */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --star-bg-primary: #0f172a;
+    --star-bg-secondary: #1e293b;
+    --star-bg-accent: #334155;
+    --star-star-color: #ffffff;
+    --star-star-glow: rgba(255, 255, 255, 0.9);
+    --star-star-shadow: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* ♿ Accesibilidad premium */
+@media (prefers-reduced-motion: reduce) {
+  .stars span {
+    animation: none !important;
+  }
+
+  .stars::before,
+  .stars::after {
+    animation: none !important;
+  }
+
+  .meteor {
+    display: none;
+  }
+}
+
+/* 📱 Optimización móvil premium */
+@media (max-width: 768px) {
+  :root {
+    --star-count-light: 150;
+    --star-count-dark: 80;
+    --star-size-small: 0.8px;
+    --star-size-medium: 1.5px;
+    --star-size-large: 2.5px;
+  }
+
+  .stars::before,
+  .stars::after {
+    width: 200px;
+    height: 200px;
+    filter: blur(25px);
+  }
+}
+
+/* 🎯 Alto contraste premium */
+@media (prefers-contrast: high) {
+  .stars span {
+    background: var(--star-star-color) !important;
+    box-shadow: 0 0 8px var(--star-star-color) !important;
+  }
+}
+
+/* 🚀 Optimización de rendimiento premium */
+.stars {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  contain: layout style paint;
+  content-visibility: auto;
+}
+
+.stars span {
+  will-change: transform, opacity;
+  contain: layout style;
+}
+
+/* 🎨 Integración perfecta con el sistema de diseño */
+.stars {
+  /* Asegura que el fondo no interfiera con el contenido */
+  mix-blend-mode: normal;
+}
+
+/* Para elementos que necesitan estar sobre el fondo */
+.content-overlay {
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(1px);
+}
+
+/* Efectos de profundidad para elementos del contenido */
+.content-overlay .glass-element {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 🌟 Efectos especiales para elementos destacados */
+.featured-element {
+  position: relative;
+  z-index: 2;
+}
+
+.featured-element::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+  border-radius: inherit;
+  z-index: -1;
+  animation: featured-glow 4s ease-in-out infinite alternate;
+}
+
+@keyframes featured-glow {
+  from {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.7;
+    transform: scale(1.02);
+  }
+}

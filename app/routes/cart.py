@@ -1,4 +1,6 @@
-import stripe
+import requests
+import hashlib
+import uuid
 from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
 from flask_login import login_required, current_user
 from app import db
@@ -114,34 +116,71 @@ def payment():
         flash('No hay productos para pagar.', 'warning')
         return redirect(url_for('cart.view_cart'))
     total = sum(item.quantity * item.product.price for item in cart.items)
-    stripe.api_key = current_app.config.get('STRIPE_SECRET_KEY')
-    if not stripe.api_key:
+
+    # Verificar configuración PayU
+    api_key = current_app.config.get('PAYU_API_KEY')
+    api_login = current_app.config.get('PAYU_API_LOGIN')
+    merchant_id = current_app.config.get('PAYU_MERCHANT_ID')
+    account_id = current_app.config.get('PAYU_ACCOUNT_ID')
+
+    if not all([api_key, api_login, merchant_id, account_id]):
         flash('Configuración de pago no disponible.', 'danger')
         return redirect(url_for('cart.view_cart'))
+
     if request.method == 'POST':
         metodo = request.form.get('metodo_pago')
-        if metodo == 'stripe':
+        if metodo == 'payu':
             try:
-                session = stripe.checkout.Session.create(
-                    payment_method_types=['card'],
-                    line_items=[{
-                        'price_data': {
-                            'currency': 'cop',
-                            'product_data': {
-                                'name': 'Pedido en tienda',
-                            },
-                            'unit_amount': int(total * 100),
-                        },
-                        'quantity': 1,
-                    }],
-                    mode='payment',
-                    success_url=url_for('cart.view_cart', _external=True),
-                    cancel_url=url_for('cart.payment', _external=True),
-                )
-                return redirect(session.url, code=303)
-            except stripe.error.StripeError as e:
-                current_app.logger.error(f'Error en Stripe: {e}')
-                flash('Error en el pago con Stripe.', 'danger')
+                # Crear orden primero
+                order = Order(user_id=current_user.idUser, total=total, status='pendiente')
+                db.session.add(order)
+                db.session.commit()
+
+                # Configuración PayU
+                test_mode = current_app.config.get('PAYU_TEST_MODE', True)
+                base_url = 'https://sandbox.checkout.payulatam.com' if test_mode else 'https://checkout.payulatam.com'
+                response_url = url_for('cart.view_cart', _external=True)
+                confirmation_url = url_for('webhook.payu_webhook', _external=True)
+
+                # Generar referencia única
+                reference_code = f"ORDER_{order.id}_{uuid.uuid4().hex[:8]}"
+
+                # Crear firma MD5
+                signature_string = f"{api_key}~{merchant_id}~{reference_code}~{int(total)}~COP"
+                signature = hashlib.md5(signature_string.encode('utf-8')).hexdigest()
+
+                # Datos para PayU
+                payu_data = {
+                    'merchantId': merchant_id,
+                    'accountId': account_id,
+                    'description': f'Compra en SAMMS.FO - Orden {order.id}',
+                    'referenceCode': reference_code,
+                    'amount': str(int(total)),
+                    'currency': 'COP',
+                    'tax': '0',
+                    'taxReturnBase': '0',
+                    'signature': signature,
+                    'test': '1' if test_mode else '0',
+                    'buyerEmail': current_user.email,
+                    'buyerFullName': current_user.nameUser,
+                    'responseUrl': response_url,
+                    'confirmationUrl': confirmation_url,
+                    'extra1': str(order.id),
+                    'lng': 'es'
+                }
+
+                # Enviar a PayU y redirigir
+                response = requests.post(f'{base_url}/ppp-web-gateway-payu/', data=payu_data, timeout=30, allow_redirects=False)
+                if response.status_code in [200, 302]:
+                    return redirect(response.headers.get('Location', response.url), code=303)
+                else:
+                    current_app.logger.error(f'PayU error: {response.status_code} - {response.text}')
+                    flash('Error al procesar pago.', 'danger')
+
+            except Exception as e:
+                current_app.logger.error(f'PayU request failed: {e}')
+                flash('Error de conexión con PayU.', 'danger')
+
         elif metodo == 'nequi':
             flash('Realiza tu pago a Nequi: 3001234567 y envía el comprobante.', 'info')
             return redirect(url_for('cart.view_cart'))
@@ -150,4 +189,5 @@ def payment():
             return redirect(url_for('cart.view_cart'))
         else:
             flash('Selecciona un método de pago.', 'danger')
+
     return render_template('cart/payment.html', total=total)

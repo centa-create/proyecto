@@ -17,6 +17,7 @@ class Users(db.Model, UserMixin):
     idUser = db.Column(db.Integer, primary_key=True)
     nameUser = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    phone = db.Column(db.String(20), unique=True, nullable=True)  # Número de teléfono
     password_user = db.Column(db.String(128), nullable=False)  # hash
     birthdate = db.Column(db.Date, nullable=False)
     is_active_db = db.Column(db.Boolean, default=False)  # Solo tras verificación
