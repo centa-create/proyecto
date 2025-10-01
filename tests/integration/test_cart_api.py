@@ -170,19 +170,3 @@ class TestCartAPI:
                              headers=auth_headers)
 
         assert response.status_code == 400
-        response = client.post('/api/cart/add',
-                             json=data,
-                             headers=auth_headers)
-
-        assert response.status_code == 400
-        response = client.post('/api/cart/add',
-                             json=data,
-                             headers=auth_headers)
-
-        assert response.status_code == 400
-        response = client.post('/api/cart/add',
-                             json=data,
-                             headers=auth_headers)
-
-        assert response.status_code == 400""  
-""  
