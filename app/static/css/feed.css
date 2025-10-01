@@ -470,6 +470,7 @@
 .product-card:hover .product-title {
     background: linear-gradient(90deg, #fff 0%, #f0f0f0 50%, #e0e0e0 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 8px rgba(255,255,255,0.5);
 }
@@ -477,6 +478,7 @@
 .product-card:hover .product-price {
     background: linear-gradient(90deg, #fff 0%, #f0f0f0 50%, #e0e0e0 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 8px rgba(255,255,255,0.5);
 }
@@ -580,6 +582,7 @@
     color: #fff; /* Fallback para accesibilidad */
     background: var(--gradient-text-white);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: 0.02em;
     margin-bottom: 0.2rem;
@@ -590,14 +593,17 @@
     color: #fff !important;
     background: none !important;
     -webkit-background-clip: initial !important;
+    background-clip: initial !important;
     -webkit-text-fill-color: initial !important;
     text-shadow: 0 0 6px rgba(255,255,255,0.5) !important;
+    background: var(--gradient-text-white);
 }
 
 .product-price {
     color: #fff; /* Fallback para accesibilidad */
     background: var(--gradient-text-white);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     font-size: 1rem;
     font-weight: 700;
@@ -608,6 +614,7 @@
     color: #fff !important;
     background: none !important;
     -webkit-background-clip: initial !important;
+    background-clip: initial !important;
     -webkit-text-fill-color: initial !important;
     text-shadow: 0 0 6px rgba(255,255,255,0.5) !important;
 }
@@ -631,6 +638,7 @@
     color: #fff; /* Fallback para accesibilidad */
     background: var(--gradient-text-white);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     font-size: 0.98rem;
     font-weight: 700;
@@ -641,6 +649,7 @@
     color: #fff !important;
     background: none !important;
     -webkit-background-clip: initial !important;
+    background-clip: initial !important;
     -webkit-text-fill-color: initial !important;
     text-shadow: 0 0 6px rgba(255,255,255,0.5) !important;
 }
@@ -686,6 +695,7 @@
     color: #fff; /* Fallback para accesibilidad */
     background: var(--gradient-text-white);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     font-size: 1.5rem;
     font-weight: 900;
@@ -702,6 +712,7 @@ h4 span {
     color: #fff !important;
     background: none !important;
     -webkit-background-clip: initial !important;
+    background-clip: initial !important;
     -webkit-text-fill-color: initial !important;
     text-shadow: 0 0 8px rgba(255,255,255,0.6) !important;
 }

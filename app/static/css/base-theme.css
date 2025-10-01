@@ -301,6 +301,7 @@ h6 span,
     color: #fff !important;
     background: none !important;
     -webkit-background-clip: initial !important;
+    background-clip: initial !important;
     -webkit-text-fill-color: initial !important;
     text-shadow: 0 0 6px rgba(255,255,255,0.5) !important;
 }
@@ -325,6 +326,7 @@ h6 span,
     color: #fff !important;
     background: none !important;
     -webkit-background-clip: initial !important;
+    background-clip: initial !important;
     -webkit-text-fill-color: initial !important;
     text-shadow: 0 0 4px rgba(255,255,255,0.3) !important;
 }

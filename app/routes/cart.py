@@ -1,18 +1,28 @@
-import requests
+"""
+Rutas para la gestión del carrito de compras en la interfaz web.
+
+Este módulo maneja la visualización, adición, eliminación y checkout del carrito.
+"""
+
 import hashlib
 import uuid
-from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
+
+import requests
+from flask import Blueprint, jsonify, render_template, redirect, url_for, request, flash, current_app
 from flask_login import login_required, current_user
 from app import db
 from app.models.cart import Cart, CartItem
 from app.models.products import Product
-from app.models.orders import Order, OrderDetail  # Asumiendo modelos de orders del admin blueprint
+from app.models.orders import (
+    Order, OrderDetail
+)
 
 cart_bp = Blueprint('cart', __name__, url_prefix='/cart')
 
 @cart_bp.route('/')
 @login_required
 def view_cart():
+    """Muestra el contenido del carrito del usuario."""
     # Obtener los productos del carrito para el usuario actual
     cart_items = CartItem.query.join(Cart).filter(Cart.user_id==current_user.idUser).all()
     products_in_cart = []
@@ -30,11 +40,14 @@ def view_cart():
 
 @cart_bp.route('/add/<int:product_id>', methods=['POST'])
 def add_to_cart(product_id):
-    from flask import jsonify
+    """Agrega un producto al carrito."""
     if not current_user.is_authenticated:
         # Si es petición AJAX, devolver JSON especial
         if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({'login_required': True, 'message': 'Debes iniciar sesión para agregar al carrito.'}), 401
+            return jsonify({
+                'login_required': True,
+                'message': 'Debes iniciar sesión para agregar al carrito.'
+            }), 401
         # Si no, redirigir a login
         return redirect(url_for('auth.login'))
     product = Product.query.get_or_404(product_id)
@@ -60,7 +73,12 @@ def add_to_cart(product_id):
             return jsonify({'success': False, 'message': 'No hay suficiente stock.'}), 400
         item.quantity += cantidad
     else:
-        item = CartItem(cart_id=cart.id, product_id=product_id, quantity=cantidad, price_snapshot=product.price)
+        item = CartItem(
+            cart_id=cart.id,
+            product_id=product_id,
+            quantity=cantidad,
+            price_snapshot=product.price
+        )
         db.session.add(item)
     db.session.commit()
     return jsonify({'success': True, 'message': 'Producto agregado al carrito.'})
@@ -68,6 +86,7 @@ def add_to_cart(product_id):
 @cart_bp.route('/remove/<int:item_id>', methods=['POST'])
 @login_required
 def remove_from_cart(item_id):
+    """Remueve un item del carrito."""
     item = CartItem.query.get_or_404(item_id)
     if item.cart.user_id != current_user.idUser:
         flash('Acceso denegado.', 'danger')
@@ -80,6 +99,7 @@ def remove_from_cart(item_id):
 @cart_bp.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
+    """Maneja el proceso de checkout del carrito."""
     cart = Cart.query.filter_by(user_id=current_user.idUser).first()
     if not cart or not cart.items:
         flash('Tu carrito está vacío.', 'warning')
@@ -92,7 +112,12 @@ def checkout():
             db.session.add(order)
             db.session.commit()  # Commit para obtener order.id
             for item in cart.items:
-                detail = OrderDetail(order_id=order.id, product_id=item.product_id, quantity=item.quantity, price=item.product.price)
+                detail = OrderDetail(
+                    order_id=order.id,
+                    product_id=item.product_id,
+                    quantity=item.quantity,
+                    price=item.product.price
+                )
                 db.session.add(detail)
                 # Reducir stock
                 item.product.stock -= item.quantity
@@ -101,8 +126,8 @@ def checkout():
             db.session.delete(cart)
             db.session.commit()
             flash('Pedido confirmado. Redirigiendo a la pasarela de pago...', 'success')
-            return redirect(url_for('cart.payment', order_id=order.id))  # Pasar order_id si necesitas
-        except Exception as e:
+            return redirect(url_for('cart.payment', order_id=order.id))
+        except (ValueError, TypeError) as e:
             db.session.rollback()
             current_app.logger.error(f'Error en checkout: {e}')
             flash('Error al confirmar pedido.', 'danger')
@@ -111,6 +136,7 @@ def checkout():
 @cart_bp.route('/payment', methods=['GET', 'POST'])
 @login_required
 def payment():
+    """Maneja la selección y procesamiento del método de pago."""
     cart = Cart.query.filter_by(user_id=current_user.idUser).first()
     if not cart or not cart.items:
         flash('No hay productos para pagar.', 'warning')
@@ -138,7 +164,10 @@ def payment():
 
                 # Configuración PayU
                 test_mode = current_app.config.get('PAYU_TEST_MODE', True)
-                base_url = 'https://sandbox.checkout.payulatam.com' if test_mode else 'https://checkout.payulatam.com'
+                base_url = (
+                    'https://sandbox.checkout.payulatam.com' if test_mode
+                    else 'https://checkout.payulatam.com'
+                )
                 response_url = url_for('cart.view_cart', _external=True)
                 confirmation_url = url_for('webhook.payu_webhook', _external=True)
 
@@ -170,14 +199,21 @@ def payment():
                 }
 
                 # Enviar a PayU y redirigir
-                response = requests.post(f'{base_url}/ppp-web-gateway-payu/', data=payu_data, timeout=30, allow_redirects=False)
+                response = requests.post(
+                    f'{base_url}/ppp-web-gateway-payu/',
+                    data=payu_data,
+                    timeout=30,
+                    allow_redirects=False
+                )
                 if response.status_code in [200, 302]:
                     return redirect(response.headers.get('Location', response.url), code=303)
                 else:
-                    current_app.logger.error(f'PayU error: {response.status_code} - {response.text}')
+                    current_app.logger.error(
+                        f'PayU error: {response.status_code} - {response.text}'
+                    )
                     flash('Error al procesar pago.', 'danger')
 
-            except Exception as e:
+            except requests.RequestException as e:
                 current_app.logger.error(f'PayU request failed: {e}')
                 flash('Error de conexión con PayU.', 'danger')
 

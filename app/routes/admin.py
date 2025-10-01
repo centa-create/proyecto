@@ -11,6 +11,7 @@ import os
 import csv
 import secrets
 from datetime import datetime, timedelta
+from decimal import Decimal
 from functools import wraps
 from io import StringIO
 
@@ -547,7 +548,7 @@ def update_order_status(order_id):
     new_status = request.form.get('status', order_obj.status)
     order_obj.status = new_status
     db.session.commit()
-    flash(f'Estado del pedido {order_obj.id} actualizado a {new_status}.', 'success')
+    flash(f'Pedido {order_obj.id} actualizado a {new_status}.', 'success')
     return redirect(url_for('admin.orders'))
 
 # --- USUARIOS ---
@@ -775,7 +776,6 @@ def edit_product(product_id):
     product_obj = Product.query.get_or_404(product_id)
     if request.method == 'POST':
         try:
-            from decimal import Decimal
             product_obj.name = request.form.get('name', product_obj.name).strip()
             product_obj.description = request.form.get(
                 'description', product_obj.description
@@ -909,11 +909,10 @@ def delete_category(category_id):
     """Elimina una categoría."""
     log_admin_action(current_user.idUser, 'eliminar', 'categoria', category_id, 'Eliminada por admin')
     if request.form.get('confirm_delete') != 'yes':
-        flash('Confirmación requerida para eliminar.', 'danger')
+        flash('Confirmación requerida.', 'danger')
         return redirect(url_for('admin.categories'))
     category_obj = Category.query.get_or_404(category_id)
     if Product.query.filter_by(category_id=category_id).first():
-        pass
         flash('No se puede eliminar: hay productos asociados.', 'danger')
         return redirect(url_for('admin.categories'))
     db.session.delete(category_obj)

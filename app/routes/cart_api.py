@@ -1,7 +1,14 @@
-import os
-import requests
+"""
+API endpoints para la gestión del carrito de compras.
+
+Este módulo proporciona rutas para agregar, actualizar, remover items del carrito,
+y procesar pagos a través de PayU.
+"""
+
 import hashlib
 import uuid
+
+import requests
 from flask import Blueprint, jsonify, request, current_app, url_for
 from flask_login import login_required, current_user
 from app import db
@@ -14,6 +21,7 @@ cart_api_bp = Blueprint('cart_api', __name__, url_prefix='/api/cart')
 @cart_api_bp.route('/', methods=['GET'])
 @login_required
 def get_cart():
+    """Obtiene los items del carrito del usuario actual."""
     cart = Cart.query.filter_by(user_id=current_user.idUser).first()
     items = cart.items if cart else []
     result = [
@@ -31,6 +39,7 @@ def get_cart():
 @cart_api_bp.route('/add', methods=['POST'])
 @login_required
 def add_item():
+    """Agrega un item al carrito."""
     data = request.json
     product_id = data.get('product_id')
     qty = int(data.get('quantity', 1))
@@ -46,7 +55,12 @@ def add_item():
     if item:
         item.quantity += qty
     else:
-        item = CartItem(cart_id=cart.id, product_id=product_id, quantity=qty, price_snapshot=product.price)
+        item = CartItem(
+            cart_id=cart.id,
+            product_id=product_id,
+            quantity=qty,
+            price_snapshot=product.price
+        )
         db.session.add(item)
     db.session.commit()
     return jsonify({'ok': True})
@@ -54,6 +68,7 @@ def add_item():
 @cart_api_bp.route('/update', methods=['POST'])
 @login_required
 def update_item():
+    """Actualiza la cantidad de un item en el carrito."""
     data = request.json
     item_id = data['id']
     qty = int(data['quantity'])
@@ -75,6 +90,7 @@ def update_item():
 @cart_api_bp.route('/remove', methods=['POST'])
 @login_required
 def remove_item():
+    """Remueve un item del carrito."""
     data = request.json
     item_id = data['id']
     item = CartItem.query.filter_by(id=item_id).first_or_404()
@@ -87,6 +103,7 @@ def remove_item():
 @cart_api_bp.route('/create-checkout-session', methods=['POST'])
 @login_required
 def create_checkout_session():
+    """Crea una sesión de checkout con PayU."""
     cart = Cart.query.filter_by(user_id=current_user.idUser).first()
     items = cart.items if cart else []
     if not items:
@@ -110,9 +127,18 @@ def create_checkout_session():
         return jsonify({'error': 'Configuración de PayU incompleta'}), 500
 
     # URLs de PayU
-    base_url = 'https://sandbox.checkout.payulatam.com' if test_mode else 'https://checkout.payulatam.com'
-    response_url = request.host_url.rstrip('/') + url_for('cart_api.checkout_success')
-    confirmation_url = request.host_url.rstrip('/') + url_for('webhook.payu_webhook')
+    base_url = (
+        'https://sandbox.checkout.payulatam.com' if test_mode
+        else 'https://checkout.payulatam.com'
+    )
+    response_url = (
+        request.host_url.rstrip('/') +
+        url_for('cart_api.checkout_success')
+    )
+    confirmation_url = (
+        request.host_url.rstrip('/') +
+        url_for('webhook.payu_webhook')
+    )
 
     # Generar referencia única
     reference_code = f"ORDER_{order.id}_{uuid.uuid4().hex[:8]}"
@@ -150,16 +176,18 @@ def create_checkout_session():
         else:
             current_app.logger.error(f'PayU error: {response.status_code} - {response.text}')
             return jsonify({'error': 'Error al procesar pago'}), 500
-    except Exception as e:
+    except requests.RequestException as e:
         current_app.logger.error(f'PayU request failed: {e}')
         return jsonify({'error': 'Error de conexión con PayU'}), 500
 
 @cart_api_bp.route('/success')
 def checkout_success():
+    """Página de éxito del checkout."""
     return 'Pago recibido, regresando...'
 
 @cart_api_bp.route('/cancel')
 def checkout_cancel():
+    """Página de cancelación del checkout."""
     return 'Pago cancelado'
 
 # Webhook PayU
@@ -167,6 +195,7 @@ webhook_bp = Blueprint('webhook', __name__, url_prefix='/webhook')
 
 @webhook_bp.route('/payu', methods=['POST'])
 def payu_webhook():
+    """Webhook para procesar notificaciones de PayU."""
     # PayU envía datos por POST sin firma especial
     data = request.form
 
@@ -209,7 +238,12 @@ def payu_webhook():
         cart = Cart.query.filter_by(user_id=order.user_id).first()
         if cart:
             for item in cart.items:
-                detail = OrderDetail(order_id=order.id, product_id=item.product_id, quantity=item.quantity, price=item.price_snapshot)
+                detail = OrderDetail(
+                    order_id=order.id,
+                    product_id=item.product_id,
+                    quantity=item.quantity,
+                    price=item.price_snapshot
+                )
                 db.session.add(detail)
                 product = Product.query.get(item.product_id)
                 if product:

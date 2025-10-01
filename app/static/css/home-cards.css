@@ -653,10 +653,6 @@
   transition: all 0.3s ease;
 }
 
-.carousel-card[data-sound="hover"]:hover {
-  /* Aquí se podría agregar funcionalidad de sonido */
-}
-
 /* Información adicional del carrusel */
 .carousel-info {
   text-align: center;
@@ -762,6 +758,7 @@
 
 .carousel-3d-wrapper {
   -webkit-animation: carouselRotate var(--carousel-duration) var(--carousel-timing) infinite;
+  animation: carouselRotate var(--carousel-duration) var(--carousel-timing) infinite;
 }
 
 /* Prefers reduced motion para animaciones */
