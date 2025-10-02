@@ -45,7 +45,7 @@ def add_item():
     qty = int(data.get('quantity', 1))
     product = Product.query.get_or_404(product_id)
     if product.stock < qty:
-        return jsonify({'error': 'Sin stock suficiente'}), 400
+        return jsonify({'success': False, 'message': 'Sin stock suficiente'}), 400
     cart = Cart.query.filter_by(user_id=current_user.idUser).first()
     if not cart:
         cart = Cart(user_id=current_user.idUser)
@@ -63,7 +63,7 @@ def add_item():
         )
         db.session.add(item)
     db.session.commit()
-    return jsonify({'ok': True})
+    return jsonify({'success': True, 'message': 'Producto eliminado del carrito.'})
 
 @cart_api_bp.route('/update', methods=['POST'])
 @login_required
@@ -74,18 +74,18 @@ def update_item():
     qty = int(data['quantity'])
     item = CartItem.query.filter_by(id=item_id).first_or_404()
     if item.cart.user_id != current_user.idUser:
-        return jsonify({'error': 'Acceso denegado'}), 403
+        return jsonify({'success': False, 'message': 'Acceso denegado'}), 403
     if qty <= 0:
         db.session.delete(item)
     else:
         if item.product.stock < qty:
-            return jsonify({'error': 'Sin stock suficiente'}), 400
+            return jsonify({'success': False, 'message': 'Sin stock suficiente'}), 400
         item.quantity = qty
         # Si el precio cambió, actualiza el snapshot
         if item.price_snapshot != item.product.price:
             item.price_snapshot = item.product.price
     db.session.commit()
-    return jsonify({'ok': True})
+    return jsonify({'success': True, 'message': 'Producto actualizado en el carrito.'})
 
 @cart_api_bp.route('/remove', methods=['POST'])
 @login_required
@@ -95,10 +95,10 @@ def remove_item():
     item_id = data['id']
     item = CartItem.query.filter_by(id=item_id).first_or_404()
     if item.cart.user_id != current_user.idUser:
-        return jsonify({'error': 'Acceso denegado'}), 403
+        return jsonify({'success': False, 'message': 'Acceso denegado'}), 403
     db.session.delete(item)
     db.session.commit()
-    return jsonify({'ok': True})
+    return jsonify({'success': True, 'message': 'Producto agregado al carrito.'})
 
 @cart_api_bp.route('/create-checkout-session', methods=['POST'])
 @login_required

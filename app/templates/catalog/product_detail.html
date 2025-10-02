@@ -630,23 +630,49 @@ document.addEventListener('DOMContentLoaded', function() {
   const submitBtn = form.querySelector('.btn-primary');
   const notification = document.getElementById('notification');
 
-  form.addEventListener('submit', function(e) {
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault(); // Prevenir envío normal del formulario
+
     const originalText = submitBtn.innerHTML;
+    const formData = new FormData(form);
 
     // Mostrar estado de carga
-    submitBtn.innerHTML = '<div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Procesando...';
+    submitBtn.innerHTML = '<div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div> Agregando...';
     submitBtn.disabled = true;
     submitBtn.classList.add('success-animation');
 
-    // Simular procesamiento (en producción esto sería automático)
-    setTimeout(() => {
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Mostrar notificación de éxito
+        showNotification(data.message || 'Producto agregado al carrito exitosamente', 'success');
+
+        // Actualizar contador del carrito si existe
+        if (window.updateCartCount) {
+          window.updateCartCount();
+        }
+      } else {
+        // Mostrar error
+        showNotification(data.message || 'Error al agregar al carrito', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showNotification('Error al agregar al carrito', 'error');
+    } finally {
+      // Restaurar botón
       submitBtn.innerHTML = originalText;
       submitBtn.disabled = false;
       submitBtn.classList.remove('success-animation');
-
-      // Mostrar notificación con animación
-      showNotification('Producto agregado al carrito exitosamente', 'success');
-    }, 1500);
+    }
   });
 
   function showNotification(message, type) {

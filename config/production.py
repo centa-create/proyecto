@@ -28,11 +28,11 @@ class ProductionConfig(Config):
 
     # Rate limiting más restrictivo en producción
     RATELIMIT_DEFAULT = "10 per minute"
-    RATELIMIT_STORAGE_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    RATELIMIT_STORAGE_URL = "memory://"
 
-    # Caché Redis para producción
-    CACHE_TYPE = "RedisCache"
-    CACHE_REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/1")
+    # Caché filesystem para producción (sin Redis)
+    CACHE_TYPE = "FileSystemCache"
+    CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "instance", "cache")
 
     # Configuración de Stripe para producción (claves reales)
     STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
@@ -46,9 +46,9 @@ class ProductionConfig(Config):
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER")
 
-    # Sesión segura para producción
-    SESSION_TYPE = "redis"
-    SESSION_REDIS = os.getenv("REDIS_URL", "redis://localhost:6379/2")
+    # Sesión segura para producción (filesystem para simplicidad sin Redis)
+    SESSION_TYPE = "filesystem"
+    SESSION_FILE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "instance", "sessions")
 
     # Configuración de seguridad adicional
     SECRET_KEY = os.getenv("SECRET_KEY")

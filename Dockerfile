@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Crear directorios necesarios
-RUN mkdir -p logs instance
+RUN mkdir -p logs instance instance/sessions instance/cache
 
 # Configurar permisos
 RUN chmod +x run.py

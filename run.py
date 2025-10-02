@@ -6,8 +6,10 @@ Script principal para ejecutar la aplicación Flask.
 import os
 from app import create_app, db
 
-# Asegurar que el directorio instance existe
+# Asegurar que los directorios necesarios existen
 os.makedirs('instance', exist_ok=True)
+os.makedirs('instance/sessions', exist_ok=True)
+os.makedirs('instance/cache', exist_ok=True)
 
 app = create_app()
 

@@ -84,7 +84,14 @@ def add_to_cart(product_id):
         )
         db.session.add(item)
     db.session.commit()
-    return jsonify({'success': True, 'message': 'Producto agregado al carrito.'})
+
+    # Si es petición AJAX, devolver JSON
+    if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'success': True, 'message': 'Producto agregado al carrito.'})
+
+    # Si no, redirigir a la página del producto o al carrito
+    flash('Producto agregado al carrito.', 'success')
+    return redirect(url_for('catalog.product_detail', product_id=product_id))
 
 @cart_bp.route('/remove/<int:item_id>', methods=['POST'])
 @login_required
