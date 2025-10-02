@@ -20,11 +20,15 @@ services:
     ports:
       - "${PORT:-8095}:${PORT:-8095}"
     volumes:
-      - ./logs:/app/logs
-      - ./instance:/app/instance
+      - logs:/app/logs
+      - instance:/app/instance
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${PORT:-8095}/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+
+volumes:
+  logs:
+  instance:
