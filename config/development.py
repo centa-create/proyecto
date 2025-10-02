@@ -28,5 +28,5 @@ class DevelopmentConfig(Config):
     RATELIMIT_DEFAULT = "100 per minute"
 
     # Configuración de Stripe para pruebas (usa claves de prueba)
-    STRIPE_PUBLISHABLE_KEY = "pk_test_..."
-    STRIPE_SECRET_KEY = "sk_test_..." ""
+    STRIPE_PUBLISHABLE_KEY = "pk_test_..."  # nosec
+    STRIPE_SECRET_KEY = "sk_test_..."  # nosec

@@ -33,8 +33,8 @@ class TestingConfig(Config):
     SESSION_FILE_DIR = None
 
     # Claves de prueba para Stripe
-    STRIPE_PUBLISHABLE_KEY = "pk_test_testing_key"
-    STRIPE_SECRET_KEY = "sk_test_testing_key"
+    STRIPE_PUBLISHABLE_KEY = "pk_test_testing_key"  # nosec
+    STRIPE_SECRET_KEY = "sk_test_testing_key"  # nosec
 
     # Configuración de correo deshabilitada en tests
     MAIL_SUPPRESS_SEND = True
@@ -43,17 +43,5 @@ class TestingConfig(Config):
     WTF_CSRF_ENABLED = False
 
     # Secret keys fijas para tests
-    SECRET_KEY = "test_secret_key_for_testing_only"
-    WTF_CSRF_SECRET_KEY = "test_csrf_secret_key_for_testing_only"
-    # Secret keys fijas para tests
-    SECRET_KEY = "test_secret_key_for_testing_only"
-    WTF_CSRF_SECRET_KEY = "test_csrf_secret_key_for_testing_only"
-    # Secret keys fijas para tests
-    SECRET_KEY = "test_secret_key_for_testing_only"
-    WTF_CSRF_SECRET_KEY = "test_csrf_secret_key_for_testing_only"
-    # Secret keys fijas para tests
-    SECRET_KEY = "test_secret_key_for_testing_only"
-    WTF_CSRF_SECRET_KEY = "test_csrf_secret_key_for_testing_only" ""
-
-
-""
+    SECRET_KEY = "test_secret_key_for_testing_only"  # nosec
+    WTF_CSRF_SECRET_KEY = "test_csrf_secret_key_for_testing_only"  # nosec
