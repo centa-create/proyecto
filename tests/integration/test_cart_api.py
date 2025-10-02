@@ -3,6 +3,7 @@ Tests de integración para las APIs del carrito de compras.
 """
 
 import json
+from datetime import date
 
 import pytest
 
@@ -40,7 +41,7 @@ class TestCartAPI:
             nameUser='Test User',
             email='test@example.com',
             password_user='hashed_password',
-            birthdate='1990-01-01'
+            birthdate=date(1990, 1, 1)
         )
         user.is_active_db = True
         db.session.add(user)

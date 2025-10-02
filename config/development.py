@@ -12,18 +12,21 @@ class DevelopmentConfig(Config):
     """
 
     DEBUG = True
-    FLASK_ENV = 'development'
+    FLASK_ENV = "development"
 
     # Base de datos de desarrollo (SQLite)
     import os
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(os.path.dirname(os.path.dirname(__file__)), 'instance', 'dev.db')
+
+    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "instance", "dev.db"
+    )
 
     # Logging más verboso en desarrollo
-    LOG_LEVEL = 'DEBUG'
+    LOG_LEVEL = "DEBUG"
 
     # Rate limiting menos restrictivo en desarrollo
-    RATELIMIT_DEFAULT = '100 per minute'
+    RATELIMIT_DEFAULT = "100 per minute"
 
     # Configuración de Stripe para pruebas (usa claves de prueba)
-    STRIPE_PUBLISHABLE_KEY = 'pk_test_...'
-    STRIPE_SECRET_KEY = 'sk_test_...'"" 
+    STRIPE_PUBLISHABLE_KEY = "pk_test_..."
+    STRIPE_SECRET_KEY = "sk_test_..." ""

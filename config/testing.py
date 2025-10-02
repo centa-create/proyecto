@@ -13,28 +13,28 @@ class TestingConfig(Config):
 
     TESTING = True
     DEBUG = True
-    FLASK_ENV = 'testing'
+    FLASK_ENV = "testing"
 
     # Base de datos SQLite en memoria para tests
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Logging mínimo durante tests
-    LOG_LEVEL = 'CRITICAL'
+    LOG_LEVEL = "CRITICAL"
 
     # Rate limiting deshabilitado en tests
     RATELIMIT_DEFAULT = None
 
     # Caché en memoria para tests
-    CACHE_TYPE = 'SimpleCache'
+    CACHE_TYPE = "SimpleCache"
 
     # Sesión en memoria para tests
-    SESSION_TYPE = 'filesystem'
+    SESSION_TYPE = "filesystem"
     SESSION_FILE_DIR = None
 
     # Claves de prueba para Stripe
-    STRIPE_PUBLISHABLE_KEY = 'pk_test_testing_key'
-    STRIPE_SECRET_KEY = 'sk_test_testing_key'
+    STRIPE_PUBLISHABLE_KEY = "pk_test_testing_key"
+    STRIPE_SECRET_KEY = "sk_test_testing_key"
 
     # Configuración de correo deshabilitada en tests
     MAIL_SUPPRESS_SEND = True
@@ -43,15 +43,17 @@ class TestingConfig(Config):
     WTF_CSRF_ENABLED = False
 
     # Secret keys fijas para tests
-    SECRET_KEY = 'test_secret_key_for_testing_only'
-    WTF_CSRF_SECRET_KEY = 'test_csrf_secret_key_for_testing_only'
+    SECRET_KEY = "test_secret_key_for_testing_only"
+    WTF_CSRF_SECRET_KEY = "test_csrf_secret_key_for_testing_only"
     # Secret keys fijas para tests
-    SECRET_KEY = 'test_secret_key_for_testing_only'
-    WTF_CSRF_SECRET_KEY = 'test_csrf_secret_key_for_testing_only'
+    SECRET_KEY = "test_secret_key_for_testing_only"
+    WTF_CSRF_SECRET_KEY = "test_csrf_secret_key_for_testing_only"
     # Secret keys fijas para tests
-    SECRET_KEY = 'test_secret_key_for_testing_only'
-    WTF_CSRF_SECRET_KEY = 'test_csrf_secret_key_for_testing_only'
+    SECRET_KEY = "test_secret_key_for_testing_only"
+    WTF_CSRF_SECRET_KEY = "test_csrf_secret_key_for_testing_only"
     # Secret keys fijas para tests
-    SECRET_KEY = 'test_secret_key_for_testing_only'
-    WTF_CSRF_SECRET_KEY = 'test_csrf_secret_key_for_testing_only'""  
-""  
+    SECRET_KEY = "test_secret_key_for_testing_only"
+    WTF_CSRF_SECRET_KEY = "test_csrf_secret_key_for_testing_only" ""
+
+
+""
