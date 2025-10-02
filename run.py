@@ -20,11 +20,12 @@ with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    # Configuración para Coolify y otros entornos de producción
-    port = int(os.environ.get('PORT', 8095))
-    debug_mode = os.environ.get('FLASK_ENV') != 'production'
+    # Solo ejecutar el servidor de desarrollo si no estamos en producción
+    if os.environ.get('FLASK_ENV') != 'production':
+        # Configuración para desarrollo local
+        port = int(os.environ.get('PORT', 8095))
+        debug_mode = True
 
-    if debug_mode:
         print(f"\n{'='*50}")
         print("SAMMS.FO - Servidor Iniciado")
         print(f"{'='*50}")
@@ -34,9 +35,9 @@ if __name__ == '__main__':
         print(f"Puerto: {port}")
         print(f"{'='*50}\n")
 
-    app.run(
-        debug=debug_mode,
-        host='0.0.0.0',
-        port=port,
-        threaded=True
-    )
+        app.run(
+            debug=debug_mode,
+            host='0.0.0.0',
+            port=port,
+            threaded=True
+        )
