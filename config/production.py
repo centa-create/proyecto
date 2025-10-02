@@ -16,9 +16,9 @@ class ProductionConfig(Config):
     FLASK_ENV = 'production'
     TESTING = False
 
-    # Base de datos PostgreSQL/MySQL para producción
+    # Base de datos SQLite para producción (más simple y sin dependencias externas)
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL') or \
-        'postgresql://user:password@localhost:5432/prod_db'
+        'sqlite:///' + os.path.join(os.path.dirname(os.path.dirname(__file__)), 'instance', 'prod.db')
 
     # Logging estructurado para producción
     LOG_LEVEL = 'WARNING'

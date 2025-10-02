@@ -14,8 +14,9 @@ class DevelopmentConfig(Config):
     DEBUG = True
     FLASK_ENV = 'development'
 
-    # Base de datos de desarrollo (PostgreSQL)
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:2006@localhost:5432/proyect'
+    # Base de datos de desarrollo (SQLite)
+    import os
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(os.path.dirname(os.path.dirname(__file__)), 'instance', 'dev.db')
 
     # Logging más verboso en desarrollo
     LOG_LEVEL = 'DEBUG'

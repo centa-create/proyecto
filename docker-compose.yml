@@ -19,6 +19,7 @@ services:
       - "${PORT:-8095}:${PORT:-8095}"
     volumes:
       - ./logs:/app/logs
+      - ./instance:/app/instance
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${PORT:-8095}/health"]

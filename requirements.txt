@@ -29,7 +29,7 @@ safety
 
 # Production dependencies
 gunicorn
-psycopg2-binary
+# psycopg2-binary  # Comentado porque ahora usamos SQLite
 psutil
 # Requisitos para registro y login seguro
 Flask-WTF
