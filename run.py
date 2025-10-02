@@ -17,7 +17,12 @@ print("Permisos de escritura en instance:", os.access("instance", os.W_OK))
 print("Contenido de instance:", os.listdir("instance"))
 
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+        print("Base de datos inicializada correctamente.")
+    except Exception as e:
+        print(f"Error al crear tablas (posiblemente ya existen): {e}")
+        # No fallar si las tablas ya existen
 
 if __name__ == '__main__':
     # Solo ejecutar el servidor de desarrollo si no estamos en producción
