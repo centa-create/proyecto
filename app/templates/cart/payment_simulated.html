@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% block title %}Pago Simulado | Tienda Virtual{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/payment-simulated.css') }}?v={{ config.get('VERSION', '1.0') }}">
+<script src="{{ url_for('static', filename='js/payment-simulated.js') }}?v={{ config.get('VERSION', '1.0') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg border-0 payment-card" style="background: rgba(24,24,24,0.95); border-radius: 2rem; border: 2px solid #fff; backdrop-filter: blur(20px);">
+                <div class="card-header text-center py-4 position-relative overflow-hidden" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 2rem 2rem 0 0; border-bottom: 2px solid #fff;">
+                    <div class="header-bg-animation"></div>
+                    <h2 class="mb-0 position-relative z-index-2">
+                        <i class="fas fa-credit-card me-2"></i>
+                        Pasarela de Pago Simulada
+                    </h2>
+                    <p class="mb-0 mt-2 opacity-75 position-relative z-index-2">SAMMS.FO - Modo Demo</p>
+                    <div class="security-badges position-absolute top-0 end-0 p-3">
+                        <i class="fas fa-shield-alt text-warning me-2" title="Pago Seguro"></i>
+                        <i class="fas fa-lock text-success" title="Encriptado SSL"></i>
+                    </div>
+                </div>
+
+                <div class="card-body p-5">
+                    <!-- Información del pedido -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="text-white mb-3">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Detalles del Pedido
+                            </h5>
+                            <div class="bg-white bg-opacity-10 p-3 rounded">
+                                <p class="mb-1"><strong>Orden #:</strong> {{ order.id }}</p>
+                                <p class="mb-1"><strong>Cliente:</strong> {{ current_user.nameUser }}</p>
+                                <p class="mb-0"><strong>Email:</strong> {{ current_user.email }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-white mb-3">
+                                <i class="fas fa-dollar-sign me-2"></i>
+                                Resumen de Pago
+                            </h5>
+                            <div class="bg-white bg-opacity-10 p-3 rounded">
+                                <p class="mb-1"><strong>Total a pagar:</strong></p>
+                                <h3 class="text-success mb-0">${{ order.total | int }} COP</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulario de pago simulado -->
+                    <form method="post" id="payment-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="row">
+                            <div class="col-md-8 mx-auto">
+                                <h5 class="text-white mb-4 text-center">
+                                    <i class="fas fa-lock me-2"></i>
+                                    Información de Pago (Simulada)
+                                </h5>
+
+                                <!-- Método de pago -->
+                                <div class="mb-4">
+                                    <label class="form-label text-white fw-bold">Método de Pago</label>
+                                    <div class="row g-3">
+                                        <div class="col-md-3 mb-2">
+                                            <input type="radio" name="payment_method" value="card" id="method_card" class="d-none" checked>
+                                            <label for="method_card" class="payment-method-card text-center p-3 border rounded w-100 h-100 d-block" style="background: rgba(255,255,255,0.1); border-color: #007bff !important; cursor: pointer;" data-method="card">
+                                                <i class="fas fa-credit-card fa-2x text-primary mb-2"></i>
+                                                <div class="text-white small fw-bold">Tarjeta Crédito/Débito</div>
+                                                <div class="text-muted small">Visa, MasterCard, Amex</div>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <input type="radio" name="payment_method" value="nequi" id="method_nequi" class="d-none">
+                                            <label for="method_nequi" class="payment-method-card text-center p-3 border rounded w-100 h-100 d-block" style="background: rgba(255,255,255,0.1); cursor: pointer;" data-method="nequi">
+                                                <i class="fas fa-mobile-alt fa-2x text-success mb-2"></i>
+                                                <div class="text-white small fw-bold">Nequi</div>
+                                                <div class="text-muted small">Pago móvil</div>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <input type="radio" name="payment_method" value="pse" id="method_pse" class="d-none">
+                                            <label for="method_pse" class="payment-method-card text-center p-3 border rounded w-100 h-100 d-block" style="background: rgba(255,255,255,0.1); cursor: pointer;" data-method="pse">
+                                                <i class="fas fa-university fa-2x text-info mb-2"></i>
+                                                <div class="text-white small fw-bold">PSE</div>
+                                                <div class="text-muted small">Transferencia bancaria</div>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <input type="radio" name="payment_method" value="bancolombia" id="method_bancolombia" class="d-none">
+                                            <label for="method_bancolombia" class="payment-method-card text-center p-3 border rounded w-100 h-100 d-block" style="background: rgba(255,255,255,0.1); cursor: pointer;" data-method="bancolombia">
+                                                <i class="fas fa-piggy-bank fa-2x text-warning mb-2"></i>
+                                                <div class="text-white small fw-bold">Bancolombia</div>
+                                                <div class="text-muted small">Botón de pagos</div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Campos dinámicos según método -->
+                                <div class="payment-details-container">
+                                    <!-- Campos de tarjeta -->
+                                    <div class="payment-details card-details active" id="card-details">
+                                        <div class="mb-3">
+                                            <label for="card_number" class="form-label text-white fw-bold">
+                                                <i class="fas fa-credit-card me-2"></i>Número de Tarjeta
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="card_number" placeholder="4111 1111 1111 1111" maxlength="19" style="background: rgba(255,255,255,0.1); border: 1px solid #fff; color: white;">
+                                                <span class="input-group-text" style="background: rgba(255,255,255,0.1); border: 1px solid #fff;">
+                                                    <i class="fab fa-cc-visa text-primary" id="card-icon"></i>
+                                                </span>
+                                            </div>
+                                            <div class="form-text text-muted">Usa cualquier número de 16 dígitos</div>
+                                            <div class="invalid-feedback">Número de tarjeta inválido</div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="expiry" class="form-label text-white fw-bold">
+                                                    <i class="fas fa-calendar me-2"></i>Fecha de Expiración
+                                                </label>
+                                                <input type="text" class="form-control" id="expiry" placeholder="MM/YY" maxlength="5" style="background: rgba(255,255,255,0.1); border: 1px solid #fff; color: white;">
+                                                <div class="invalid-feedback">Fecha inválida</div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="cvv" class="form-label text-white fw-bold">
+                                                    <i class="fas fa-lock me-2"></i>CVV
+                                                </label>
+                                                <input type="text" class="form-control" id="cvv" placeholder="123" maxlength="4" style="background: rgba(255,255,255,0.1); border: 1px solid #fff; color: white;">
+                                                <div class="invalid-feedback">CVV inválido</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="card_name" class="form-label text-white fw-bold">
+                                                <i class="fas fa-user me-2"></i>Nombre en la Tarjeta
+                                            </label>
+                                            <input type="text" class="form-control" id="card_name" placeholder="JUAN PEREZ" style="background: rgba(255,255,255,0.1); border: 1px solid #fff; color: white;">
+                                            <div class="invalid-feedback">Nombre requerido</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Campos Nequi -->
+                                    <div class="payment-details nequi-details" id="nequi-details">
+                                        <div class="text-center mb-4">
+                                            <i class="fas fa-mobile-alt fa-3x text-success mb-3"></i>
+                                            <h5 class="text-white">Pago con Nequi</h5>
+                                            <p class="text-muted">Recibirás instrucciones por SMS</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="nequi_phone" class="form-label text-white fw-bold">
+                                                <i class="fas fa-phone me-2"></i>Número de Celular
+                                            </label>
+                                            <input type="tel" class="form-control" id="nequi_phone" placeholder="300 123 4567" style="background: rgba(255,255,255,0.1); border: 1px solid #fff; color: white;">
+                                            <div class="form-text text-muted">Número registrado en Nequi</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Campos PSE -->
+                                    <div class="payment-details pse-details" id="pse-details">
+                                        <div class="text-center mb-4">
+                                            <i class="fas fa-university fa-3x text-info mb-3"></i>
+                                            <h5 class="text-white">Transferencia Bancaria PSE</h5>
+                                            <p class="text-muted">Selecciona tu banco</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="pse_bank" class="form-label text-white fw-bold">
+                                                <i class="fas fa-building me-2"></i>Banco
+                                            </label>
+                                            <select class="form-select" id="pse_bank" style="background: rgba(255,255,255,0.1); border: 1px solid #fff; color: white;">
+                                                <option value="">Selecciona tu banco</option>
+                                                <option value="bancolombia">Bancolombia</option>
+                                                <option value="davivienda">Davivienda</option>
+                                                <option value="bogota">Banco de Bogotá</option>
+                                                <option value="popular">Banco Popular</option>
+                                                <option value="bbva">BBVA</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="pse_person_type" class="form-label text-white fw-bold">
+                                                <i class="fas fa-user-tag me-2"></i>Tipo de Persona
+                                            </label>
+                                            <select class="form-select" id="pse_person_type" style="background: rgba(255,255,255,0.1); border: 1px solid #fff; color: white;">
+                                                <option value="natural">Persona Natural</option>
+                                                <option value="juridica">Persona Jurídica</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Campos Bancolombia -->
+                                    <div class="payment-details bancolombia-details" id="bancolombia-details">
+                                        <div class="text-center mb-4">
+                                            <i class="fas fa-piggy-bank fa-3x text-warning mb-3"></i>
+                                            <h5 class="text-white">Botón Bancolombia</h5>
+                                            <p class="text-muted">Pago seguro con tu cuenta Bancolombia</p>
+                                        </div>
+                                        <div class="alert alert-warning" style="background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3); color: #fff;">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Serás redirigido al portal seguro de Bancolombia
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Opciones de simulación -->
+                                <div class="mb-4">
+                                    <label class="form-label text-white fw-bold">
+                                        <i class="fas fa-cogs me-2"></i>Opciones de Simulación
+                                    </label>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="simulate_error" checked>
+                                                <label class="form-check-label text-white" for="simulate_error">
+                                                    <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                                    Simular error aleatorio (10% de probabilidad)
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="fast_processing" checked>
+                                                <label class="form-check-label text-white" for="fast_processing">
+                                                    <i class="fas fa-rocket text-success me-1"></i>
+                                                    Procesamiento rápido
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Botón de pago -->
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="btn btn-success btn-lg px-5 py-3 position-relative overflow-hidden" id="pay-button" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; border-radius: 2rem; font-weight: bold; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3); transition: all 0.3s ease;">
+                                        <span class="button-content">
+                                            <i class="fas fa-lock me-2"></i>
+                                            Procesar Pago Simulado
+                                        </span>
+                                        <div class="button-loader d-none">
+                                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                            Procesando...
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <!-- Estados de procesamiento -->
+                                <div class="processing-states mt-4">
+                                    <!-- Estado inicial -->
+                                    <div class="processing-state active" id="state-initial">
+                                        <div class="text-center">
+                                            <i class="fas fa-credit-card fa-2x text-primary mb-2"></i>
+                                            <p class="text-white mb-0">Listo para procesar el pago</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Estado validando -->
+                                    <div class="processing-state" id="state-validating">
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary mb-2" role="status"></div>
+                                            <p class="text-white mb-0">Validando información...</p>
+                                            <div class="progress mt-2" style="height: 4px;">
+                                                <div class="progress-bar bg-primary" style="width: 25%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Estado procesando -->
+                                    <div class="processing-state" id="state-processing">
+                                        <div class="text-center">
+                                            <i class="fas fa-cog fa-spin fa-2x text-info mb-2"></i>
+                                            <p class="text-white mb-0">Procesando pago con el banco...</p>
+                                            <div class="progress mt-2" style="height: 4px;">
+                                                <div class="progress-bar bg-info" style="width: 50%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Estado confirmando -->
+                                    <div class="processing-state" id="state-confirming">
+                                        <div class="text-center">
+                                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                            <p class="text-white mb-0">Confirmando transacción...</p>
+                                            <div class="progress mt-2" style="height: 4px;">
+                                                <div class="progress-bar bg-success" style="width: 75%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Estado completado -->
+                                    <div class="processing-state" id="state-completed">
+                                        <div class="text-center">
+                                            <i class="fas fa-check-double fa-2x text-success mb-2"></i>
+                                            <p class="text-white mb-0">¡Pago completado exitosamente!</p>
+                                            <div class="progress mt-2" style="height: 4px;">
+                                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Estado error -->
+                                    <div class="processing-state" id="state-error">
+                                        <div class="text-center">
+                                            <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                                            <p class="text-white mb-0" id="error-message">Error en el procesamiento</p>
+                                            <button class="btn btn-outline-light btn-sm mt-2" onclick="retryPayment()">
+                                                <i class="fas fa-redo me-1"></i>Reintentar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Información de seguridad -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="alert alert-info" style="background: rgba(23, 162, 184, 0.1); border: 1px solid rgba(23, 162, 184, 0.3); color: #fff;">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                <strong>Modo Demo:</strong> Esta es una simulación de pago. No se procesan transacciones reales.
+                                Los datos que ingreses no se almacenan ni se envían a ningún servicio externo.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

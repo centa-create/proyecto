@@ -54,10 +54,3 @@ class ProductionConfig(Config):
 
     if not SECRET_KEY:
         raise ValueError("SECRET_KEY es requerida en producción")
-    if not SECRET_KEY:
-        raise ValueError("SECRET_KEY es requerida en producción")
-    if not SECRET_KEY:
-        raise ValueError("SECRET_KEY es requerida en producción")
-    if not SECRET_KEY:
-        raise ValueError("SECRET_KEY es requerida en producción")""  
-""  

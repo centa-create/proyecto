@@ -39,7 +39,7 @@ class Config:
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
 
-    # PayU (pagos)
+    # PayU (pagos) - Reemplaza completamente a Stripe
     PAYU_API_KEY = os.getenv('PAYU_API_KEY')
     PAYU_API_LOGIN = os.getenv('PAYU_API_LOGIN')
     PAYU_MERCHANT_ID = os.getenv('PAYU_MERCHANT_ID')

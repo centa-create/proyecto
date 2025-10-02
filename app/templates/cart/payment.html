@@ -5,8 +5,13 @@
 <form method="post">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div style="margin-bottom:10px;">
-    <input type="radio" id="payu" name="metodo_pago" value="payu" required>
-    <label for="payu"><span style="color:#2ecc40;font-weight:bold;">Pago seguro (PayU)</span></label>
+    <input type="radio" id="simulada" name="metodo_pago" value="simulada" required checked>
+    <label for="simulada"><span style="color:#2ecc40;font-weight:bold;">Pasarela Simulada (Demo)</span></label>
+    <br><small style="color:#888;">Pago simulado para pruebas - No requiere configuración real.</small>
+  </div>
+  <div style="margin-bottom:10px;">
+    <input type="radio" id="payu" name="metodo_pago" value="payu">
+    <label for="payu"><span style="color:#0074D9;font-weight:bold;">Pago seguro (PayU)</span></label>
     <br><small style="color:#888;">Pago seguro con PayU - Acepta tarjetas, PSE, Nequi y más métodos colombianos.</small>
   </div>
   <div style="margin-bottom:10px;">

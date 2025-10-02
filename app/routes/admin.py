@@ -907,7 +907,10 @@ def edit_category(category_id):
 @admin_required
 def delete_category(category_id):
     """Elimina una categoría."""
-    log_admin_action(current_user.idUser, 'eliminar', 'categoria', category_id, 'Eliminada por admin')
+    log_admin_action(
+        current_user.idUser, 'eliminar', 'categoria',
+        category_id, 'Eliminada por admin'
+    )
     if request.form.get('confirm_delete') != 'yes':
         flash('Confirmación requerida.', 'danger')
         return redirect(url_for('admin.categories'))

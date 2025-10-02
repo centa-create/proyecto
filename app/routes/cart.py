@@ -8,7 +8,10 @@ import hashlib
 import uuid
 
 import requests
-from flask import Blueprint, jsonify, render_template, redirect, url_for, request, flash, current_app
+from flask import (
+    Blueprint, jsonify, render_template, redirect, url_for,
+    request, flash, current_app
+)
 from flask_login import login_required, current_user
 from app import db
 from app.models.cart import Cart, CartItem
@@ -155,7 +158,13 @@ def payment():
 
     if request.method == 'POST':
         metodo = request.form.get('metodo_pago')
-        if metodo == 'payu':
+        if metodo == 'simulada':
+            # Crear orden primero
+            order = Order(user_id=current_user.idUser, total=total, status='pendiente')
+            db.session.add(order)
+            db.session.commit()
+            return redirect(url_for('cart.payment_simulated', order_id=order.id))
+        elif metodo == 'payu':
             try:
                 # Crear orden primero
                 order = Order(user_id=current_user.idUser, total=total, status='pendiente')
@@ -227,3 +236,44 @@ def payment():
             flash('Selecciona un método de pago.', 'danger')
 
     return render_template('cart/payment.html', total=total)
+
+@cart_bp.route('/payment/simulated/<int:order_id>', methods=['GET', 'POST'])
+@login_required
+def payment_simulated(order_id):
+    """Maneja el pago simulado para pruebas."""
+    order = Order.query.get_or_404(order_id)
+    if order.user_id != current_user.idUser:
+        flash('Acceso denegado.', 'danger')
+        return redirect(url_for('cart.view_cart'))
+
+    if request.method == 'POST':
+        # Simular procesamiento de pago
+        import time
+        time.sleep(2)  # Simular delay de procesamiento
+
+        # Marcar orden como pagada
+        order.status = 'pagado'
+        db.session.commit()
+
+        # Procesar carrito
+        cart = Cart.query.filter_by(user_id=current_user.idUser).first()
+        if cart:
+            for item in cart.items:
+                detail = OrderDetail(
+                    order_id=order.id,
+                    product_id=item.product_id,
+                    quantity=item.quantity,
+                    price=item.price_snapshot
+                )
+                db.session.add(detail)
+                product = Product.query.get(item.product_id)
+                if product:
+                    product.stock = max(0, product.stock - item.quantity)
+                db.session.delete(item)
+            db.session.delete(cart)
+            db.session.commit()
+
+        flash('Pago simulado exitoso. ¡Gracias por tu compra!', 'success')
+        return redirect(url_for('orders.detail', order_id=order.id))
+
+    return render_template('cart/payment_simulated.html', order=order)

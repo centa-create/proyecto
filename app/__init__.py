@@ -41,7 +41,16 @@ def create_app():
     def inject_user():
         return dict(current_user=current_user)
 
-    app.config.from_object('config.Config')
+    # Cargar configuración según el entorno
+    env = os.getenv('FLASK_ENV', 'development')
+    if env == 'development':
+        app.config.from_object('config.development.DevelopmentConfig')
+    elif env == 'production':
+        app.config.from_object('config.production.ProductionConfig')
+    elif env == 'testing':
+        app.config.from_object('config.testing.TestingConfig')
+    else:
+        app.config.from_object('config.Config')
 
     # Configurar logging
     setup_logging(app)
