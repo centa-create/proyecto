@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from app.models.users import Users
 from app import db, mail
+from app.extensions import csrf
 from flask_mail import Message
 import secrets
 from datetime import datetime, timedelta
@@ -8,6 +9,7 @@ from datetime import datetime, timedelta
 reset_bp = Blueprint('reset', __name__, url_prefix='/reset')
 
 @reset_bp.route('/password', methods=['GET', 'POST'])
+@csrf.exempt
 def request_reset():
     if request.method == 'POST':
         recovery_method = request.form.get('recovery_method', 'email')
@@ -78,6 +80,7 @@ def request_reset():
     return render_template('reset/request_reset.html')
 
 @reset_bp.route('/password/<token>', methods=['GET', 'POST'])
+@csrf.exempt
 def reset_password(token):
     user = Users.query.filter_by(verification_token=token).first()
     if not user or not user.token_expiry or user.token_expiry < datetime.utcnow():

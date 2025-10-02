@@ -334,7 +334,7 @@
             <span class="stat-label">Pedidos Totales</span>
         </div>
         <div class="stat-item">
-            <span class="stat-number">{{ (orders|sum(attribute='total') * 4000)|int|string|replace(',', '.') }}</span>
+            <span class="stat-number">{{ (orders|sum(attribute='total'))|int|string|replace(',', '.') }}</span>
             <span class="stat-label">Valor Total</span>
         </div>
         <div class="stat-item">
@@ -359,7 +359,7 @@
                 📅 {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}
             </div>
             <div class="order-total">
-                💰 {{ (order.total * 4000)|int|string|replace(',', '.') }} COP
+                💰 {{ (order.total)|int|string|replace(',', '.') }} COP
             </div>
         </div>
 
@@ -369,7 +369,7 @@
                 <img src="{{ detail.product.image_url() }}" alt="{{ detail.product.name }}" class="item-image" loading="lazy">
                 <div class="item-details">
                     <div class="item-name">{{ detail.product.name }}</div>
-                    <div class="item-meta">{{ detail.quantity }} × {{ (detail.price * 4000)|int|string|replace(',', '.') }} COP</div>
+                    <div class="item-meta">{{ detail.quantity }} × {{ (detail.price)|int|string|replace(',', '.') }} COP</div>
                 </div>
             </div>
             {% endfor %}
@@ -385,6 +385,11 @@
         </div>
 
         <div class="order-actions">
+            {% if order.status == 'pendiente' %}
+            <a href="{{ url_for('orders.pay', order_id=order.id) }}" class="btn-view" title="Pagar este pedido" style="background: linear-gradient(90deg, #28a745 0%, #20c997 100%); border-color: #28a745; margin-right: 0.5rem;">
+                💳 Pagar ahora
+            </a>
+            {% endif %}
             <a href="{{ url_for('orders.detail', order_id=order.id) }}" class="btn-view" title="Ver detalles completos del pedido">
                 👁️ Ver detalles
             </a>

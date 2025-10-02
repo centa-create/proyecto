@@ -1,48 +1,587 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-4">
-  <h2>Administrar Productos</h2>
-  <a href="{{ url_for('admin.add_product') }}" class="btn btn-success mb-3">Agregar producto</a>
-  <table class="table table-bordered table-dark table-hover">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Categoría</th>
-        <th>Precio</th>
-        <th>Stock</th>
-        <th>Promoción</th>
-        <th>Descuento</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for product in products %}
-      <tr>
-        <td>{{ product.id }}</td>
-        <td>{{ product.name }}</td>
-        <td>{{ product.category.name }}</td>
-        <td>${{ '%.2f'|format(product.price) }}</td>
-        <td>{{ product.stock }}</td>
-        <td>{{ product.promo or '-' }}</td>
-        <td>
-          {% if product.discount %}
-            <span class="badge badge-glow-white">{{ product.discount }}%</span>
-          {% else %}-{% endif %}
-        </td>
-        <td>
-          <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-primary btn-sm">Editar</a>
-          <form action="{{ url_for('admin.delete_product', product_id=product.id) }}" method="post" style="display:inline;">
-            {{ csrf_token() }}
-            <input type="hidden" name="confirm_delete" value="yes">
-            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este producto?');">Eliminar</button>
-          </form>
-          <a href="{{ url_for('admin.add_promo', product_id=product.id) }}" class="btn btn-warning btn-sm">Promoción</a>
-          <a href="{{ url_for('admin.add_discount', product_id=product.id) }}" class="btn btn-info btn-sm">Descuento</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <!-- Estadísticas Rápidas -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card border-0 shadow-sm" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+        <div class="card-body text-center">
+          <i class="fas fa-box fa-2x mb-2" style="color: #fff200;"></i>
+          <h4 class="mb-0" style="color: #fff200;">{{ products.total }}</h4>
+          <small style="color: #ccc;">Total Productos</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card border-0 shadow-sm" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+        <div class="card-body text-center">
+          <i class="fas fa-exclamation-triangle fa-2x mb-2" style="color: #ff6b6b;"></i>
+          <h4 class="mb-0" style="color: #ff6b6b;">{{ products.items|selectattr('stock')|rejectattr('stock', 'ge', 6)|list|length }}</h4>
+          <small style="color: #ccc;">Stock Bajo (<6)</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card border-0 shadow-sm" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+        <div class="card-body text-center">
+          <i class="fas fa-tags fa-2x mb-2" style="color: #4ecdc4;"></i>
+          <h4 class="mb-0" style="color: #4ecdc4;">{{ products.items|selectattr('promo')|list|length }}</h4>
+          <small style="color: #ccc;">Con Promoción</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card border-0 shadow-sm" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+        <div class="card-body text-center">
+          <i class="fas fa-percent fa-2x mb-2" style="color: #45b7d1;"></i>
+          <h4 class="mb-0" style="color: #45b7d1;">{{ products.items|selectattr('discount')|list|length }}</h4>
+          <small style="color: #ccc;">Con Descuento</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header con búsqueda -->
+  <div class="card mb-4 shadow-sm" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h2 class="mb-0" style="color: #fff;"><i class="fas fa-boxes me-2" style="color: #fff200;"></i>Administrar Productos</h2>
+        </div>
+        <div class="col-md-6 text-end">
+          <a href="{{ url_for('admin.add_product') }}" class="btn btn-success btn-lg" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border: none; color: #000; font-weight: bold;">
+            <i class="fas fa-plus me-2"></i>Agregar Producto
+          </a>
+        </div>
+      </div>
+
+      <!-- Barra de búsqueda y filtros -->
+      <div class="row mt-3 align-items-center">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;"><i class="fas fa-search"></i></span>
+            <input type="text" class="form-control" id="searchInput" placeholder="Buscar productos..." onkeyup="filterProducts()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" id="categoryFilter" onchange="filterProducts()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+            <option value="" style="background: #000; color: #fff;">Todas las categorías</option>
+            {% for category in products.items|map(attribute='category')|unique(attribute='name') %}
+            <option value="{{ category.name }}" style="background: #000; color: #fff;">{{ category.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" id="statusFilter" onchange="filterProducts()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+            <option value="" style="background: #000; color: #fff;">Todos los estados</option>
+            <option value="low-stock" style="background: #000; color: #fff;">Stock bajo (<6)</option>
+            <option value="out-stock" style="background: #000; color: #fff;">Sin stock</option>
+            <option value="promo" style="background: #000; color: #fff;">Con promoción</option>
+            <option value="discount" style="background: #000; color: #fff;">Con descuento</option>
+          </select>
+        </div>
+        <div class="col-md-2 text-end">
+          <small style="color: #ccc;">
+            <i class="fas fa-list me-1"></i>
+            <span id="resultsCount">{{ products.items|length }}</span> productos
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if products.items %}
+  <div class="row" id="productsContainer">
+    {% for product in products.items %}
+    <div class="col-12 col-md-6 col-lg-4 mb-4 product-card"
+         data-name="{{ product.name|lower }}"
+         data-category="{{ product.category.name|lower }}"
+         data-stock="{{ product.stock }}"
+         data-promo="{{ product.promo or '' }}"
+         data-discount="{{ product.discount or 0 }}">
+      <div class="card h-100 shadow-sm border-0 product-card-inner" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+        {% if product.image %}
+        <div style="height: 200px; overflow: hidden; border-radius: 8px 8px 0 0;">
+          <img src="{{ product.image_url() }}"
+               alt="{{ product.name }}"
+               style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px 8px 0 0;"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div style="width: 100%; height: 100%; background: rgba(255,255,255,0.1); border-radius: 8px 8px 0 0; display: none; align-items: center; justify-content: center; position: absolute; top: 0; left: 0;">
+            <i class="fas fa-image fa-3x" style="color: #666; opacity: 0.5;"></i>
+          </div>
+        </div>
+        {% else %}
+        <div style="height: 200px; background: rgba(255,255,255,0.1); border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center;">
+          <i class="fas fa-image fa-3x" style="color: #666; opacity: 0.5;"></i>
+        </div>
+        {% endif %}
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <h5 class="card-title mb-0 text-truncate" title="{{ product.name }}" style="color: #fff;">
+              <i class="fas fa-cube me-2" style="color: #fff200;"></i>{{ product.name }}
+            </h5>
+            <span class="badge" style="background: rgba(255,255,255,0.2); color: #fff;">#{{ product.id }}</span>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <small style="color: #ccc;">Categoría</small>
+              <span class="badge" style="background: rgba(255,255,255,0.3); color: #fff;">{{ product.category.name }}</span>
+            </div>
+            <div class="col-6">
+              <small style="color: #ccc;">Stock</small>
+              <span class="fw-bold" style="color: {% if product.stock > 10 %}#4ecdc4{% elif product.stock > 0 %}#f9ca24{% else %}#ff6b6b{% endif %}">
+                <i class="fas fa-{% if product.stock > 10 %}check-circle{% elif product.stock > 0 %}exclamation-triangle{% else %}times-circle{% endif %} me-1"></i>
+                {{ product.stock }} unidades
+              </span>
+            </div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <small style="color: #ccc;">Precio</small>
+              <span class="fw-bold fs-5" style="color: #4ecdc4;">${{ '%.0f'|format(product.price) }} COP</span>
+            </div>
+            <div class="col-6">
+              {% if product.discount %}
+                <small style="color: #ccc;">Descuento</small>
+                <span class="badge" style="background: #ff6b6b; color: #fff;"><i class="fas fa-arrow-down me-1"></i>{{ product.discount }}%</span>
+              {% else %}
+                <small style="color: #ccc;">Sin descuento</small>
+                <span style="color: #888;">-</span>
+              {% endif %}
+            </div>
+          </div>
+
+          {% if product.promo %}
+          <div class="alert alert-warning py-2 px-3 mb-3" role="alert">
+            <i class="fas fa-star me-1"></i><strong>Promoción:</strong> {{ product.promo }}
+          </div>
+          {% endif %}
+
+          <div class="mt-auto">
+            <div class="btn-group w-100 mb-2" role="group">
+              <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-outline-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar producto">
+                <i class="fas fa-edit"></i>
+              </a>
+              <a href="{{ url_for('admin.add_promo', product_id=product.id) }}" class="btn btn-outline-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar promoción">
+                <i class="fas fa-gift"></i>
+              </a>
+              <a href="{{ url_for('admin.add_discount', product_id=product.id) }}" class="btn btn-outline-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Agregar descuento">
+                <i class="fas fa-percent"></i>
+              </a>
+              <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar producto" onclick="showCustomModal({{ product.id }}, '{{ product.name }}')">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            <form action="{{ url_for('admin.delete_product', product_id=product.id) }}" method="post" id="deleteForm{{ product.id }}" style="display: none;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="confirm_delete" value="yes">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5" style="color: #fff;">
+    <i class="fas fa-box-open fa-4x mb-3" style="color: #666;"></i>
+    <h4 style="color: #ccc;">No hay productos registrados</h4>
+    <p style="color: #888;">Comienza agregando tu primer producto.</p>
+    <a href="{{ url_for('admin.add_product') }}" class="btn" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border: none; color: #000; font-weight: bold;">
+      <i class="fas fa-plus me-2"></i>Agregar Primer Producto
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- Modal Personalizado de Eliminación -->
+  <div id="customDeleteModal" class="custom-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100000; backdrop-filter: blur(5px);">
+    <div class="custom-modal-content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); border: 2px solid rgba(255,255,255,0.3); border-radius: 10px; padding: 0; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.8);">
+      <div class="custom-modal-header" style="background: rgba(255,107,107,0.2); border-bottom: 1px solid rgba(255,107,107,0.5); padding: 15px 20px; border-radius: 8px 8px 0 0;">
+        <h5 style="color: #ff6b6b; margin: 0; font-size: 1.25rem;">
+          <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+        </h5>
+      </div>
+      <div class="custom-modal-body" style="padding: 20px; color: #fff;">
+        <p style="margin-bottom: 1rem; font-size: 1rem;">¿Estás seguro de que deseas eliminar el producto <strong id="customProductName" style="color: #fff200;"></strong>?</p>
+        <div style="background: rgba(255,165,0,0.2); border: 1px solid rgba(255,165,0,0.5); border-radius: 5px; padding: 10px; margin-top: 1rem;">
+          <i class="fas fa-info-circle me-2"></i>
+          Esta acción no se puede deshacer y eliminará permanentemente el producto.
+        </div>
+      </div>
+      <div class="custom-modal-footer" style="border-top: 1px solid rgba(255,255,255,0.1); padding: 15px 20px; border-radius: 0 0 8px 8px; display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="closeCustomModal()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 8px 16px; border-radius: 5px; cursor: pointer;">
+          <i class="fas fa-times me-2"></i>Cancelar
+        </button>
+        <button id="customConfirmDelete" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%); border: none; color: #fff; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+          <i class="fas fa-trash me-2"></i>Eliminar Producto
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>
+{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255,255,255,0.1) !important;
+}
+.product-card {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+.product-card:nth-child(1) { animation-delay: 0.1s; }
+.product-card:nth-child(2) { animation-delay: 0.2s; }
+.product-card:nth-child(3) { animation-delay: 0.3s; }
+.product-card:nth-child(4) { animation-delay: 0.4s; }
+.product-card:nth-child(5) { animation-delay: 0.5s; }
+.product-card:nth-child(n+6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.btn-group .btn {
+  flex: 1;
+  border-color: rgba(255,255,255,0.3) !important;
+  color: #fff !important;
+}
+.btn-group .btn:hover {
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255,255,255,0.5) !important;
+}
+.alert-warning {
+  background: rgba(255,165,0,0.2) !important;
+  border: 1px solid rgba(255,165,0,0.5) !important;
+  color: #fff !important;
+}
+.stats-card {
+  transition: transform 0.3s ease;
+}
+.stats-card:hover {
+  transform: scale(1.05);
+}
+
+/* Estilos para inputs y selects */
+.form-control:focus, .form-select:focus {
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255,255,255,0.5) !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.1) !important;
+}
+
+.form-control::placeholder {
+  color: #888 !important;
+}
+
+.input-group-text {
+  background: rgba(255,255,255,0.1) !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  color: #fff !important;
+}
+
+/* Estilos para modal personalizado */
+.custom-modal-overlay {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.custom-modal-content {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.custom-modal-overlay button {
+  transition: all 0.2s ease;
+}
+
+.custom-modal-overlay button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* 📱 Responsive Design para Móvil */
+@media (max-width: 768px) {
+  /* Estadísticas en móvil */
+  .stats-card {
+    margin-bottom: 1rem !important;
+  }
+
+  .stats-card .card-body {
+    padding: 1rem 0.75rem !important;
+  }
+
+  .stats-card h4 {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .stats-card small {
+    font-size: 0.8rem !important;
+  }
+
+  /* Header de búsqueda en móvil */
+  .card-body {
+    padding: 1rem !important;
+  }
+
+  /* Botones de acción en móvil */
+  .btn-group .btn {
+    padding: 0.375rem 0.5rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  .btn-group .btn i {
+    font-size: 0.875rem !important;
+  }
+
+  /* Modal personalizado en móvil */
+  .custom-modal-content {
+    margin: 10px !important;
+    max-width: none !important;
+    width: calc(100vw - 20px) !important;
+  }
+
+  .custom-modal-body {
+    padding: 1rem !important;
+  }
+
+  .custom-modal-footer {
+    padding: 1rem !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  .custom-modal-footer button {
+    width: 100% !important;
+  }
+
+  /* Imágenes de productos en móvil */
+  .product-card img {
+    height: 150px !important;
+  }
+
+  /* Filtros en móvil */
+  .input-group {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .row.mt-3 .col-md-3,
+  .row.mt-3 .col-md-4 {
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Extra pequeño para móviles muy pequeños */
+  .stats-card h4 {
+    font-size: 1.25rem !important;
+  }
+
+  .custom-modal-content {
+    margin: 5px !important;
+    width: calc(100vw - 10px) !important;
+  }
+
+  .product-card img {
+    height: 120px !important;
+  }
+}
+
+/* Estilos para imágenes de productos */
+.product-card img {
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.05);
+}
+
+.product-card-inner {
+  border-radius: 10px !important;
+  overflow: hidden;
+}
+
+</style>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+function filterProducts() {
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
+  const statusFilter = document.getElementById('statusFilter').value;
+  const cards = document.querySelectorAll('.product-card');
+
+  cards.forEach(card => {
+    const name = card.dataset.name;
+    const category = card.dataset.category;
+    const stock = parseInt(card.dataset.stock);
+    const promo = card.dataset.promo;
+    const discount = parseInt(card.dataset.discount);
+
+    let show = true;
+
+    // Filtro de búsqueda
+    if (searchTerm && !name.includes(searchTerm)) {
+      show = false;
+    }
+
+    // Filtro de categoría
+    if (categoryFilter && category !== categoryFilter) {
+      show = false;
+    }
+
+    // Filtro de estado
+    if (statusFilter) {
+      switch(statusFilter) {
+        case 'low-stock':
+          if (stock >= 6) show = false;
+          break;
+        case 'out-stock':
+          if (stock > 0) show = false;
+          break;
+        case 'promo':
+          if (!promo) show = false;
+          break;
+        case 'discount':
+          if (discount === 0) show = false;
+          break;
+      }
+    }
+
+    card.style.display = show ? 'block' : 'none';
+  });
+
+  // Actualizar contador de resultados
+  const visibleCards = document.querySelectorAll('.product-card[style*="display: block"], .product-card:not([style*="display"])');
+  document.getElementById('resultsCount').textContent = visibleCards.length;
+}
+
+let currentDeleteId = null;
+
+function showCustomModal(id, name) {
+  console.log('Abriendo modal para producto ID:', id, 'Nombre:', name);
+  currentDeleteId = id;
+  document.getElementById('customProductName').textContent = name;
+  document.getElementById('customDeleteModal').style.display = 'block';
+  document.body.style.overflow = 'hidden'; // Prevenir scroll
+  console.log('Modal abierto, currentDeleteId establecido:', currentDeleteId);
+}
+
+function closeCustomModal() {
+  document.getElementById('customDeleteModal').style.display = 'none';
+  document.body.style.overflow = 'auto'; // Restaurar scroll
+  currentDeleteId = null;
+}
+
+document.getElementById('customConfirmDelete').addEventListener('click', function() {
+  console.log('Botón eliminar clickeado, currentDeleteId:', currentDeleteId);
+  if (currentDeleteId) {
+    // Buscar el formulario de diferentes maneras
+    let form = document.getElementById(`deleteForm${currentDeleteId}`);
+    console.log('Búsqueda por ID deleteForm' + currentDeleteId + ':', form);
+
+    if (!form) {
+      // Intentar buscar por action URL
+      const forms = document.querySelectorAll('form');
+      console.log('Total de formularios en página:', forms.length);
+      for (let f of forms) {
+        console.log('Formulario encontrado:', f.id, f.action);
+        if (f.action.includes(`/delete_product/${currentDeleteId}`)) {
+          form = f;
+          break;
+        }
+      }
+    }
+
+    if (form) {
+      console.log('Formulario a enviar:', form.id, form.action);
+      closeCustomModal();
+      setTimeout(() => {
+        console.log('Enviando formulario...');
+        form.submit();
+      }, 300);
+    } else {
+      console.error('No se pudo encontrar formulario para producto ID:', currentDeleteId);
+      alert('Error: No se encontró el formulario de eliminación. Recarga la página e intenta de nuevo.');
+    }
+  } else {
+    console.error('currentDeleteId es null o undefined');
+    alert('Error: ID de producto no válido.');
+  }
+});
+
+// Cerrar modal al hacer click fuera
+document.getElementById('customDeleteModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeCustomModal();
+  }
+});
+
+// Cerrar modal con tecla ESC
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('customDeleteModal').style.display === 'block') {
+    closeCustomModal();
+  }
+});
+
+// Inicializar tooltips
+document.addEventListener('DOMContentLoaded', function() {
+  // Debug: mostrar todos los formularios
+  const allForms = document.querySelectorAll('form');
+  console.log('Formularios encontrados al cargar página:', allForms.length);
+  allForms.forEach((f, i) => {
+    console.log(`Formulario ${i}: ID=${f.id}, Action=${f.action}`);
+  });
+
+  // Inicializar tooltips de Bootstrap
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+
+  // Animación de entrada mejorada
+  const cards = document.querySelectorAll('.product-card');
+  cards.forEach((card, index) => {
+    setTimeout(() => {
+      card.style.opacity = '1';
+    }, index * 100);
+  });
+
+  // Mostrar contador inicial
+  document.getElementById('resultsCount').textContent = {{ products.items|length }};
+});
+</script>
 {% endblock %}

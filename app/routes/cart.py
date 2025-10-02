@@ -255,23 +255,31 @@ def payment_simulated(order_id):
         order.status = 'pagado'
         db.session.commit()
 
-        # Procesar carrito
-        cart = Cart.query.filter_by(user_id=current_user.idUser).first()
-        if cart:
-            for item in cart.items:
-                detail = OrderDetail(
-                    order_id=order.id,
-                    product_id=item.product_id,
-                    quantity=item.quantity,
-                    price=item.price_snapshot
-                )
-                db.session.add(detail)
-                product = Product.query.get(item.product_id)
+        # Procesar carrito solo si el pedido no tiene detalles
+        if not order.details:
+            cart = Cart.query.filter_by(user_id=current_user.idUser).first()
+            if cart:
+                for item in cart.items:
+                    detail = OrderDetail(
+                        order_id=order.id,
+                        product_id=item.product_id,
+                        quantity=item.quantity,
+                        price=item.price_snapshot
+                    )
+                    db.session.add(detail)
+                    product = Product.query.get(item.product_id)
+                    if product:
+                        product.stock = max(0, product.stock - item.quantity)
+                    db.session.delete(item)
+                db.session.delete(cart)
+        else:
+            # Si el pedido ya tiene detalles, reducir stock de los productos
+            for detail in order.details:
+                product = Product.query.get(detail.product_id)
                 if product:
-                    product.stock = max(0, product.stock - item.quantity)
-                db.session.delete(item)
-            db.session.delete(cart)
-            db.session.commit()
+                    product.stock = max(0, product.stock - detail.quantity)
+
+        db.session.commit()
 
         flash('Pago simulado exitoso. ¡Gracias por tu compra!', 'success')
         return redirect(url_for('orders.detail', order_id=order.id))

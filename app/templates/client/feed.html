@@ -399,7 +399,7 @@
 <footer class="footer">
     <div class="footer-title">SAMMS.FO &copy; {{ now().year }} | Tienda Virtual</div>
     <div class="social-links">
-        <a href="#" class="social-link instagram"><i class="fab fa-instagram fa-lg me-2"></i> Instagram</a>
+        <a href="https://www.instagram.com/samms_fo_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="social-link instagram"><i class="fab fa-instagram fa-lg me-2"></i> Instagram</a>
         <a href="#" class="social-link facebook"><i class="fab fa-facebook fa-lg me-2"></i> Facebook</a>
         <a href="#" class="social-link whatsapp"><i class="fab fa-whatsapp fa-lg me-2"></i> WhatsApp</a>
     </div>
@@ -408,6 +408,118 @@
 </footer>
 </div>
 {% endblock %}
+/* Estilos para tema claro */
+body[data-theme="light"] .hero-section {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%) !important;
+  border: 2px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+body[data-theme="light"] .hero-title {
+  background: linear-gradient(90deg, #1a202c 0%, #4a5568 50%, #1a202c 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+body[data-theme="light"] .hero-subtitle {
+  color: #4a5568 !important;
+}
+
+body[data-theme="light"] .feature-item {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(74, 85, 104, 0.2) !important;
+}
+
+body[data-theme="light"] .hero-explore-btn,
+body[data-theme="light"] .hero-shop-btn {
+  background: linear-gradient(90deg, #4a5568 0%, #2d3748 100%) !important;
+  border: 2px solid #4a5568 !important;
+  color: #fff !important;
+}
+
+body[data-theme="light"] .hero-explore-btn:hover,
+body[data-theme="light"] .hero-shop-btn:hover {
+  background: #fff !important;
+  color: #4a5568 !important;
+}
+
+body[data-theme="light"] .product-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 2px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+body[data-theme="light"] .product-title {
+  background: linear-gradient(135deg, #1a202c 0%, #4a5568 50%, #1a202c 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+body[data-theme="light"] .product-price {
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 50%, #4a5568 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+body[data-theme="light"] .btn-outline-primary {
+  border-color: rgba(74, 85, 104, 0.3) !important;
+  color: #4a5568 !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+}
+
+body[data-theme="light"] .btn-outline-primary:hover {
+  background: #4a5568 !important;
+  color: #fff !important;
+  border-color: #4a5568 !important;
+}
+
+body[data-theme="light"] .badge-glow-white {
+  background: linear-gradient(90deg, #4a5568 0%, #2d3748 100%) !important;
+  color: #fff !important;
+  border: 1px solid rgba(74, 85, 104, 0.3) !important;
+}
+
+body[data-theme="light"] .promo-banner {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 2px solid rgba(74, 85, 104, 0.2) !important;
+  color: #1a202c !important;
+}
+
+body[data-theme="light"] .alert-info {
+  background: rgba(74, 85, 104, 0.1) !important;
+  border-color: rgba(74, 85, 104, 0.2) !important;
+  color: #1a202c !important;
+}
+
+body[data-theme="light"] .footer {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%) !important;
+  border-top: 2px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+body[data-theme="light"] .footer-title {
+  color: #1a202c !important;
+}
+
+body[data-theme="light"] .social-link {
+  color: #4a5568 !important;
+  border-color: rgba(74, 85, 104, 0.3) !important;
+}
+
+body[data-theme="light"] .social-link:hover {
+  background: #4a5568 !important;
+  color: #fff !important;
+  border-color: #4a5568 !important;
+}
+
+body[data-theme="light"] .contact-link {
+  color: #4a5568 !important;
+}
+
+body[data-theme="light"] .contact-link:hover {
+  color: #2d3748 !important;
+}
+
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/feed.js') }}"></script>
 {% endblock %}

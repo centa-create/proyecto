@@ -61,11 +61,29 @@ def pay(order_id):
     if order.user_id != current_user.idUser:
         flash('No tienes acceso a este pedido.', 'danger')
         return redirect(url_for('orders.history'))
-    if request.method == 'POST':
-        # Aquí iría la integración real con Stripe, PayPal, MercadoPago, etc.
-        # Por ejemplo, redirigir a la URL de pago o procesar el token de pago.
-        order.status = 'pagado'
-        db.session.commit()
-        flash('Pago simulado exitoso. (Integra aquí tu pasarela real)', 'success')
+
+    # Si el pedido ya está pagado, redirigir al detalle
+    if order.status == 'pagado':
+        flash('Este pedido ya ha sido pagado.', 'info')
         return redirect(url_for('orders.detail', order_id=order.id))
+
+    # Si el pedido no tiene detalles (creado desde simulación), intentar crearlos desde el carrito
+    if not order.details:
+        cart = Cart.query.filter_by(user_id=current_user.idUser).first()
+        if cart and cart.items:
+            # Crear detalles del pedido desde el carrito
+            for item in cart.items:
+                detail = OrderDetail(
+                    order_id=order.id,
+                    product_id=item.product_id,
+                    quantity=item.quantity,
+                    price=item.product.price
+                )
+                db.session.add(detail)
+            db.session.commit()
+
+    if request.method == 'POST':
+        # Redirigir a la pasarela de pago simulada
+        return redirect(url_for('cart.payment_simulated', order_id=order.id))
+
     return render_template('orders/pay.html', order=order)

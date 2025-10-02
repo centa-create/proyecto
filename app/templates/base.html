@@ -107,11 +107,6 @@
                     {% if current_user.role.name == 'ADMIN' %}
                         <li class="nav-item"><a class="nav-link" href="/admin/dashboard">Admin</a></li>
                     {% endif %}
-                    <li class="nav-item d-flex align-items-center">
-                        <button class="theme-toggle-advanced" title="Cambiar tema" aria-label="Cambiar tema">
-                            <span id="themeIcon" class="icon">🌞</span>
-                        </button>
-                    </li>
                     <li class="nav-item"><a class="nav-link" href="/logout">Salir</a></li>
                 {% else %}
                     <li class="nav-item"><a class="nav-link" href="/" title="Ir al inicio"><span class="d-none d-md-inline">Inicio</span> <span class="d-inline d-md-none" style="font-size:1.2em;">🏠</span></a></li>
@@ -132,13 +127,39 @@
     {% endwith %}
     {% block content %}{% endblock %}
 </div>
+<!-- Botón de cambio de tema posicionado fuera del navbar -->
+<button class="theme-toggle-advanced"
+        title="Cambiar entre tema claro y oscuro"
+        aria-label="Cambiar tema de la aplicación"
+        data-bs-toggle="tooltip"
+        data-bs-placement="right">
+    <span id="themeIcon" class="icon">🌞</span>
+</button>
+
 <script src="{{ url_for('static', filename='js/change-theme-advanced.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{{ url_for('static', filename='js/base.js') }}?v={{ config.get('VERSION', '1.0') }}" defer></script>
 {% block scripts %}{% endblock %}
 <script src="{{ url_for('static', filename='js/star-bg.js') }}"></script>
 <script>
+// Función de debug para verificar el estado del tema (accesible desde consola)
+window.debugTheme = function() {
+  const status = window.checkThemeStatus();
+  console.table(status);
 
+  // Mostrar información visual en la página
+  const debugInfo = document.createElement('div');
+  debugInfo.innerHTML = `
+    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.9); color: #fff; padding: 20px; border-radius: 10px;
+                font-family: monospace; z-index: 10000; max-width: 400px;">
+      <h4>🎨 Debug Info - Theme System</h4>
+      <pre>${JSON.stringify(status, null, 2)}</pre>
+      <button onclick="this.parentElement.remove()" style="margin-top: 10px;">Cerrar</button>
+    </div>
+  `;
+  document.body.appendChild(debugInfo);
+};
 </script>
 
 </body>

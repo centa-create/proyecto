@@ -13,7 +13,7 @@
                     📅 <strong>Fecha:</strong> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}
                 </div>
                 <div class="meta-item">
-                    💰 <strong>Total:</strong> {{ (order.total * 4000)|int|string|replace(',', '.') }} COP
+                    💰 <strong>Total:</strong> {{ (order.total)|int|string|replace(',', '.') }} COP
                 </div>
                 <div class="meta-item">
                     📦 <strong>Productos:</strong> {{ order.details|length }}
@@ -45,11 +45,11 @@
                         </div>
                         <div class="detail-row">
                             <span class="label">Precio unitario:</span>
-                            <span class="value">{{ (detail.price * 4000)|int|string|replace(',', '.') }} COP</span>
+                            <span class="value">{{ (detail.price)|int|string|replace(',', '.') }} COP</span>
                         </div>
                         <div class="detail-row total-row">
                             <span class="label">Subtotal:</span>
-                            <span class="value">{{ (detail.quantity * detail.price * 4000)|int|string|replace(',', '.') }} COP</span>
+                            <span class="value">{{ (detail.quantity * detail.price)|int|string|replace(',', '.') }} COP</span>
                         </div>
                     </div>
                 </div>
@@ -62,7 +62,7 @@
         <div class="total-summary">
             <div class="total-row">
                 <span class="total-label">Total del pedido:</span>
-                <span class="total-amount">{{ (order.total * 4000)|int|string|replace(',', '.') }} COP</span>
+                <span class="total-amount">{{ (order.total)|int|string|replace(',', '.') }} COP</span>
             </div>
         </div>
     </div>

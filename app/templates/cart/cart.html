@@ -107,6 +107,75 @@
         from { opacity: 0; transform: translateY(30px); }
         to { opacity: 1; transform: none; }
     }
+    /* Estilos para tema claro */
+    body[data-theme="light"] .cart-container {
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 2px solid rgba(0, 0, 0, 0.1) !important;
+    }
+
+    body[data-theme="light"] .cart-title {
+        color: #1a202c !important;
+        text-shadow: 0 2px 12px rgba(74, 85, 104, 0.3) !important;
+    }
+
+    body[data-theme="light"] .table {
+        background: rgba(255, 255, 255, 0.9) !important;
+        color: #1a202c !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+
+    body[data-theme="light"] .table th,
+    body[data-theme="light"] .table td {
+        color: #1a202c !important;
+        border-color: rgba(0, 0, 0, 0.1) !important;
+    }
+
+    body[data-theme="light"] .table thead {
+        background: rgba(248, 250, 252, 0.9) !important;
+        color: #1a202c !important;
+    }
+
+    body[data-theme="light"] .cart-total {
+        color: #1a202c !important;
+        text-shadow: 0 2px 12px rgba(74, 85, 104, 0.3) !important;
+    }
+
+    body[data-theme="light"] .cart-empty-message {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 2px solid rgba(74, 85, 104, 0.2) !important;
+        color: #1a202c !important;
+    }
+
+    body[data-theme="light"] .cart-empty-icon {
+        color: #4a5568 !important;
+        text-shadow: 0 0 16px rgba(74, 85, 104, 0.3) !important;
+    }
+
+    body[data-theme="light"] .cart-empty-title {
+        color: #1a202c !important;
+        text-shadow: 0 0 8px rgba(74, 85, 104, 0.2) !important;
+    }
+
+    body[data-theme="light"] .cart-empty-desc {
+        color: #4a5568 !important;
+    }
+
+    body[data-theme="light"] .btn-yellow-glow {
+        border-color: #4a5568 !important;
+        color: #4a5568 !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+        box-shadow: 0 0 12px rgba(74, 85, 104, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        text-shadow: 0 0 8px rgba(74, 85, 104, 0.2) !important;
+    }
+
+    body[data-theme="light"] .btn-yellow-glow:focus,
+    body[data-theme="light"] .btn-yellow-glow:hover {
+        box-shadow: 0 0 32px 8px rgba(74, 85, 104, 0.5), 0 4px 32px rgba(0, 0, 0, 0.15) !important;
+        color: #fff !important;
+        background: #4a5568 !important;
+        border: 2px solid #4a5568 !important;
+    }
+
     @media (max-width: 768px) {
         .cart-container {
             padding: 1rem;
@@ -165,12 +234,12 @@ async function refreshCartUI() {
     list.innerHTML += `<tr>
       <td>${item.name}</td>
       <td><input type="number" min="1" value="${item.quantity}" onchange="updateCartItem(${item.id}, this.value)" style="width:60px;"></td>
-  <td>${(item.price_snapshot * 4000).toLocaleString('es-CO')} COP</td>
-  <td>${(subtotal * 4000).toLocaleString('es-CO')} COP</td>
+  <td>${item.price_snapshot.toLocaleString('es-CO')} COP</td>
+  <td>${subtotal.toLocaleString('es-CO')} COP</td>
       <td><button class="btn btn-danger btn-sm" onclick="removeFromCart(${item.id})">Eliminar</button></td>
     </tr>`;
   });
-  totalElem.textContent = "Total: " + (total * 4000).toLocaleString('es-CO') + " COP";
+  totalElem.textContent = "Total: " + total.toLocaleString('es-CO') + " COP";
   document.getElementById("checkoutBtn").disabled = false;
 }
 

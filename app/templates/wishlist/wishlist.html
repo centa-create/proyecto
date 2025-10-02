@@ -300,6 +300,137 @@
         from { opacity: 0; transform: translateY(30px); }
         to { opacity: 1; transform: translateY(0); }
     }
+    /* Estilos para tema claro */
+    body[data-theme="light"] .wishlist-hero {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%) !important;
+        border: 2px solid rgba(0, 0, 0, 0.1) !important;
+    }
+
+    body[data-theme="light"] .wishlist-title {
+        background: linear-gradient(90deg, #1a202c 0%, #4a5568 50%, #1a202c 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+    }
+
+    body[data-theme="light"] .wishlist-subtitle {
+        color: #4a5568 !important;
+    }
+
+    body[data-theme="light"] .stat-item {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid rgba(74, 85, 104, 0.2) !important;
+    }
+
+    body[data-theme="light"] .stat-number {
+        color: #1a202c !important;
+    }
+
+    body[data-theme="light"] .stat-label {
+        color: #4a5568 !important;
+    }
+
+    body[data-theme="light"] .wishlist-item {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%) !important;
+        border: 2px solid rgba(0, 0, 0, 0.1) !important;
+        color: #1a202c !important;
+    }
+
+    body[data-theme="light"] .wishlist-item:hover {
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15), 0 4px 24px rgba(0, 0, 0, 0.1) !important;
+        border-color: rgba(74, 85, 104, 0.3) !important;
+    }
+
+    body[data-theme="light"] .product-name {
+        background: linear-gradient(90deg, #1a202c 0%, #4a5568 50%, #1a202c 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+    }
+
+    body[data-theme="light"] .product-price {
+        background: linear-gradient(90deg, #4a5568 0%, #2d3748 50%, #4a5568 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+    }
+
+    body[data-theme="light"] .badge-glow-white {
+        background: linear-gradient(90deg, #4a5568 0%, #2d3748 100%) !important;
+        color: #fff !important;
+        border: 1px solid rgba(74, 85, 104, 0.3) !important;
+    }
+
+    body[data-theme="light"] .btn-view {
+        border-color: rgba(74, 85, 104, 0.3) !important;
+        color: #4a5568 !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    body[data-theme="light"] .btn-view:hover {
+        background: #4a5568 !important;
+        color: #fff !important;
+        border-color: #4a5568 !important;
+    }
+
+    body[data-theme="light"] .btn-remove {
+        border-color: #e53e3e !important;
+        background: linear-gradient(90deg, #e53e3e 0%, #c53030 100%) !important;
+    }
+
+    body[data-theme="light"] .btn-remove:hover {
+        background: #fff !important;
+        color: #e53e3e !important;
+        border-color: #e53e3e !important;
+    }
+
+    body[data-theme="light"] .share-section {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid rgba(74, 85, 104, 0.2) !important;
+    }
+
+    body[data-theme="light"] .share-title {
+        color: #1a202c !important;
+    }
+
+    body[data-theme="light"] .share-input {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 2px solid rgba(74, 85, 104, 0.3) !important;
+        color: #1a202c !important;
+    }
+
+    body[data-theme="light"] .share-input:focus {
+        border-color: #4a5568 !important;
+    }
+
+    body[data-theme="light"] .share-hint {
+        color: #4a5568 !important;
+    }
+
+    body[data-theme="light"] .empty-wishlist {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 2px solid rgba(74, 85, 104, 0.2) !important;
+    }
+
+    body[data-theme="light"] .empty-title {
+        color: #1a202c !important;
+    }
+
+    body[data-theme="light"] .empty-text {
+        color: #4a5568 !important;
+    }
+
+    body[data-theme="light"] .btn-explore {
+        background: linear-gradient(90deg, #4a5568 0%, #2d3748 100%) !important;
+        color: #fff !important;
+        border: 2px solid #4a5568 !important;
+    }
+
+    body[data-theme="light"] .btn-explore:hover {
+        background: #fff !important;
+        color: #4a5568 !important;
+    }
+
     @media (max-width: 768px) {
         .wishlist-container {
             grid-template-columns: 1fr;
@@ -341,7 +472,7 @@
             <span class="stat-label">Productos</span>
         </div>
         <div class="stat-item">
-            <span class="stat-number">{{ (items|sum(attribute='product.price') * 4000)|int|string|replace(',', '.') }}</span>
+            <span class="stat-number">{{ (items|sum(attribute='product.price'))|int|string|replace(',', '.') }}</span>
             <span class="stat-label">Valor Total</span>
         </div>
     </div>
