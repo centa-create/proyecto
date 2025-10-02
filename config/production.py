@@ -46,9 +46,9 @@ class ProductionConfig(Config):
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER")
 
-    # Sesión segura para producción (filesystem para simplicidad sin Redis)
+    # Sesión filesystem para producción
     SESSION_TYPE = "filesystem"
-    SESSION_FILE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "instance", "sessions")
+    SESSION_FILE_DIR = "/tmp/flask_sessions"
 
     # Configuración de seguridad adicional
     SECRET_KEY = os.getenv("SECRET_KEY")

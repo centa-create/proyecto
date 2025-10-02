@@ -13,6 +13,7 @@ from flask import (
     request, flash, current_app
 )
 from flask_login import login_required, current_user
+from app.extensions import csrf
 from app import db
 from app.models.cart import Cart, CartItem
 from app.models.products import Product
@@ -145,6 +146,7 @@ def checkout():
 
 @cart_bp.route('/payment', methods=['GET', 'POST'])
 @login_required
+@csrf.exempt
 def payment():
     """Maneja la selección y procesamiento del método de pago."""
     cart = Cart.query.filter_by(user_id=current_user.idUser).first()
@@ -246,6 +248,7 @@ def payment():
 
 @cart_bp.route('/payment/simulated/<int:order_id>', methods=['GET', 'POST'])
 @login_required
+@csrf.exempt
 def payment_simulated(order_id):
     """Maneja el pago simulado para pruebas."""
     order = Order.query.get_or_404(order_id)

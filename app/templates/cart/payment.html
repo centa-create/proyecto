@@ -3,7 +3,6 @@
 <h2>Selecciona tu método de pago</h2>
 <p><strong>Total a pagar:</strong> <span style="font-size:1.2em;color:#0074D9;">${{ total }}</span></p>
 <form method="post">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <div style="margin-bottom:10px;">
     <input type="radio" id="simulada" name="metodo_pago" value="simulada" required checked>
     <label for="simulada"><span style="color:#2ecc40;font-weight:bold;">Pasarela Simulada (Demo)</span></label>
