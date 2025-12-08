@@ -48,7 +48,7 @@ Jinja2==3.1.4
 MarkupSafe==3.0.2
 SQLAlchemy==2.0.36
 typing_extensions==4.12.2
-Werkzeug==3.1.3
+Werkzeug==3.1.4
 Flask-Dance[facebook]
 Flask-SocketIO
 # PayU será usado en lugar de Stripe
